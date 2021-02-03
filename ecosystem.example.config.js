@@ -12,7 +12,7 @@ const env = {
 module.exports = {
   apps: [
     {
-      name: 'server',
+      name: 'upsignon-pro-server',
       script: './compiled/server.js',
       env,
       instances: 1,
@@ -24,7 +24,7 @@ module.exports = {
       source_map_support: true,
     },
     {
-      name: 'migrate-down',
+      name: 'upsignon-pro-db-migrate-down',
       script: './scripts/migrateDown.js',
       env,
       error_file: './logs/db-error.log',
@@ -32,7 +32,7 @@ module.exports = {
       autorestart: false,
     },
     {
-      name: 'migrate',
+      name: 'upsignon-pro-db-migrate',
       script: './scripts/migrateUp.js',
       env,
       error_file: './logs/db-error.log',
