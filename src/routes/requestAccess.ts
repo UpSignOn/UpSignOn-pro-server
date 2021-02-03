@@ -20,7 +20,7 @@ export const requestAccess = async (req: any, res: any) => {
     const deviceAccessCode = req.body?.deviceAccessCode;
 
     // Check params
-    if (!userEmail) return res.status(401).end();
+    if (!userEmail || userEmail.indexOf('@') === -1) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceName) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
@@ -28,6 +28,18 @@ export const requestAccess = async (req: any, res: any) => {
     // Request DB
     let userRes = await db.query('SELECT id FROM users WHERE email=$1', [userEmail]);
     if (userRes.rowCount === 0) {
+      // make sure email address is allowed
+      const emailRes = await db.query('SELECT pattern from allowed_emails');
+      if (
+        !emailRes.rows.some((emailPattern) => {
+          if (emailPattern.pattern.indexOf('*@')) {
+            return userEmail.split('@')[1] === emailPattern.pattern.replace('*@', '');
+          } else {
+            return userEmail === emailPattern.pattern;
+          }
+        })
+      )
+        return res.status(401).json({ error: 'email_address_not_allowed' });
       userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING id', [userEmail]);
     }
     const userId = userRes.rows[0].id;
