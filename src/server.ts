@@ -3,6 +3,7 @@ import { startServer } from './helpers/serverProcess';
 import { requestAccess } from './requestAccess';
 import { checkDevice } from './checkDevice';
 import { getData } from './getData';
+import { updateData } from './updateData';
 
 const app = express();
 app.disable('x-powered-by');
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/request-access', requestAccess);
 app.get('/check-device', checkDevice);
 app.post('/get-data', getData);
+app.post('/update-data', updateData);
 
 if (module === require.main) {
   startServer(app);
