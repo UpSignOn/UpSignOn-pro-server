@@ -24,7 +24,9 @@ export const checkDevice = async (req: any, res: any) => {
     )
       return res.status(200).send("<p>Erreur : ce lien n'est plus valide.</p>");
     if (isExpired(dbRes.rows[0].auth_code_expiration_date))
-      return res.status(200).send('<p>Erreur : ce lien a expiré.</p>');
+      return res
+        .status(200)
+        .send('<p>Erreur : ce lien a expiré, veuillez renouveller la demande dans UpSignOn.</p>');
 
     return res
       .status(200)
