@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from './helpers/connection';
-import { accessCodeHash } from './helpers/accessCodeHash';
-import { getExpirationDate, isExpired } from './helpers/dateHelper';
+import { db } from '../helpers/connection';
+import { accessCodeHash } from '../helpers/accessCodeHash';
+import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request

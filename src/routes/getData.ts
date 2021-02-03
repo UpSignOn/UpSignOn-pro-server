@@ -1,20 +1,18 @@
-import { db } from './helpers/connection';
-import { accessCodeHash } from './helpers/accessCodeHash';
+import { db } from '../helpers/connection';
+import { accessCodeHash } from '../helpers/accessCodeHash';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const updateData = async (req: any, res: any): Promise<void> => {
+export const getData = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
     const userEmail = req.body?.userEmail;
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
-    const newEncryptedData = req.body?.newEncryptedData;
 
     // Check params
     if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
-    if (!newEncryptedData) return res.status(401).end();
 
     // Request DB
     const dbRes = await db.query(
@@ -23,7 +21,8 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(404).end();
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') return res.status(401).end();
+    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
+      return res.status(401).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(
@@ -32,11 +31,6 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
-    // Update DB
-    await db.query('UPDATE users SET encrypted_data=$1 WHERE users.email=$2', [
-      newEncryptedData,
-      userEmail,
-    ]);
     // Return res
     return res.status(200).json({ encryptedData: dbRes.rows[0].encrypted_data });
   } catch (e) {

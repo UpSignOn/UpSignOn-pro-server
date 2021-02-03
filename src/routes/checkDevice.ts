@@ -1,5 +1,5 @@
-import { db } from './helpers/connection';
-import { isExpired } from './helpers/dateHelper';
+import { db } from '../helpers/connection';
+import { isExpired } from '../helpers/dateHelper';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice = async (req: any, res: any) => {

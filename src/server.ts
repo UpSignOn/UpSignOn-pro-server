@@ -1,9 +1,9 @@
 import express from 'express';
 import { startServer } from './helpers/serverProcess';
-import { requestAccess } from './requestAccess';
-import { checkDevice } from './checkDevice';
-import { getData } from './getData';
-import { updateData } from './updateData';
+import { requestAccess } from './routes/requestAccess';
+import { checkDevice } from './routes/checkDevice';
+import { getData } from './routes/getData';
+import { updateData } from './routes/updateData';
 
 const app = express();
 app.disable('x-powered-by');
