@@ -28,6 +28,10 @@ export const checkDevice = async (req: any, res: any) => {
         .status(200)
         .send('<p>Erreur : ce lien a expiré, veuillez renouveller la demande dans UpSignOn.</p>');
 
+    await db.query(
+      "UPDATE user_devices SET (authorization_status, authorization_code, auth_code_expiration_date) = ('AUTHORIZED', null, null) WHERE id=$1",
+      [requestId],
+    );
     return res
       .status(200)
       .send(
