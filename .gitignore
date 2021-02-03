@@ -1,0 +1,10 @@
+node_modules
+db-logs
+compiled
+logs
+*.key
+*.crt
+*.csr
+*.cer
+ecosystem.*.config.js
+!ecosystem.example.config.js

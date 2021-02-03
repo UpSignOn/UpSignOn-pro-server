@@ -1,0 +1,7 @@
+{
+  "prettier.printWidth": 100,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+}

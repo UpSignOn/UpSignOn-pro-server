@@ -1,0 +1,24 @@
+{
+  "name": "upsignon-pro-server",
+  "version": "1.0.0",
+  "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
+  "scripts": {
+    "build": "rm -rf compiled && tsc -p ."
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "express": "^4.17.1",
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/express": "^4.17.11",
+    "@types/pg": "^7.14.9",
+    "@typescript-eslint/eslint-plugin": "^4.14.2",
+    "@typescript-eslint/parser": "^4.14.2",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.3"
+  }
+}
