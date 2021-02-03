@@ -62,5 +62,6 @@
   },
   "include":[
     "src"
-  ]
+  ],
+  "compileOnSave": true
 }
