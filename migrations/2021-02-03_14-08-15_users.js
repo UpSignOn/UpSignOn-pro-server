@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'CREATE TABLE users (' +
+    'CREATE TABLE IF NOT EXISTS users (' +
       'id SERIAL,' +
       'email varchar(128) PRIMARY KEY,' +
       'encrypted_data TEXT,' +

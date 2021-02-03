@@ -3,9 +3,9 @@ const env = {
   DB_PASS: 'db-password',
   DB_NAME: 'upsignonpro',
   DB_HOST: 'localhost',
-  DB_PORT: 5432,
+  DB_PORT: '5432',
   NODE_ENV: 'production',
-  SERVER_PORT: 3000,
+  SERVER_PORT: '3000',
   CERTIFICATE_DIR_PATH: '',
 };
 
