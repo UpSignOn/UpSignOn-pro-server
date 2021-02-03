@@ -1,11 +1,8 @@
 import { db } from './helpers/connection';
 import { accessCodeHash } from './helpers/accessCodeHash';
 
-/**
- * @param req
- * @param res
- */
-export const getData = async (req: any, res: any) => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+export const getData = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
     const userEmail = req.body?.userEmail;
@@ -37,7 +34,7 @@ export const getData = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ encryptedData: dbRes.rows[0].encrypted_data });
   } catch (e) {
-    res.status(400).end();
-    return;
+    console.log(e);
+    return res.status(400).end();
   }
 };

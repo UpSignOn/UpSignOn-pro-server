@@ -10,10 +10,7 @@ import { getExpirationDate, isExpired } from './helpers/dateHelper';
 //      - if the request is still pending or already accepted, return 401 with status
 //      - if the request has expired, generate a new one
 
-/**
- * @param req
- * @param res
- */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestAccess = async (req: any, res: any) => {
   try {
     // Get params
