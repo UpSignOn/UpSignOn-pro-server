@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
+import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -9,6 +10,13 @@ import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 // - if I request access for an existing user and an existing device
 //      - if the request is still pending or already accepted, return 401 with status
 //      - if the request has expired, generate a new one
+
+// returns
+// - 400 if an error occured
+// - 401 if the request was malformed
+// - 401 with authorizationStatus = "PENDING"|"AUTHORIZED" (with mail resent)
+// - 401 with error = email_address_not_allowed
+// - 204
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestAccess = async (req: any, res: any) => {
@@ -32,7 +40,7 @@ export const requestAccess = async (req: any, res: any) => {
       const emailRes = await db.query('SELECT pattern from allowed_emails');
       if (
         !emailRes.rows.some((emailPattern) => {
-          if (emailPattern.pattern.indexOf('*@')) {
+          if (emailPattern.pattern.indexOf('*@') === 0) {
             return userEmail.split('@')[1] === emailPattern.pattern.replace('*@', '');
           } else {
             return userEmail === emailPattern.pattern;
@@ -45,7 +53,7 @@ export const requestAccess = async (req: any, res: any) => {
     const userId = userRes.rows[0].id;
 
     const deviceRes = await db.query(
-      'SELECT authorization_status, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2',
+      'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2',
       [userId, deviceId],
     );
 
@@ -54,15 +62,26 @@ export const requestAccess = async (req: any, res: any) => {
       (deviceRes.rows[0].authorization_status !== 'PENDING' ||
         !isExpired(deviceRes.rows[0].auth_code_expiration_date))
     ) {
+      if (deviceRes.rows[0].authorization_status === 'PENDING') {
+        // resend email
+        await sendDeviceRequestEmail(
+          userEmail,
+          deviceName,
+          req.hostname,
+          deviceRes.rows[0].id,
+          deviceRes.rows[0].authorization_code,
+        );
+      }
       return res.status(401).json({ authorizationStatus: deviceRes.rows[0].authorization_status });
     }
 
     const hashedAccessCode = await accessCodeHash.asyncHash(deviceAccessCode);
     const randomAuthorizationCode = uuidv4();
     const expirationDate = getExpirationDate();
+    let requestId;
     if (deviceRes.rowCount === 0) {
-      await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      const insertRes = await db.query(
+        'INSERT INTO user_devices (user_id, device_name, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
         [
           userId,
           deviceName,
@@ -73,9 +92,10 @@ export const requestAccess = async (req: any, res: any) => {
           expirationDate,
         ],
       );
+      requestId = insertRes.rows[0].id;
     } else {
-      await db.query(
-        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7',
+      const updateRes = await db.query(
+        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 RETURNING id',
         [
           deviceName,
           hashedAccessCode,
@@ -86,14 +106,21 @@ export const requestAccess = async (req: any, res: any) => {
           deviceId,
         ],
       );
+      requestId = updateRes.rows[0].id;
     }
 
-    // TODO Send mail
+    await sendDeviceRequestEmail(
+      userEmail,
+      deviceName,
+      req.hostname,
+      requestId,
+      randomAuthorizationCode,
+    );
 
     // Return res
-    return res.status(200).end();
+    return res.status(204).end();
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(400).end();
   }
 };

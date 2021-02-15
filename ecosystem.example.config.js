@@ -7,6 +7,10 @@ const env = {
   NODE_ENV: 'production',
   SERVER_PORT: '3000',
   CERTIFICATE_DIR_PATH: '',
+  EMAIL_HOST: 'smtp.domain.fr',
+  EMAIL_PORT: '587',
+  EMAIL_USER: 'user@domain.fr',
+  EMAIL_PASS: 'password',
 };
 
 module.exports = {

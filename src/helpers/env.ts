@@ -7,15 +7,23 @@ const {
   NODE_ENV,
   SERVER_PORT,
   CERTIFICATE_DIR_PATH,
+  EMAIL_HOST,
+  EMAIL_PORT,
+  EMAIL_USER,
+  EMAIL_PASS,
 } = process.env;
 
 export default {
   IS_PRODUCTION: NODE_ENV === 'production',
   DB_HOST,
-  DB_PORT: DB_PORT ? Number.parseInt(DB_PORT): 5432,
+  DB_PORT: DB_PORT ? Number.parseInt(DB_PORT) : 5432,
   DB_USER,
   DB_NAME,
   DB_PASS,
-  SERVER_PORT: SERVER_PORT ? Number.parseInt(SERVER_PORT): 3000,
+  SERVER_PORT: SERVER_PORT ? Number.parseInt(SERVER_PORT) : 3000,
   CERTIFICATE_DIR_PATH,
+  EMAIL_HOST,
+  EMAIL_PORT: EMAIL_PORT ? Number.parseInt(EMAIL_PORT) : 587,
+  EMAIL_USER,
+  EMAIL_PASS,
 };

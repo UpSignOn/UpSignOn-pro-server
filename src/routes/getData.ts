@@ -34,7 +34,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     // Return res
     return res.status(200).json({ encryptedData: dbRes.rows[0].encrypted_data });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return res.status(400).end();
   }
 };

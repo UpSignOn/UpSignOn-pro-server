@@ -19,6 +19,10 @@
         "DB_PORT": "5432",
         "NODE_ENV": "development",
         "SERVER_PORT": "3000",
+        "EMAIL_HOST": "smtp.ionos.fr",
+        "EMAIL_PORT": "465",
+        "EMAIL_USER": "no-reply@upsignon.eu",
+        "EMAIL_PASS": "rYjgon-qyswuv-5hasni",
       },
       "args": ["--inspect"]
     }
