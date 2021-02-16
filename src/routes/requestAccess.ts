@@ -3,6 +3,7 @@ import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
+import env from '../helpers/env';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -67,7 +68,7 @@ export const requestAccess = async (req: any, res: any) => {
         await sendDeviceRequestEmail(
           userEmail,
           deviceName,
-          req.hostname,
+          env.API_PUBLIC_HOSTNAME,
           deviceRes.rows[0].id,
           deviceRes.rows[0].authorization_code,
         );
@@ -112,7 +113,7 @@ export const requestAccess = async (req: any, res: any) => {
     await sendDeviceRequestEmail(
       userEmail,
       deviceName,
-      req.hostname,
+      env.API_PUBLIC_HOSTNAME,
       requestId,
       randomAuthorizationCode,
     );
