@@ -1,6 +1,14 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 
+/**
+ * Returns
+ * - 401 or 400
+ * - 404 if no user found
+ * - 401 with authorizationStatus="PENDING"
+ * - 200 with encryptedData
+ */
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
@@ -16,13 +24,13 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_device.authorization_status AS authorization_status, user_device.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
       [userEmail, deviceId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(404).end();
+    if (!dbRes || dbRes.rowCount === 0) return res.status(404).json({ error: 'revoked' });
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
-      return res.status(401).json({ authorizationStatus: dbRes.rows[0].authorization_status });
+      return res.status(200).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(

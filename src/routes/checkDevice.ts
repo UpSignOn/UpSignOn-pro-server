@@ -1,6 +1,13 @@
 import { db } from '../helpers/connection';
 import { isExpired } from '../helpers/dateHelper';
 
+/**
+ * Returns
+ * - 200 invalid link
+ * - 200 expired link
+ * - 200 success
+ * - 400
+ */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice = async (req: any, res: any) => {
   try {

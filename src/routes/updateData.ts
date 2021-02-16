@@ -18,7 +18,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_device.authorization_status AS authorization_status, user_device.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
       [userEmail, deviceId],
     );
 
