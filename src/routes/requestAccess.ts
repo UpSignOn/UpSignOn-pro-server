@@ -73,7 +73,7 @@ export const requestAccess = async (req: any, res: any) => {
           deviceRes.rows[0].authorization_code,
         );
       }
-      return res.status(401).json({ authorizationStatus: deviceRes.rows[0].authorization_status });
+      return res.status(200).json({ authorizationStatus: deviceRes.rows[0].authorization_status });
     }
 
     const hashedAccessCode = await accessCodeHash.asyncHash(deviceAccessCode);

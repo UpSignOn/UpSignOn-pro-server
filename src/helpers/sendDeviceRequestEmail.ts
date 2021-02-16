@@ -20,7 +20,7 @@ export const sendDeviceRequestEmail = async (
     };
     const transporter = nodemailer.createTransport(transportOptions);
 
-    const link = `https://${hostname}?requestId=${requestId}&requestToken=${requestToken}`;
+    const link = `https://${hostname}/check-device?requestId=${requestId}&requestToken=${requestToken}`;
     transporter.sendMail({
       from: env.EMAIL_USER,
       to: emailAddress,
