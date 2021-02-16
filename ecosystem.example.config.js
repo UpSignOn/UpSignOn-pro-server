@@ -5,6 +5,7 @@ const env = {
   DB_HOST: 'localhost',
   DB_PORT: '5432',
   NODE_ENV: 'production',
+  API_PUBLIC_HOSTNAME: 'https://monptitshop.eu',
   SERVER_PORT: '3000',
   CERTIFICATE_DIR_PATH: '',
   EMAIL_HOST: 'smtp.domain.fr',

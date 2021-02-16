@@ -8,4 +8,4 @@ logs
 *.cer
 ecosystem.*.config.js
 !ecosystem.example.config.js
-env.dev.json
+*vscode/launch.json
