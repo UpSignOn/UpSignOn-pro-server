@@ -9,6 +9,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const newEncryptedData = req.body?.newEncryptedData;
+    const isNewData = req.body?.isNewData;
 
     // Check params
     if (!userEmail) return res.status(401).end();
@@ -33,12 +34,16 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     if (!isAccessGranted) return res.status(401).end();
 
     // Update DB
+    if (isNewData && !!dbRes.rows[0].encrypted_data) {
+      // a security to increase resilience in case the app contained a bug and tried to update the user's space with empty data
+      console.error('Attempted to init user data where data already exists.');
+      return res.status(400).end();
+    }
     await db.query('UPDATE users SET encrypted_data=$1 WHERE users.email=$2', [
       newEncryptedData,
       userEmail,
     ]);
-    // Return res
-    return res.status(200).json({ encryptedData: dbRes.rows[0].encrypted_data });
+    return res.status(204).end();
   } catch (e) {
     console.error(e);
     return res.status(400).end();
