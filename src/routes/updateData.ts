@@ -9,6 +9,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const newEncryptedData = req.body?.newEncryptedData;
+    const lastUpdateDate = req.body?.lastUpdateDate;
     const isNewData = req.body?.isNewData;
 
     // Check params
@@ -16,6 +17,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
     if (!newEncryptedData) return res.status(401).end();
+    if (!isNewData && !lastUpdateDate) return res.status(401).end();
 
     // Request DB
     const dbRes = await db.query(
@@ -39,11 +41,23 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       console.error('Attempted to init user data where data already exists.');
       return res.status(400).end();
     }
-    await db.query('UPDATE users SET encrypted_data=$1 WHERE users.email=$2', [
-      newEncryptedData,
-      userEmail,
-    ]);
-    return res.status(204).end();
+    if (isNewData) {
+      await db.query(
+        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2',
+        [newEncryptedData, userEmail],
+      );
+      return res.status(204).end();
+    } else {
+      const updateRes = await db.query(
+        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS DATE) RETURNING updated_at',
+        [newEncryptedData, userEmail, lastUpdateDate],
+      );
+      if (updateRes.rowCount === 0) {
+        // CONFLICT
+        return res.status(409).end();
+      }
+      return res.status(204).json({ lastUpdateDate: updateRes.rows[0].updated_at });
+    }
   } catch (e) {
     console.error(e);
     return res.status(400).end();

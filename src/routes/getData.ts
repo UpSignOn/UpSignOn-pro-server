@@ -24,7 +24,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
       [userEmail, deviceId],
     );
 
@@ -40,7 +40,10 @@ export const getData = async (req: any, res: any): Promise<void> => {
     if (!isAccessGranted) return res.status(401).end();
 
     // Return res
-    return res.status(200).json({ encryptedData: dbRes.rows[0].encrypted_data });
+    return res.status(200).json({
+      encryptedData: dbRes.rows[0].encrypted_data,
+      lastUpdateDate: dbRes.rows[0].updated_at,
+    });
   } catch (e) {
     console.error(e);
     return res.status(400).end();
