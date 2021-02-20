@@ -17,7 +17,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
     if (!newEncryptedData) return res.status(401).end();
-    if (!isNewData && !lastUpdateDate) return res.status(401).end();
+    if (!isNewData && !lastUpdateDate) return res.status(409).end(); // Behave like a CONFLICT
 
     // Request DB
     const dbRes = await db.query(
@@ -49,7 +49,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       return res.status(204).end();
     } else {
       const updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS DATE) RETURNING updated_at',
+        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
         [newEncryptedData, userEmail, lastUpdateDate],
       );
       if (updateRes.rowCount === 0) {
