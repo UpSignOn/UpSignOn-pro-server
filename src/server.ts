@@ -6,6 +6,7 @@ import { getData } from './routes/getData';
 import { updateData } from './routes/updateData';
 import { getConfig } from './routes/getConfig';
 import { getUrlList } from './routes/getUrlList';
+import { removeAuthorization } from './routes/removeAuthorization';
 
 const app = express();
 app.disable('x-powered-by');
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/config', getConfig);
 app.post('/url-list', getUrlList);
 app.post('/request-access', requestAccess);
+app.post('/remove-authorization', removeAuthorization);
 app.get('/check-device', checkDevice);
 app.post('/get-data', getData);
 app.post('/update-data', updateData);
