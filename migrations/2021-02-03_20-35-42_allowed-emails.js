@@ -5,5 +5,5 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.query('DROP TABLE allowed_emails');
+  return db.query('DROP TABLE IF EXISTS allowed_emails');
 };

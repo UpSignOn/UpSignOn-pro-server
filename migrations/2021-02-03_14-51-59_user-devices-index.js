@@ -5,5 +5,5 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.query('DROP INDEX user_device_index');
+  return db.query('DROP INDEX IF EXISTS user_device_index');
 };

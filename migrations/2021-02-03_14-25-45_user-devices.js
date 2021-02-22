@@ -17,5 +17,5 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-  return db.query('DROP TABLE user_devices');
+  return db.query('DROP TABLE IF EXISTS user_devices');
 };
