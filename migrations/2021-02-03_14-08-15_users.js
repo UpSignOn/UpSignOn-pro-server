@@ -3,10 +3,11 @@
 exports.up = function (db) {
   return db.query(
     'CREATE TABLE IF NOT EXISTS users (' +
-      'id SERIAL,' +
-      'email varchar(128) PRIMARY KEY,' +
+      'id SERIAL PRIMARY KEY,' +
+      'email varchar(128) UNIQUE,' +
       'encrypted_data TEXT,' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0)' +
+      'created_at timestamp without time zone DEFAULT current_timestamp(0),' +
+      'updated_at timestamp without time zone DEFAULT current_timestamp(0)' +
       ')',
   );
 };

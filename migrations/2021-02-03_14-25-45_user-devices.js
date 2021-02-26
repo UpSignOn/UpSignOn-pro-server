@@ -11,7 +11,8 @@ exports.up = function (db) {
       'authorization_status varchar(60),' +
       'authorization_code uuid,' +
       'auth_code_expiration_date timestamptz,' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0)' +
+      'created_at timestamp without time zone DEFAULT current_timestamp(0),' +
+      'CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(id)' +
       ')',
   );
 };
