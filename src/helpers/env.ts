@@ -13,6 +13,7 @@ const {
   EMAIL_PORT,
   EMAIL_USER,
   EMAIL_PASS,
+  DISPLAY_NAME_IN_APP,
 } = process.env;
 
 export default {
@@ -30,4 +31,5 @@ export default {
   EMAIL_PORT: EMAIL_PORT ? Number.parseInt(EMAIL_PORT) : 587,
   EMAIL_USER,
   EMAIL_PASS,
+  DISPLAY_NAME_IN_APP: DISPLAY_NAME_IN_APP || 'PRO',
 };
