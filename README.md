@@ -2,6 +2,7 @@
 
 - prerequisite:
   - nodeJS version `14.*`
+  - yarn
   - pm2
   - postgreSQL
     - https://www.tutorialspoint.com/postgresql/postgresql_create_database.htm

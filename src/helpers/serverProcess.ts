@@ -8,8 +8,8 @@ export const startServer = (app: any) => {
     // Set express trust-proxy so that secure sessions cookies can work
     app.set('trust proxy', 1);
     const options = {
-      key: fs.readFileSync(env.CERTIFICATE_DIR_PATH + '/localhost.key'),
-      cert: fs.readFileSync(env.CERTIFICATE_DIR_PATH + '/localhost.crt'),
+      key: fs.readFileSync(env.SSL_CERTIFICATE_KEY_PATH),
+      cert: fs.readFileSync(env.SSL_CERTIFICATE_CRT_PATH),
     };
     const server = https.createServer(options, app).listen(env.SERVER_PORT, () => {
       console.log('Production server listening', server.address());
