@@ -4,6 +4,8 @@ import env from './env';
 export const sendDeviceRequestEmail = async (
   emailAddress: string,
   deviceName: string,
+  deviceType: string,
+  deviceOS: string,
   hostname: string,
   requestId: string,
   requestToken: string,
@@ -25,7 +27,7 @@ export const sendDeviceRequestEmail = async (
       from: env.EMAIL_USER,
       to: emailAddress,
       subject: "Nouvelle demande d'accès à votre espace UpSignOn PRO",
-      text: `Bonjour,\nPour autoriser votre appareil "${deviceName}" à accéder à votre espace confidentiel UpSignOn PRO, ouvrez le lien suivant dans votre navigateur.\n\n${link}\n\nBonne journée,\nUpSignOn`,
+      text: `Bonjour,\nPour autoriser votre appareil "${deviceName}" (${deviceType} ${deviceOS}) à accéder à votre espace confidentiel UpSignOn PRO, ouvrez le lien suivant dans votre navigateur.\n\n${link}\n\nBonne journée,\nUpSignOn`,
     });
   } catch (e) {
     console.error('ERROR sending email:', e);

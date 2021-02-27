@@ -25,14 +25,18 @@ export const requestAccess = async (req: any, res: any) => {
     // Get params
     const userEmail = req.body?.userEmail;
     const deviceId = req.body?.deviceId;
-    const deviceName = req.body?.deviceName;
     const deviceAccessCode = req.body?.deviceAccessCode;
+    const deviceName = req.body?.deviceName;
+    const deviceType = req.body?.deviceType;
+    const deviceOS = req.body?.deviceOS;
 
     // Check params
     if (!userEmail || userEmail.indexOf('@') === -1) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
-    if (!deviceName) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
+    if (!deviceName) return res.status(401).end();
+    if (!deviceType) return res.status(401).end();
+    if (!deviceOS) return res.status(401).end();
 
     // Request DB
     let userRes = await db.query('SELECT id FROM users WHERE email=$1', [userEmail]);
@@ -68,6 +72,8 @@ export const requestAccess = async (req: any, res: any) => {
         await sendDeviceRequestEmail(
           userEmail,
           deviceName,
+          deviceType,
+          deviceOS,
           env.API_PUBLIC_HOSTNAME,
           deviceRes.rows[0].id,
           deviceRes.rows[0].authorization_code,
@@ -82,10 +88,12 @@ export const requestAccess = async (req: any, res: any) => {
     let requestId;
     if (deviceRes.rowCount === 0) {
       const insertRes = await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
+        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',
         [
           userId,
           deviceName,
+          deviceType,
+          deviceOS,
           deviceId,
           hashedAccessCode,
           'PENDING',
@@ -113,6 +121,8 @@ export const requestAccess = async (req: any, res: any) => {
     await sendDeviceRequestEmail(
       userEmail,
       deviceName,
+      deviceType,
+      deviceOS,
       env.API_PUBLIC_HOSTNAME,
       requestId,
       randomAuthorizationCode,
