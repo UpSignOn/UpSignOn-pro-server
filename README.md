@@ -10,6 +10,6 @@
 
 # Deployment
 
-- copy ecosystem.example.config.js
+- copy ecosystem.example.config.js to ecosytem.production.config.js for instance
   - put your own environment variables
   - test everything works, especially sending the email (look out for error logs from the server)
