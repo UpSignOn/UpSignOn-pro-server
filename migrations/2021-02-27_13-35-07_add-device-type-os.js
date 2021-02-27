@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'ALTER TABLE user_devices ADD device_type VARCHAR(30), ADD os_version VARCHAR(15)',
+    'ALTER TABLE user_devices ADD device_type VARCHAR(32), ADD os_version VARCHAR(16)',
   );
 };
 
