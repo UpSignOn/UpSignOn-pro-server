@@ -9,3 +9,8 @@ logs
 ecosystem.*.config.js
 !ecosystem.example.config.js
 *vscode/launch.json
+scripts/**
+!scripts/dbMigrateConnect.js
+!scripts/migrateDown.js
+!scripts/migrateUp.js
+!scripts/migrateMake.sh
