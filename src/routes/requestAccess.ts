@@ -62,24 +62,28 @@ export const requestAccess = async (req: any, res: any) => {
       [userId, deviceId],
     );
 
+    if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'AUTHORIZED') {
+      return res.status(200).json({ authorizationStatus: 'AUTHORIZED' });
+    }
+    if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
+      return res.status(200).json({ authorizationStatus: 'REVOKED_BY_USER' });
+    }
     if (
       deviceRes.rowCount > 0 &&
-      (deviceRes.rows[0].authorization_status !== 'PENDING' ||
-        !isExpired(deviceRes.rows[0].auth_code_expiration_date))
+      deviceRes.rows[0].authorization_status === 'PENDING' &&
+      !isExpired(deviceRes.rows[0].auth_code_expiration_date)
     ) {
-      if (deviceRes.rows[0].authorization_status === 'PENDING') {
-        // resend email
-        await sendDeviceRequestEmail(
-          userEmail,
-          deviceName,
-          deviceType,
-          deviceOS,
-          env.API_PUBLIC_HOSTNAME,
-          deviceRes.rows[0].id,
-          deviceRes.rows[0].authorization_code,
-        );
-      }
-      return res.status(200).json({ authorizationStatus: deviceRes.rows[0].authorization_status });
+      // resend email
+      await sendDeviceRequestEmail(
+        userEmail,
+        deviceName,
+        deviceType,
+        deviceOS,
+        env.API_PUBLIC_HOSTNAME,
+        deviceRes.rows[0].id,
+        deviceRes.rows[0].authorization_code,
+      );
+      return res.status(200).json({ authorizationStatus: 'PENDING' });
     }
 
     const hashedAccessCode = await accessCodeHash.asyncHash(deviceAccessCode);
@@ -103,6 +107,7 @@ export const requestAccess = async (req: any, res: any) => {
       );
       requestId = insertRes.rows[0].id;
     } else {
+      // request is pending and expired, let's update it
       const updateRes = await db.query(
         'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 RETURNING id',
         [
