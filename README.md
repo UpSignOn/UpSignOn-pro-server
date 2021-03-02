@@ -115,7 +115,7 @@ Pour installer le serveur d'administration, la procédure est la suivante:
 - `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-forest-admin.git <DESTINATION_DIRECTORY>`
 - `npm install --only=prod`
 - créez un compte sur Forest Admin, puis, dans un dossier poubelle, suivez leur procédure, y compris l'installation d'un projet avec lumber et son lancement. L'objectif de cette étape est uniquement de récupérer le fichier de variables d'environnement. Une fois que vous avez fini de créer le projet de développement, ouvrez l'interface Forest Admin et cliquez sur déployer en production. Cette fois, copiez les variables d'environnement proposées dans un fichier .env à la racine du projet UpSignOn-pro-forest-admin.
-  - Configurez l'interface de Forest Admin en suivant les instructions ICI.
+  - Configurez l'interface de Forest Admin en suivant les [instructions ICI](https://github.com/UpSignOn/UpSignOn-pro-forest-admin/blob/production/README.md).
   - A la fin de la procédure, vous devriez pouvoir accéder à l'interface d'administration de la base de données UpSignOn PRO.
   - Vous pouvez supprimer le dossier poubelle qui contient le projet de développement
 - Vous pouvez utiliser pm2 pour lancer le serveur d'administration :
