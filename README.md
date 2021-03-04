@@ -103,25 +103,6 @@ server {
 }
 ```
 
-# Installation du serveur d'administration avec Forest Admin
-
-Forest Admin (https://forestadmin.com) est un service français permettant d'administrer une base de données simplement. Il fournit une interface paramétrable, puissante, directement dans votre navigateur et gratuitement jusqu'à 5 utilisateurs. Forest Admin permet aussi de gérer les droits d'accès et d'édition.
-
-> Bien entendu, Forest Admin n'a jamais accès au contenu de la base de données !
-
-Pour installer le serveur d'administration, la procédure est la suivante:
-
-- prérequis: votre machine doit disposer de Node.js, git et pm2 (cf ci-dessus). Si vous choisissez d'installer le serveur de Forest Admin sur une machine différente du serveur UpSignOn Pro, veillez donc à les installer également.
-- `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-forest-admin.git <DESTINATION_DIRECTORY>`
-- `npm install --only=prod`
-- créez un compte sur Forest Admin, puis, dans un dossier poubelle, suivez leur procédure, y compris l'installation d'un projet avec lumber et son lancement. L'objectif de cette étape est uniquement de récupérer le fichier de variables d'environnement. Une fois que vous avez fini de créer le projet de développement, ouvrez l'interface Forest Admin et cliquez sur déployer en production. Cette fois, copiez les variables d'environnement proposées dans un fichier .env à la racine du projet UpSignOn-pro-forest-admin.
-  - Configurez l'interface de Forest Admin en suivant les [instructions ICI](https://github.com/UpSignOn/UpSignOn-pro-forest-admin/blob/production/README.md).
-  - A la fin de la procédure, vous devriez pouvoir accéder à l'interface d'administration de la base de données UpSignOn PRO.
-  - Vous pouvez supprimer le dossier poubelle qui contient le projet de développement
-- Vous pouvez utiliser pm2 pour lancer le serveur d'administration :
-  - comme pour le premier serveur, dupliquez et éditez le fichier ecosysteme.example.config.js
-  - puis lancez le serveur avec `pm2 start ecosystem.production.config.js --only upsignon-pro-forest-admin-server`
-
 # Dernières configurations
 
 - Envoyez un mail à giregk@upsignon.eu avec l'url de votre serveur UpSignOn PRO pour qu'elle soit déclarée dans nos systèmes
@@ -144,8 +125,3 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `git pull`
 - mise à jour de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
 - redémarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
-
-# Mise à jour du serveur Forest Admin
-
-- `git pull`
-- redémarrage du serveur : `pm2 reload ecosystem.production.config.js --only upsignon-pro-forest-admin-server`
