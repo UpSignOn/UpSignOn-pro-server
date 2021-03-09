@@ -9,6 +9,7 @@ import { getUrlList } from './routes/getUrlList';
 import { removeAuthorization } from './routes/removeAuthorization';
 import { getAuthorizedDevices } from './routes/getAuthorizedDevices';
 import { renameDevice } from './routes/renameDevice';
+import { backupPassword } from './routes/backupPassword';
 
 const app = express();
 app.disable('x-powered-by');
@@ -25,6 +26,7 @@ app.post('/get-authorized-devices', getAuthorizedDevices);
 app.post('/get-data', getData);
 app.post('/update-data', updateData);
 app.post('/rename-device', renameDevice);
+app.post('/backup-password', backupPassword);
 
 if (module === require.main) {
   startServer(app);
