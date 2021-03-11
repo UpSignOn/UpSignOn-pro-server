@@ -32,7 +32,7 @@ export const removeAuthorization = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     await db.query(
-      "UPDATE user_devices SET authorization_status='REVOKED_BY_USER', access_code_hash='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3",
+      "UPDATE user_devices SET authorization_status='REVOKED_BY_USER', access_code_hash='', encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3",
       [new Date().toISOString(), deviceToDelete, dbRes.rows[0].userid],
     );
     // Return res
