@@ -50,11 +50,11 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     if (!resetRequest.reset_request_id) {
-      return res.send(401).json({ error: 'no_request' });
+      return res.status(401).json({ error: 'no_request' });
     } else if (resetRequest.reset_token !== resetToken) {
-      return res.send(401).json({ error: 'bad_token' });
+      return res.status(401).json({ error: 'bad_token' });
     } else if (isExpired(resetRequest.reset_token_expiration_date)) {
-      return res.send(401).json({ error: 'expired' });
+      return res.status(401).json({ error: 'expired' });
     }
 
     await db.query(
