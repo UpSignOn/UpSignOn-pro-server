@@ -8,3 +8,8 @@ export const getExpirationDate = (): string => {
   res.setTime(expDate);
   return res.toISOString();
 };
+
+export const extractTime = (date: string): string => {
+  const dateObject = new Date(date);
+  return `${dateObject.getHours()}:${dateObject.getMinutes()}`;
+};
