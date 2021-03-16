@@ -11,6 +11,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const newEncryptedData = req.body?.newEncryptedData;
     const lastUpdateDate = req.body?.lastUpdateDate;
     const isNewData = req.body?.isNewData;
+    const sharingPublicKey = req.body?.sharingPublicKey;
 
     // Check params
     if (!userEmail) return res.status(401).end();
@@ -18,6 +19,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     if (!deviceAccessCode) return res.status(401).end();
     if (!newEncryptedData) return res.status(401).end();
     if (!isNewData && !lastUpdateDate) return res.status(409).end(); // Behave like a CONFLICT
+    if (isNewData && !sharingPublicKey) return res.status(409).end(); // Behave like a CONFLICT
 
     // Request DB
     const dbRes = await db.query(
@@ -44,8 +46,8 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     let updateRes;
     if (isNewData) {
       updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 RETURNING updated_at',
-        [newEncryptedData, userEmail],
+        'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$2 RETURNING updated_at',
+        [newEncryptedData, userEmail, sharingPublicKey],
       );
     } else {
       updateRes = await db.query(
