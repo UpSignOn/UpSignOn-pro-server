@@ -24,7 +24,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      'SELECT users.id AS user_id, user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
       [userEmail, deviceId],
     );
 
@@ -39,10 +39,19 @@ export const getData = async (req: any, res: any): Promise<void> => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
+    const sharingRes = await db.query(
+      `SELECT sa.url AS url, sa.name AS name, sau.is_manager AS is_manager, sau.encrypted_password AS encrypted_password FROM shared_accounts AS sa INNER JOIN shared_account_users AS sau ON sau.shared_account_id=sa.id WHERE sau.user_id=${dbRes.rows[0].user_id}`,
+    );
     // Return res
     return res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
       lastUpdateDate: dbRes.rows[0].updated_at,
+      sharedItems: sharingRes.rows.map((s) => ({
+        url: s.url,
+        name: s.name,
+        isManager: s.is_manager,
+        encryptedPassword: s.encrypted_password,
+      })),
     });
   } catch (e) {
     console.error(e);
