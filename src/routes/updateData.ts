@@ -46,8 +46,8 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     let updateRes;
     if (isNewData) {
       updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$2 RETURNING updated_at',
-        [newEncryptedData, userEmail, sharingPublicKey],
+        'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 RETURNING updated_at',
+        [newEncryptedData, sharingPublicKey, userEmail],
       );
     } else {
       updateRes = await db.query(
