@@ -33,11 +33,13 @@ export const checkEmailAddressForSharing = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     const checkRes = await db.query(
-      'SELECT 1 FROM users WHERE email=$1 AND sharing_public_key IS NOT NULL',
+      'SELECT sharing_public_key FROM users WHERE email=$1 AND sharing_public_key IS NOT NULL',
       [emailAddress],
     );
     // Return res
-    return res.status(200).json({ valid: checkRes.rowCount > 0 });
+    return res
+      .status(200)
+      .json({ valid: checkRes.rowCount > 0, publicKey: checkRes.rows[0]?.sharing_public_key });
   } catch (e) {
     console.error(e);
     return res.status(400).end();
