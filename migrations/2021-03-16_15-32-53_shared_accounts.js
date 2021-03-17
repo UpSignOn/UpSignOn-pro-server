@@ -6,6 +6,7 @@ exports.up = function (db) {
       'id SERIAL PRIMARY KEY,' +
       'url varchar(128),' +
       'name varchar(64),' +
+      'type varchar(25),' +
       'created_at timestamp without time zone DEFAULT current_timestamp(0)' +
       ')',
   );

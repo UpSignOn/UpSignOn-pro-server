@@ -13,6 +13,7 @@ import { backupPassword } from './routes/backupPassword';
 import { requestPasswordReset } from './routes/requestPasswordReset';
 import { getPasswordBackup } from './routes/getPasswordBackup';
 import { checkEmailAddressForSharing } from './routes/checkEmailAddressForSharing';
+import { share } from './routes/share';
 
 const app = express();
 app.disable('x-powered-by');
@@ -33,6 +34,7 @@ app.post('/rename-device', renameDevice);
 app.post('/backup-password', backupPassword);
 app.post('/get-password-backup', getPasswordBackup);
 app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
+app.post('/share', share);
 
 if (module === require.main) {
   startServer(app);
