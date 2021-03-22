@@ -40,15 +40,29 @@ export const getData = async (req: any, res: any): Promise<void> => {
     if (!isAccessGranted) return res.status(401).end();
 
     const sharingRes = await db.query(
-      `SELECT sa.url AS url, sa.name AS name, sau.is_manager AS is_manager, sau.encrypted_password AS encrypted_password FROM shared_accounts AS sa INNER JOIN shared_account_users AS sau ON sau.shared_account_id=sa.id WHERE sau.user_id=${dbRes.rows[0].user_id}`,
+      `SELECT
+        sa.id AS id,
+        sa.type AS type,
+        sa.url AS url,
+        sa.name AS name,
+        sa.login AS login,
+        sau.is_manager AS is_manager,
+        sau.encrypted_password AS encrypted_password
+      FROM shared_accounts AS sa
+      INNER JOIN shared_account_users AS sau
+      ON sau.shared_account_id=sa.id
+      WHERE sau.user_id=${dbRes.rows[0].user_id}`,
     );
     // Return res
     return res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
       lastUpdateDate: dbRes.rows[0].updated_at,
       sharedItems: sharingRes.rows.map((s) => ({
+        id: s.id,
+        type: s.type,
         url: s.url,
         name: s.name,
+        login: s.login,
         isManager: s.is_manager,
         encryptedPassword: s.encrypted_password,
       })),

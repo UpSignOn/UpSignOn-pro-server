@@ -10,8 +10,9 @@ export const share = async (req: any, res: any): Promise<void> => {
     const deviceAccessCode = req.body?.deviceAccessCode;
     const sharings: {
       type: string;
-      url: string;
-      name: string;
+      url: null | string;
+      name: null | string;
+      login: null | string;
       dbId: null | number;
       contacts: { email: string; isManager: boolean; encryptedPassword: string }[];
     }[] = req.body?.sharings;
@@ -82,8 +83,8 @@ export const share = async (req: any, res: any): Promise<void> => {
         sharingId = sharing.dbId;
       } else {
         const newSharedAccount = await db.query(
-          'INSERT INTO shared_accounts (url, name, type) VALUES ($1, $2, $3) RETURNING id',
-          [sharing.url, sharing.name, sharing.type],
+          'INSERT INTO shared_accounts (url, name, type, login) VALUES ($1, $2, $3, $4) RETURNING id',
+          [sharing.url, sharing.name, sharing.type, sharing.login],
         );
         sharingId = newSharedAccount.rows[0].id;
       }
