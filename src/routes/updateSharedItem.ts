@@ -9,6 +9,7 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const sharedItem = req.body?.sharedItem;
+    const contactPasswords = req.body?.contactPasswords;
 
     // Check params
     if (!userEmail) return res.status(401).end();
@@ -47,6 +48,18 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
       sharedItem.login,
       sharedItem.id,
     ]);
+
+    if (contactPasswords && Array.isArray(contactPasswords)) {
+      for (let i = 0; i < contactPasswords.length; i++) {
+        // Security: do not use foreach or map
+        const userId = contactPasswords[i].id;
+        const encPwd = contactPasswords[i].encryptedPassword;
+        await db.query(
+          'UPDATE shared_account_users SET encrypted_password=$1  WHERE shared_account_id = $2 AND user_id = $3',
+          [encPwd, sharedItem.id, userId],
+        );
+      }
+    }
 
     return res.status(200).end();
   } catch (e) {

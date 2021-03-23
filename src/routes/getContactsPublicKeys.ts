@@ -36,7 +36,7 @@ export const getContactsPublicKeys = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     const contactRes = await db.query(
-      'SELECT users.email, users.sharing_public_key FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1',
+      'SELECT users.id, users.sharing_public_key FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1',
       [itemId],
     );
     // Return res
