@@ -16,6 +16,9 @@ import { checkEmailAddressForSharing } from './routes/checkEmailAddressForSharin
 import { share } from './routes/share';
 import { updateSharedItem } from './routes/updateSharedItem';
 import { getContactsPublicKeys } from './routes/getContactsPublicKeys';
+import { updateContactRights } from './routes/updateContactRights';
+import { stopSharingWithContact } from './routes/stopSharingWithContact';
+import { getContactForSharedItem } from './routes/getContactsForSharedItem';
 
 const app = express();
 app.disable('x-powered-by');
@@ -39,6 +42,9 @@ app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
 app.post('/share', share);
 app.post('/update-shared-item', updateSharedItem);
 app.post('/get-contacts-public-keys', getContactsPublicKeys);
+app.post('/update-contact-rights', updateContactRights);
+app.post('/stop-sharing-with-contact', stopSharingWithContact);
+app.post('/get-contacts-for-shared-item', getContactForSharedItem);
 
 if (module === require.main) {
   startServer(app);
