@@ -14,6 +14,7 @@ import { requestPasswordReset } from './routes/requestPasswordReset';
 import { getPasswordBackup } from './routes/getPasswordBackup';
 import { checkEmailAddressForSharing } from './routes/checkEmailAddressForSharing';
 import { share } from './routes/share';
+import { updateSharedItem } from './routes/updateSharedItem';
 
 const app = express();
 app.disable('x-powered-by');
@@ -35,6 +36,7 @@ app.post('/backup-password', backupPassword);
 app.post('/get-password-backup', getPasswordBackup);
 app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
 app.post('/share', share);
+app.post('/update-shared-item', updateSharedItem);
 
 if (module === require.main) {
   startServer(app);
