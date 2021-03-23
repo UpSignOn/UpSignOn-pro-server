@@ -15,6 +15,7 @@ import { getPasswordBackup } from './routes/getPasswordBackup';
 import { checkEmailAddressForSharing } from './routes/checkEmailAddressForSharing';
 import { share } from './routes/share';
 import { updateSharedItem } from './routes/updateSharedItem';
+import { getContactsPublicKeys } from './routes/getContactsPublicKeys';
 
 const app = express();
 app.disable('x-powered-by');
@@ -37,6 +38,7 @@ app.post('/get-password-backup', getPasswordBackup);
 app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
 app.post('/share', share);
 app.post('/update-shared-item', updateSharedItem);
+app.post('/get-contacts-public-keys', getContactsPublicKeys);
 
 if (module === require.main) {
   startServer(app);
