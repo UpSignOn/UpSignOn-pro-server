@@ -1,6 +1,6 @@
 # Installation de la base de données
 
-- install PostgresSQL (https://www.postgresql.org/download/)
+- installer la version LTS de PostgresSQL (https://www.postgresql.org/download/) (toutes les versions devraient fonctionner)
 - création d'un utilisateur dédié, par exemple 'upsignonpro' (sur linux: `createuser upsignonpro --password` (ne pas copier le mot de passe, il faut l'écrire))
 - création de la base de données PostgreSQL, avec verrouillage par mot de passe, pour l'utilisateur 'upsignonpro' (sur linux: `createdb upsignonpro -O upsignonpro`)
   - NB: cette base de données sera provisionnée dans l'étape suivante
@@ -22,11 +22,11 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
   - EMAIL_USER: adresse email à partir de laquelle seront envoyés les mails de validation
   - EMAIL_PASS: mot de passe pour cette adresse email
 
-- installer Node.js (https://nodejs.org/en/download/package-manager/)
+- installer Node.js (https://nodejs.org/en/download/package-manager/) (toutes les versions > v12 devraient fonctionner)
 - installer yarn `npm install --global yarn`
 - installer git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
   - NB, il n'est pas nécessaire de définir un utilisateur github
-- si vous souhaitez utiliser pm2 comme gestionnaire de processus, installer pm2 `npm install pm2 -g`
+- (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances), installer pm2 `npm install pm2 -g`
 - (optionnel) pour bénéficier de l'autocompletion des commandes pm2 `pm2 completion install`
 
 - installez un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
@@ -37,8 +37,10 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - clone du repo `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git <DESTINATION_DIRECTORY>`
 - dans le dossier <DESTINATION_DIRECTORY>
 
-  - installer les nodes modules `yarn install --prod`
+  - installez les nodes modules `yarn install`
+  - compilez le projet `yarn build`
   - si vous souhaitez utiliser pm2, dupliquez le fichier ecosystem vers par exemple `ecosystem.production.config.js`
+
     - éditez ce fichier pour y définir les variables d'environnement nécessaires
       - DB_USER
       - DB_PASS
@@ -56,14 +58,19 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
       - EMAIL_PASS
       - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application
     - vous pouvez également choisir les chemins où seront stockés les logs
+    - une fois que toutes les variables d'environnement sont correctement définies, exécutez les commandes suivantes
 
-- une fois que toutes les variables d'environnement sont correctement définies, exécutez les commandes suivantes
+      - provisionning de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
+      - démarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
+      - NB: le script `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate-down` ne sera a priori jamais utilisé, il permet d'annuler les dernières modifications apportées à la structure de la base de données.
 
-  - provisionning de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
-  - démarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
-  - NB: le script `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate-down` ne sera a priori jamais utilisé, il permet d'annuler les dernières modifications apportées à la structure de la base de données.
+  - si vous ne voulez pas utiliser pm2, assurez-vous que toutes les variables d'environnement citées sont correctement définies puis exécutez les deux commandes suivantes
+    - provisioning de la base de données: `node ./scripts/migrateUp.js`
+    - démarrage du serveur: `node ./compiled/server.js`
 
-- enfin, vous pouvez configurer un reverse proxy. Voici par exemple une configuration possible avec Nginx
+# Configuration du reverse proxy
+
+Voici par exemple une configuration possible avec Nginx
 
 ```
 proxy_set_header X-Real-IP $remote_addr;
@@ -123,5 +130,10 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 # Mise à jour du serveur
 
 - `git pull`
-- mise à jour de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
-- redémarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
+- `yarn build`
+- avec pm2
+  - mise à jour de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
+  - redémarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
+- sans pm2 :
+  - mise à jour de la base de données : `node ./scripts/migrateUp.js`
+  - redémarrage du serveur : `node ./compiled/server.js`
