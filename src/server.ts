@@ -19,6 +19,7 @@ import { getContactsPublicKeys } from './routes/getContactsPublicKeys';
 import { updateContactRights } from './routes/updateContactRights';
 import { stopSharingWithContact } from './routes/stopSharingWithContact';
 import { getContactForSharedItem } from './routes/getContactsForSharedItem';
+import { checkUserPublicKey } from './routes/checkUserPublicKey';
 
 const app = express();
 app.disable('x-powered-by');
@@ -45,6 +46,7 @@ app.post('/get-contacts-public-keys', getContactsPublicKeys);
 app.post('/update-contact-rights', updateContactRights);
 app.post('/stop-sharing-with-contact', stopSharingWithContact);
 app.post('/get-contacts-for-shared-item', getContactForSharedItem);
+app.post('/check-user-public-key', checkUserPublicKey);
 
 if (module === require.main) {
   startServer(app);
