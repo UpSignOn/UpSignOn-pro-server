@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { getSharedItems } from './getData';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
@@ -12,6 +13,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const lastUpdateDate = req.body?.lastUpdateDate;
     const isNewData = req.body?.isNewData;
     const sharingPublicKey = req.body?.sharingPublicKey;
+    const returningSharedItems = req.body?.returningSharedItems;
 
     // Check params
     if (!userEmail) return res.status(401).end();
@@ -23,7 +25,14 @@ export const updateData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      `SELECT
+        user_devices.authorization_status AS authorization_status,
+        user_devices.access_code_hash AS access_code_hash,
+        users.encrypted_data AS encrypted_data,
+        users.id AS user_id
+      FROM user_devices
+      INNER JOIN users ON user_devices.user_id = users.id
+      WHERE users.email=$1 AND user_devices.device_unique_id = $2`,
       [userEmail, deviceId],
     );
 
@@ -59,7 +68,13 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       // CONFLICT
       return res.status(409).end();
     }
-    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
+
+    if (returningSharedItems) {
+      const sharedItems = await getSharedItems(dbRes.rows[0].user_id);
+      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, sharedItems });
+    } else {
+      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
+    }
   } catch (e) {
     console.error(e);
     return res.status(400).end();
