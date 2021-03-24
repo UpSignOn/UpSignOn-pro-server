@@ -65,7 +65,7 @@ export const share = async (req: any, res: any): Promise<void> => {
           });
         }
       }
-      if (!isCurrentUserInList) {
+      if (!sharing.dbId && !isCurrentUserInList) {
         errors.push({ name: sharing.name, error: 'self_not_in_list' });
         continue;
       }
