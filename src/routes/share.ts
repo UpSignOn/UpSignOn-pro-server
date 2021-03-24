@@ -14,6 +14,7 @@ export const share = async (req: any, res: any): Promise<void> => {
       name: null | string;
       login: null | string;
       dbId: null | number;
+      idInUserEnv: null | number;
       contacts: { email: string; isManager: boolean; encryptedPassword: string }[];
     }[] = req.body?.sharings;
 
@@ -41,6 +42,7 @@ export const share = async (req: any, res: any): Promise<void> => {
     if (!isAccessGranted) return res.status(401).end();
 
     const errors = [];
+    const newSharedItemIdsMap: any = {};
     for (let i = 0; i < sharings.length; i++) {
       // Security: do not use foreach or map
       const sharing = sharings[i];
@@ -87,6 +89,11 @@ export const share = async (req: any, res: any): Promise<void> => {
           [sharing.url, sharing.name, sharing.type, sharing.login],
         );
         sharingId = newSharedAccount.rows[0].id;
+        if (!sharing.idInUserEnv) {
+          errors.push({ name: sharing.name, error: 'no_id_provided' });
+        } else {
+          newSharedItemIdsMap[sharing.idInUserEnv] = sharingId;
+        }
       }
 
       // Insert sharedAccountUsers
@@ -112,7 +119,7 @@ export const share = async (req: any, res: any): Promise<void> => {
       }
     }
 
-    res.status(200).json({ errors });
+    res.status(200).json({ errors, newSharedItemIdsMap });
   } catch (e) {
     console.error(e);
     return res.status(400).end();
