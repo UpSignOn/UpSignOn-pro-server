@@ -49,46 +49,65 @@ export const requestPasswordReset = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     const resetRequest = dbRes.rows[0];
-    if (!resetRequest.reset_request_id) {
-      await db.query(
-        `INSERT INTO password_reset_request
-            (device_id, status)
-          VALUES
-            ('${resetRequest.device_id}', 'PENDING_ADMIN_CHECK')
-        `,
-      );
-      // TODO notify admin
-      return res.status(200).json({ resetStatus: 'pending_admin_check' });
-    } else if (
-      !!resetRequest.reset_token_expiration_date &&
-      isExpired(resetRequest.reset_token_expiration_date)
-    ) {
-      // Start a new request
-      await db.query(
-        `UPDATE password_reset_request SET status='PENDING_ADMIN_CHECK', reset_token=null, reset_token_expiration_date=null WHERE id=${resetRequest.reset_request_id}`,
-      );
-      // TODO notify admin
-      return res.status(200).json({ resetStatus: 'pending_admin_check' });
-    } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
-      return res.status(200).json({ resetStatus: 'pending_admin_check' });
-    } else if (resetRequest.reset_status === 'ADMIN_AUTHORIZED') {
-      // // resend mail ?
-      // const expirationDate = getExpirationDate();
-      // const randomAuthorizationCode = uuidv4().substring(0, 8);
 
-      // await db.query(
-      //   `UPDATE password_reset_request SET
-      //     reset_token='${randomAuthorizationCode}',
-      //     reset_token_expiration_date='${expirationDate}'
-      //   WHERE id='${resetRequest.reset_request_id}'`,
-      // );
-      // await sendPasswordResetRequestEmail(
-      //   userEmail,
-      //   resetRequest.device_name,
-      //   randomAuthorizationCode,
-      //   expirationDate,
-      // );
+    const settingRes = await db.query(
+      `SELECT value FROM settings WHERE key='DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN'`,
+    );
+    if (settingRes.rows[0]?.value) {
+      // MANUAL VALIDATION IS DISABLED
+      const expirationDate = getExpirationDate();
+      const randomAuthorizationCode = uuidv4().substring(0, 8);
+      if (!resetRequest.reset_request_id) {
+        await db.query(
+          `INSERT INTO password_reset_request
+              (device_id, status, reset_token, reset_token_expiration_date)
+            VALUES
+              ('${resetRequest.device_id}', 'ADMIN_AUTHORIZED', ${randomAuthorizationCode}, ${expirationDate})
+          `,
+        );
+      } else {
+        await db.query(
+          `UPDATE password_reset_request SET
+            status='ADMIN_AUTHORIZED'
+            reset_token='${randomAuthorizationCode}',
+            reset_token_expiration_date='${expirationDate}'
+          WHERE id='${resetRequest.reset_request_id}'`,
+        );
+      }
+      await sendPasswordResetRequestEmail(
+        userEmail,
+        resetRequest.device_name,
+        randomAuthorizationCode,
+        expirationDate,
+      );
       return res.status(200).json({ resetStatus: 'mail_sent' });
+    } else {
+      // MANUAL VALIDATION IS ENABLED
+      if (!resetRequest.reset_request_id) {
+        await db.query(
+          `INSERT INTO password_reset_request
+              (device_id, status)
+            VALUES
+              ('${resetRequest.device_id}', 'PENDING_ADMIN_CHECK')
+          `,
+        );
+        // TODO notify admin
+        return res.status(200).json({ resetStatus: 'pending_admin_check' });
+      } else if (
+        !!resetRequest.reset_token_expiration_date &&
+        isExpired(resetRequest.reset_token_expiration_date)
+      ) {
+        // Start a new request
+        await db.query(
+          `UPDATE password_reset_request SET status='PENDING_ADMIN_CHECK', reset_token=null, reset_token_expiration_date=null WHERE id=${resetRequest.reset_request_id}`,
+        );
+        // TODO notify admin
+        return res.status(200).json({ resetStatus: 'pending_admin_check' });
+      } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
+        return res.status(200).json({ resetStatus: 'pending_admin_check' });
+      } else if (resetRequest.reset_status === 'ADMIN_AUTHORIZED') {
+        return res.status(200).json({ resetStatus: 'mail_sent' });
+      }
     }
     console.error('unmet conditions in requestPasswordReset.js');
     res.status(400).end();

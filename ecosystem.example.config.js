@@ -5,7 +5,6 @@ const env = {
   DB_HOST: 'localhost',
   DB_PORT: '5432',
   NODE_ENV: 'production',
-  API_PUBLIC_HOSTNAME: 'mon-espace-pro.fr',
   SERVER_PORT: '3000',
   SSL_CERTIFICATE_KEY_PATH: '',
   SSL_CERTIFICATE_CRT_PATH: '',
@@ -13,6 +12,7 @@ const env = {
   EMAIL_PORT: '587',
   EMAIL_USER: 'user@domain.fr',
   EMAIL_PASS: 'password',
+  API_PUBLIC_HOSTNAME: 'mon-espace-pro.fr',
   DISPLAY_NAME_IN_APP: 'Mon Espace Pro',
 };
 
