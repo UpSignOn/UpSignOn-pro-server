@@ -17,7 +17,7 @@ const {
 } = process.env;
 
 export default {
-  IS_PRODUCTION: NODE_ENV === 'production',
+  IS_PRODUCTION: NODE_ENV !== 'development',
   DB_HOST,
   DB_PORT: DB_PORT ? Number.parseInt(DB_PORT) : 5432,
   DB_USER,
