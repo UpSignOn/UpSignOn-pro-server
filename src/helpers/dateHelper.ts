@@ -11,5 +11,7 @@ export const getExpirationDate = (): string => {
 
 export const extractTime = (date: string): string => {
   const dateObject = new Date(date);
-  return `${dateObject.getHours()}:${dateObject.getMinutes()}`;
+  return `${dateObject.getHours()}:${dateObject
+    .getMinutes()
+    .toLocaleString(undefined, { minimumIntegerDigits: 2 })}`;
 };
