@@ -39,52 +39,59 @@ export const requestPasswordReset = async (req: any, res: any) => {
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
-    const resetRequest = dbRes.rows[0];
-    if (resetRequest.authorization_status !== 'AUTHORIZED') return res.status(401).end();
+    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') return res.status(401).end();
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(
       deviceAccessCode,
-      resetRequest.access_code_hash,
+      dbRes.rows[0].access_code_hash,
     );
     if (!isAccessGranted) return res.status(401).end();
 
-    if (
-      resetRequest.reset_status === 'PENDING' &&
-      !isExpired(resetRequest.reset_token_expiration_date)
-    ) {
-      return res.status(200).json({ resetStatus: 'PENDING' });
-    }
-
-    const expirationDate = getExpirationDate();
-    const randomAuthorizationCode = uuidv4().substring(0, 8);
-
-    if (resetRequest.reset_request_id) {
-      await db.query(
-        `UPDATE password_reset_request SET
-          status='PENDING',
-          reset_token='${randomAuthorizationCode}',
-          reset_token_expiration_date='${expirationDate}'
-        WHERE id='${resetRequest.reset_request_id}'`,
-      );
-    } else {
+    const resetRequest = dbRes.rows[0];
+    if (!resetRequest.reset_request_id) {
       await db.query(
         `INSERT INTO password_reset_request
-          (device_id, status, reset_token, reset_token_expiration_date)
-        VALUES
-          ('${resetRequest.device_id}', 'PENDING', '${randomAuthorizationCode}', '${expirationDate}')
-      `,
+            (device_id, status)
+          VALUES
+            ('${resetRequest.device_id}', 'PENDING_ADMIN_CHECK')
+        `,
       );
-    }
-    await sendPasswordResetRequestEmail(
-      userEmail,
-      resetRequest.device_name,
-      randomAuthorizationCode,
-      expirationDate,
-    );
+      // TODO notify admin
+      return res.status(200).json({ resetStatus: 'pending_admin_check' });
+    } else if (
+      !!resetRequest.reset_token_expiration_date &&
+      isExpired(resetRequest.reset_token_expiration_date)
+    ) {
+      // Start a new request
+      await db.query(
+        `UPDATE password_reset_request SET status='PENDING_ADMIN_CHECK', reset_token=null, reset_token_expiration_date=null WHERE id=${resetRequest.reset_request_id}`,
+      );
+      // TODO notify admin
+      return res.status(200).json({ resetStatus: 'pending_admin_check' });
+    } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
+      return res.status(200).json({ resetStatus: 'pending_admin_check' });
+    } else if (resetRequest.reset_status === 'ADMIN_AUTHORIZED') {
+      // // resend mail ?
+      // const expirationDate = getExpirationDate();
+      // const randomAuthorizationCode = uuidv4().substring(0, 8);
 
-    // Return res
-    return res.status(204).end();
+      // await db.query(
+      //   `UPDATE password_reset_request SET
+      //     reset_token='${randomAuthorizationCode}',
+      //     reset_token_expiration_date='${expirationDate}'
+      //   WHERE id='${resetRequest.reset_request_id}'`,
+      // );
+      // await sendPasswordResetRequestEmail(
+      //   userEmail,
+      //   resetRequest.device_name,
+      //   randomAuthorizationCode,
+      //   expirationDate,
+      // );
+      return res.status(200).json({ resetStatus: 'mail_sent' });
+    }
+    console.error('unmet conditions in requestPasswordReset.js');
+    res.status(400).end();
   } catch (e) {
     console.error(e);
     res.status(400).end();
