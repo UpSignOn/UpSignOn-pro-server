@@ -20,6 +20,7 @@ import { updateContactRights } from './routes/updateContactRights';
 import { stopSharingWithContact } from './routes/stopSharingWithContact';
 import { getContactForSharedItem } from './routes/getContactsForSharedItem';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
+import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 
 const app = express();
 app.disable('x-powered-by');
@@ -47,6 +48,7 @@ app.post('/update-contact-rights', updateContactRights);
 app.post('/stop-sharing-with-contact', stopSharingWithContact);
 app.post('/get-contacts-for-shared-item', getContactForSharedItem);
 app.post('/check-user-public-key', checkUserPublicKey);
+app.post('/update-device-metadata', updateDeviceMetaData);
 
 if (module === require.main) {
   startServer(app);
