@@ -17,7 +17,6 @@ L'application UpSignOn propose un fonctionnement grand public par défaut qui es
 ### Principes généraux
 
 - Aucune donnée ne reste stockée sur les appareils des utilisateurs, tout est conservé de façon chiffrée sur le serveur PRO.
-- **Zero-trust :** Le serveur PRO est conçu pour que ses administrateurs n'aient accès à aucun mot de passe.
 - **Chiffrement de bout en bout :** Chaque utilisateur doit définir un mot de passe qui sert à chiffrer ses données. Ce mot de passe n'est jamais envoyé sur le serveur, le chiffrement est effectué localement, sur l'appareil de l'utilisateur.
 - **Autorisation par adresse email pro :** Les administrateurs du serveur PRO choisissent quelles adresses email (par domaine ou individuellement) sont autorisées à avoir un espace PRO.
 - **2FA : Autorisation individuelle de chaque appareil** un appareil n'a le droit de récupérer les données chiffrées d'un utilisateur qu'après y avoir été autorisé par l'utilisateur via l'ouverture d'un lien à usage unique reçu dans sa boîte mail professionnelle. Techniquement, un code d'accès alétoire est défini par l'appareil. Ce code n'est valide qu'après avoir été autorisé par le lien à usage unique. Ce code d'accès est ensuite nécessaire pour toutes les communications avec le serveur (en lecture et en écriture). Ce code d'accès est transparent pour l'utilisateur. Les administrateurs du serveur PRO peuvent révoquer un appareil depuis l'interface d'administration. L'utilisateur peut lui-même révoquer un de ses appareils depuis l'application. Dans ce cas, les administrateurs du système peuvent voir que l'appareil a été révoqué.
@@ -39,9 +38,11 @@ L'application UpSignOn propose un fonctionnement grand public par défaut qui es
 
 ### Comment faire pour...
 
+- autoriser un utilisateur à utiliser la procédure de mot de passe oublié ?
+  - une fois que l'utilisateur a généré la demande via l'application, vous pouvez la voir dans la table "password reset request" et vous pouvez alors l'accepter en utilisant le bouton "action"
 - révoquer un appareil ? supprimez le de la la liste des appareils.
 - effacer les données d'un utilisateur qui quitte l'entreprise ? effacez tous ses appareils, puis effacez cet utilisateur
-- empêcher le partage d'un compte à un utilisateur ? supprimer ce partage dans la liste des partages
+- empêcher le partage d'un compte à un utilisateur ? supprimer la ligne correspondante dans (Users of shared accounts)
 
 ### Que faire dans les cas suivants ?
 
