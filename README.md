@@ -1,3 +1,10 @@
+# Avant de commencer
+
+- Envoyez un email à giregk@upsignon.eu en indiquant
+  - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
+  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr)
+  - l'adresse email d'une personne qui sera administrateur du projet Forest Admin
+
 # Installation de la base de données
 
 - installer la version LTS de PostgresSQL (https://www.postgresql.org/download/) (toutes les versions devraient fonctionner)
@@ -112,7 +119,6 @@ server {
 
 # Dernières configurations
 
-- Envoyez un mail à giregk@upsignon.eu avec l'url de votre serveur UpSignOn PRO pour qu'elle soit déclarée dans nos systèmes
 - Depuis votre interface d'administration Forest Admin, ajoutez les adresses email autorisées à créer un environnement PRO.
   - NB : déclarer '\*@mon-domaine.fr' aura pour effet d'autoriser toutes les adresses de ce domaine
 - Depuis votre interface d'administration Forest Admin, vous pouvez ajouter les urls les plus classiques que saisiront vos agents (cette liste n'empêche pas l'enregistrement de mot de passe pour d'autres url, elle sera simplement affichée comme une liste de suggestions). Nous vous conseillons d'en mettre autant que possible pour faciliter l'onboarding des agents.
