@@ -31,8 +31,8 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 
 - installez un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
 
-  - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key utilisé pour la communique SSL locale
-  - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt utilisé pour la communique SSL locale
+  - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
+  - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
 
 - clone du repo `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git <DESTINATION_DIRECTORY>`
 - dans le dossier <DESTINATION_DIRECTORY>
