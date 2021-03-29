@@ -21,7 +21,6 @@ export const getPasswordBackup = async (req: any, res: any) => {
     const dbRes = await db.query(
       `SELECT
         users.id AS userid,
-        user_devices.authorization_status AS authorization_status,
         user_devices.access_code_hash AS access_code_hash,
         user_devices.encrypted_password_backup AS encrypted_password_backup,
         password_reset_request.id AS reset_request_id,
@@ -34,13 +33,13 @@ export const getPasswordBackup = async (req: any, res: any) => {
       WHERE
         users.email=$1
         AND user_devices.device_unique_id = $2
+        AND user_devices.authorization_status='AUTHORIZED'
       LIMIT 1`,
       [userEmail, deviceId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const resetRequest = dbRes.rows[0];
-    if (resetRequest.authorization_status !== 'AUTHORIZED') return res.status(401).end();
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(

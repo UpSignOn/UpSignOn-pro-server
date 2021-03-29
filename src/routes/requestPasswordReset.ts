@@ -21,7 +21,6 @@ export const requestPasswordReset = async (req: any, res: any) => {
     const dbRes = await db.query(
       `SELECT
         users.id AS userid,
-        user_devices.authorization_status AS authorization_status,
         user_devices.access_code_hash AS access_code_hash,
         user_devices.id AS device_id,
         user_devices.device_name AS device_name,
@@ -34,12 +33,12 @@ export const requestPasswordReset = async (req: any, res: any) => {
       WHERE
         users.email=$1
         AND user_devices.device_unique_id = $2
+        AND user_devices.authorization_status='AUTHORIZED'
       LIMIT 1`,
       [userEmail, deviceId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') return res.status(401).end();
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(

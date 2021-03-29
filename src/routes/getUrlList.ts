@@ -16,13 +16,11 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      `SELECT user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'`,
       [userEmail, deviceId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(404).json({ error: 'revoked' });
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
-      return res.status(200).json({ authorizationStatus: dbRes.rows[0].authorization_status });
+    if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(

@@ -26,12 +26,11 @@ export const share = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT users.id AS user_id, user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
+      "SELECT users.id AS user_id, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'",
       [userEmail, deviceId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(404).end();
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') return res.status(401).end();
     const currentUserId = dbRes.rows[0].user_id;
 
     // Check access code
