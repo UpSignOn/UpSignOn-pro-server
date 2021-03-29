@@ -18,7 +18,7 @@ export const backupPassword = async (req: any, res: any) => {
 
     // Request DB
     const dbRes = await db.query(
-      `SELECT users.id AS userid user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'`,
+      `SELECT users.id AS userid, user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'`,
       [userEmail, deviceId],
     );
 
