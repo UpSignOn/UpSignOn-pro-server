@@ -4,13 +4,29 @@
   - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
   - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr)
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin
+    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
 
 # Installation de la base de données
 
-- installer la version LTS de PostgresSQL (https://www.postgresql.org/download/) (toutes les versions devraient fonctionner)
-- création d'un utilisateur dédié, par exemple 'upsignonpro' (sur linux: `createuser upsignonpro --password` (ne pas copier le mot de passe, il faut l'écrire))
-- création de la base de données PostgreSQL, avec verrouillage par mot de passe, pour l'utilisateur 'upsignonpro' (sur linux: `createdb upsignonpro -O upsignonpro`)
+Vous pouvez installer la base de données postgreSQL selon vos propres procédures si vous maîtrisez bien le sujet.
+
+1. installation de postgresql
+
+- suivez le tutoriel correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner)
+- sur linux, saisissez `sudo -i -u postgres` pour vous connecter en tant qu'utilisateur postgres
+  - la commande `psql` devrait alors fonctioner et vous faire entrer dans l'interface en ligne de commande de postgresql
+
+2. création de la base de données pour UpSignOn PRO
+
+Voici une procédure éprouvée pour les environnements Linux (testé sur Debian 9).
+Cette procédure configure un utilisateur linux qui sera le propriétaire de la base de données et du serveur.
+
+- Vous voudrez sans doute créer un utilisateur linux pour exécuter le serveur UpSignOn PRO dans un environnement à privilèges limités.
+  Pour créer un utilisateur appelé 'upsignonpro', utilisez la commande : `createuser upsignonpro --password` (un mot de passe va vous être demandé, attention, le collage d'un mot de passe ne fonctionne pas, il faut le saisir manuellement)
+- pour créer la base de données et pour qu'elle soit accessible par l'utilisateur linux que nous venons de créer, utilisez la commande : `createdb nom_de_la_base -O upsignonpro` (typiquement `createdb upsignonpro -O upsignonpro`)
   - NB: cette base de données sera provisionnée dans l'étape suivante
+  - NB2 : choisir le même nom pour l'utilisateur et pour la base de données simplifie l'usage de la commande psql : au lieu de devoir écrire `psql nom_de_la_base`, il suffit d'écrire `psql`
+- à partir de là, vous devrier pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`sudo -i -u upsignonpro`) en tapant la commande `psql nom_de_la_base` ou simplement `psql`
 
 Dans la suite, les variables d'environnement suivantes feront référence à la configuration de la base de données
 
@@ -21,6 +37,8 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - DB_PORT: port sur lequel est servi la base de données
 
 # Installation du serveur UpSignOn PRO
+
+Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
 
 - ce serveur va envoyer des emails à vos utilisateurs. Vous devez donc définir une adresse email d'envoi pour ces emails. La configuration de cette adresse email sera stockée dans les variables d'environnement suivantes
 
@@ -33,13 +51,14 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - installer yarn `npm install --global yarn`
 - installer git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
   - NB, il n'est pas nécessaire de définir un utilisateur github
-- (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances), installer pm2 `npm install pm2 -g`
-- (optionnel) pour bénéficier de l'autocompletion des commandes pm2 `pm2 completion install`
+- (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), installez pm2 `npm install pm2 -g`.
 
 - installez un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
 
   - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
   - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
+
+  - NB : l'utilisateur linux propriétaire du serveur doit pouvoir accéder à ces fichiers en lecture. N'oubliez pas de configurer les droits d'accès à ces fichiers correctement.
 
 - clone du repo `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git <DESTINATION_DIRECTORY>`
 - dans le dossier <DESTINATION_DIRECTORY>
@@ -68,10 +87,11 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
     - une fois que toutes les variables d'environnement sont correctement définies, exécutez les commandes suivantes
 
       - provisionning de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
-      - démarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
+        - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
+      - démarrage du serveur : `pm2 start ecosystem.production.config.js --only upsignon-pro-server`
       - NB: le script `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate-down` ne sera a priori jamais utilisé, il permet d'annuler les dernières modifications apportées à la structure de la base de données.
 
-  - si vous ne voulez pas utiliser pm2, assurez-vous que toutes les variables d'environnement citées sont correctement définies puis exécutez les deux commandes suivantes
+  - si vous ne voulez pas utiliser pm2, assurez-vous que toutes les variables d'environnement citées sont correctement définies dans le PATH puis exécutez les deux commandes suivantes
     - provisioning de la base de données: `node ./scripts/migrateUp.js`
     - démarrage du serveur: `node ./compiled/server.js`
 
@@ -117,6 +137,12 @@ server {
 }
 ```
 
+# Installation d'un serveur d'administration Forest-Admin
+
+Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui vous donnera accès à une interface d'administration ergonomique de la base de données. Ce serveur ne sera utilisé que par vos administrateurs IT.
+
+- Suivez la documentation d'installation ici : https://github.com/UpSignOn/UpSignOn-pro-forest-admin
+
 # Dernières configurations
 
 - Depuis votre interface d'administration Forest Admin, ajoutez les adresses email autorisées à créer un environnement PRO.
@@ -136,10 +162,11 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 # Mise à jour du serveur
 
 - `git pull`
+- `yarn` (pour mettre à jour les dépendances si besoin)
 - `yarn build`
 - avec pm2
-  - mise à jour de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
-  - redémarrage du serveur : `pm2 startOrReload ecosystem.production.config.js --only upsignon-pro-server`
+  - mise à jour de la base de données : `pm2 reload ecosystem.production.config.js --only upsignon-pro-db-migrate`
+  - redémarrage du serveur : `pm2 reload ecosystem.production.config.js --only upsignon-pro-server`
 - sans pm2 :
   - mise à jour de la base de données : `node ./scripts/migrateUp.js`
   - redémarrage du serveur : `node ./compiled/server.js`
