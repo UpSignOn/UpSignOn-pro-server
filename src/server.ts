@@ -21,6 +21,7 @@ import { stopSharingWithContact } from './routes/stopSharingWithContact';
 import { getContactForSharedItem } from './routes/getContactsForSharedItem';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
+import { logUsage } from './routes/logUsage';
 
 const app = express();
 app.disable('x-powered-by');
@@ -49,6 +50,7 @@ app.post('/stop-sharing-with-contact', stopSharingWithContact);
 app.post('/get-contacts-for-shared-item', getContactForSharedItem);
 app.post('/check-user-public-key', checkUserPublicKey);
 app.post('/update-device-metadata', updateDeviceMetaData);
+app.post('/log-usage', logUsage);
 
 if (module === require.main) {
   startServer(app);

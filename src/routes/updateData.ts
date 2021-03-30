@@ -14,6 +14,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const isNewData = req.body?.isNewData;
     const sharingPublicKey = req.body?.sharingPublicKey;
     const returningSharedItems = req.body?.returningSharedItems;
+    const dataStats = req.body?.dataStats;
 
     // Check params
     if (!userEmail) return res.status(401).end();
@@ -61,6 +62,19 @@ export const updateData = async (req: any, res: any): Promise<void> => {
         'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
         [newEncryptedData, userEmail, lastUpdateDate],
       );
+      if (dataStats) {
+        await db.query(
+          'INSERT INTO data_stats (user_id, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak) VALUES ($1,$2,$3,$4,$5,$6)',
+          [
+            dbRes.rows[0].user_id,
+            dataStats.nbAccounts,
+            dataStats.nbCodes,
+            dataStats.nbAccountsWithStrongPassword,
+            dataStats.nbAccountsWithMediumPassword,
+            dataStats.nbAccountsWithWeakPassword,
+          ],
+        );
+      }
     }
     if (updateRes.rowCount === 0) {
       // CONFLICT
