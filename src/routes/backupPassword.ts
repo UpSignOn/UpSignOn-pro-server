@@ -42,7 +42,7 @@ export const backupPassword = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    console.error(e);
+    console.error('backupPassword', e);
     return res.status(400).end();
   }
 };

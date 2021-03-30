@@ -34,7 +34,7 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
     // Return res
     return res.status(200).json({ urlList: urlListRes.rows });
   } catch (e) {
-    console.error(e);
+    console.error('getUrlList', e);
     return res.status(400).end();
   }
 };

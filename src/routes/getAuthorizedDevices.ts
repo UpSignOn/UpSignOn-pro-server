@@ -36,7 +36,7 @@ export const getAuthorizedDevices = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ devices: devicesRes.rows });
   } catch (e) {
-    console.error(e);
+    console.error('getAuthorizedDevices', e);
     return res.status(400).end();
   }
 };

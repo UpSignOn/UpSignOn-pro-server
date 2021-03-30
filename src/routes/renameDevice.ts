@@ -40,7 +40,7 @@ export const renameDevice = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    console.error(e);
+    console.error('renameDevice', e);
     return res.status(400).end();
   }
 };

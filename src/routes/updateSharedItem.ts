@@ -63,7 +63,7 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
 
     return res.status(200).end();
   } catch (e) {
-    console.error(e);
+    console.error('updateSharedItem', e);
     return res.status(400).end();
   }
 };

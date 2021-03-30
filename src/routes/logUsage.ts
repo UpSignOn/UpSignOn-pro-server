@@ -43,7 +43,7 @@ export const logUsage = async (req: any, res: any): Promise<void> => {
 
     return res.status(204).end();
   } catch (e) {
-    console.error(e);
+    console.error('logUsage', e);
     return res.status(400).end();
   }
 };

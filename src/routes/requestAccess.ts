@@ -135,7 +135,7 @@ export const requestAccess = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    console.error(e);
+    console.error('requestAccess', e);
     res.status(400).end();
   }
 };

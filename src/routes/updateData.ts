@@ -48,7 +48,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     // Update DB
     if (isNewData && !!dbRes.rows[0].encrypted_data) {
       // a security to increase resilience in case the app contained a bug and tried to update the user's space with empty data
-      console.error('Attempted to init user data where data already exists.');
+      console.error('updateData - Attempted to init user data where data already exists.');
       return res.status(400).end();
     }
     let updateRes;
@@ -88,7 +88,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
     }
   } catch (e) {
-    console.error(e);
+    console.error('updateData', e);
     return res.status(400).end();
   }
 };

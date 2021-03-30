@@ -56,7 +56,7 @@ export const stopSharingWithContact = async (req: any, res: any): Promise<void> 
 
     return res.status(200).end();
   } catch (e) {
-    console.error(e);
+    console.error('stopSharingWithContact', e);
     return res.status(400).end();
   }
 };

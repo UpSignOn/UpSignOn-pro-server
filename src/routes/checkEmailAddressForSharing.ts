@@ -40,7 +40,7 @@ export const checkEmailAddressForSharing = async (req: any, res: any) => {
       .status(200)
       .json({ valid: checkRes.rowCount > 0, publicKey: checkRes.rows[0]?.sharing_public_key });
   } catch (e) {
-    console.error(e);
+    console.error('checkEmailAddressForSharing', e);
     return res.status(400).end();
   }
 };

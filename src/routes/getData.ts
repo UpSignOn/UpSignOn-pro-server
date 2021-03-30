@@ -48,7 +48,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
       sharedItems,
     });
   } catch (e) {
-    console.error(e);
+    console.error('getData', e);
     return res.status(400).end();
   }
 };

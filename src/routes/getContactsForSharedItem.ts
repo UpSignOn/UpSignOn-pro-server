@@ -42,7 +42,7 @@ export const getContactForSharedItem = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contacts: contactRes.rows.filter((c) => c.email !== userEmail) });
   } catch (e) {
-    console.error(e);
+    console.error('getContactsForSharedItem', e);
     return res.status(400).end();
   }
 };

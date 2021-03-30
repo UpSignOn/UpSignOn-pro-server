@@ -42,7 +42,7 @@ export const getContactsPublicKeys = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contactsPublicKeys: contactRes.rows });
   } catch (e) {
-    console.error(e);
+    console.error('getContactPublicKeys', e);
     return res.status(400).end();
   }
 };

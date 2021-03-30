@@ -60,7 +60,7 @@ export const updateContactRights = async (req: any, res: any): Promise<void> => 
 
     return res.status(200).end();
   } catch (e) {
-    console.error(e);
+    console.error('updateContactRights', e);
     return res.status(400).end();
   }
 };
