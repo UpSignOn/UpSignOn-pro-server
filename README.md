@@ -125,7 +125,7 @@ server {
   listen [::]:443 ssl http2;
   server_name upsignon.my-domain.fr;
   proxy_ssl_verify off;
-  root /home/b-upsignon/server/public/;
+  root /home/upsignonpro/UpSignOn-pro-server/public/;
 
   location / {
     proxy_pass https://localhost:3000;
@@ -148,6 +148,9 @@ Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui 
 - Depuis votre interface d'administration Forest Admin, ajoutez les adresses email autorisées à créer un environnement PRO.
   - NB : déclarer '\*@mon-domaine.fr' aura pour effet d'autoriser toutes les adresses de ce domaine
 - Depuis votre interface d'administration Forest Admin, vous pouvez ajouter les urls les plus classiques que saisiront vos agents (cette liste n'empêche pas l'enregistrement de mot de passe pour d'autres url, elle sera simplement affichée comme une liste de suggestions). Nous vous conseillons d'en mettre autant que possible pour faciliter l'onboarding des agents.
+- Par défaut, toute demande de réinitialisation de mot de passe doit être acceptée manuellement par un administrateur. (Ceci permet d'éviter que quelqu'un ayant réussi à voler un téléphone pro puisse en toute autonomie réinitialiser le mot de passe UpSignOn de l'utilisateur).
+  - pour autoriser un utilisateur à réinitialiser son mot de passe, rendez-vous sur Forest-Admin, table "Password Reset Requests", sélectionnez la demande correspondant à l'utilisateur en question, puis utilisez le bouton Action en haut à droite. Ceci enverra un email à l'utilisateur pour qu'il puisse réinitialiser son mot de passe.
+  - vous pouvez si vous le souhaitez désactiver la vérification manuelle et laisser le système valider automatiquement toute demande de réinitialisation de mot de passe en mettant le paramètre DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN à true dans la table "Settings"
 
 # Lancement auprès des utilisateurs
 
