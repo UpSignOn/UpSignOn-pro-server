@@ -1,27 +1,12 @@
-const env = {
-  DB_USER: 'db-administrator',
-  DB_PASS: 'db-password',
-  DB_NAME: 'upsignonpro',
-  DB_HOST: 'localhost',
-  DB_PORT: '5432',
-  NODE_ENV: 'production',
-  SERVER_PORT: '3000',
-  SSL_CERTIFICATE_KEY_PATH: '',
-  SSL_CERTIFICATE_CRT_PATH: '',
-  EMAIL_HOST: 'smtp.domain.fr',
-  EMAIL_PORT: '587',
-  EMAIL_USER: 'user@domain.fr',
-  EMAIL_PASS: 'password',
-  API_PUBLIC_HOSTNAME: 'mon-espace-pro.fr',
-  DISPLAY_NAME_IN_APP: 'Mon Espace Pro',
-};
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 module.exports = {
   apps: [
     {
       name: 'upsignon-pro-server',
       script: './compiled/server.js',
-      env,
       instances: 1,
       exec_model: 'fork',
       error_file: './logs/server-error.log',
@@ -33,7 +18,6 @@ module.exports = {
     {
       name: 'upsignon-pro-db-migrate-down',
       script: './scripts/migrateDown.js',
-      env,
       error_file: './logs/db-error.log',
       out_file: './logs/db-output.log',
       autorestart: false,
@@ -41,7 +25,6 @@ module.exports = {
     {
       name: 'upsignon-pro-db-migrate',
       script: './scripts/migrateUp.js',
-      env,
       error_file: './logs/db-error.log',
       out_file: './logs/db-output.log',
       autorestart: false,

@@ -57,60 +57,61 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
 - (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), installez pm2 `npm install pm2 -g`.
 
-- installez un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
+- (optionnel) vous pouvez installer un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
 
   - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
   - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
 
   - NB : l'utilisateur linux propriétaire du serveur doit pouvoir accéder à ces fichiers en lecture. N'oubliez pas de configurer les droits d'accès à ces fichiers correctement.
+  - si ces deux variables d'environnement ne sont pas définies, le serveur local fonctionnera en http.
 
 - clone du repo `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git <DESTINATION_DIRECTORY>`
 - dans le dossier <DESTINATION_DIRECTORY>
 
   - installez les nodes modules `yarn install`
   - compilez le projet `yarn build`
-  - si vous souhaitez utiliser pm2, dupliquez le fichier ecosystem vers par exemple `ecosystem.production.config.js`
+  - créez un fichier .env à la racine du dossier et copiez-y le contenu de `dot-env-example`. Ne renommez pas directement `dot-env-example` pour ne pas avoir de changements git.
+  - dans le fichier .env, définissez toutes vos variables d'environnement.
+    - DB_USER
+    - DB_PASS
+    - DB_NAME
+    - DB_HOST
+    - DB_PORT
+    - NODE_ENV: doit être 'production'
+    - SERVER_PORT: port utilisé pour le serveur local
+    - SSL_CERTIFICATE_KEY_PATH
+    - SSL_CERTIFICATE_CRT_PATH
+    - EMAIL_HOST
+    - EMAIL_PORT
+    - EMAIL_USER
+    - EMAIL_PASS
+    - API_PUBLIC_HOSTNAME: nom d'hôte public sur lequel l'application pourra communiquer avec votre serveur UpSignOn PRO (sans 'https://', peut contenir un chemin)
+    - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application
 
-    - éditez ce fichier pour y définir les variables d'environnement nécessaires
-      - DB_USER
-      - DB_PASS
-      - DB_NAME
-      - DB_HOST
-      - DB_PORT
-      - NODE_ENV: doit être 'production'
-      - SERVER_PORT: port utilisé pour le serveur local
-      - SSL_CERTIFICATE_KEY_PATH
-      - SSL_CERTIFICATE_CRT_PATH
-      - EMAIL_HOST
-      - EMAIL_PORT
-      - EMAIL_USER
-      - EMAIL_PASS
-      - API_PUBLIC_HOSTNAME: nom d'hôte public sur lequel l'application pourra communiquer avec votre serveur UpSignOn PRO (sans 'https://', peut contenir un chemin)
-      - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application
-    - vous pouvez également choisir les chemins où seront stockés les logs
-    - une fois que toutes les variables d'environnement sont correctement définies, exécutez les commandes suivantes
+# Provisionning de la base de données
 
-      - provisionning de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
-        - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
-        - en cas d'erreur de connexion, tester via
-        ```
-        psql -h localhost -U upsignonpro -p 5432 upsignonpro
-        ```
-        Si besoin, modifier le mot de passe pour l'utilisateur upsignonpro
-        ```
-        sudo -u postgres -i
-        psql
-        ```
-        puis
-        ```
-        \password upsignonpro
-        ```
-      - démarrage du serveur : `pm2 start ecosystem.production.config.js --only upsignon-pro-server`
-      - NB: le script `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate-down` ne sera a priori jamais utilisé, il permet d'annuler les dernières modifications apportées à la structure de la base de données.
+- Option 1 : avec pm2 : `pm2 start ecosystem.config.js --only upsignon-pro-db-migrate`
+- Option 2 : sans pm2 : `node ./scripts/migrateUp.js`
 
-  - si vous ne voulez pas utiliser pm2, assurez-vous que toutes les variables d'environnement citées sont correctement définies dans le PATH puis exécutez les deux commandes suivantes
-    - provisioning de la base de données: `node ./scripts/migrateUp.js`
-    - démarrage du serveur: `node ./compiled/server.js`
+  - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
+  - en cas d'erreur de connexion, tester via
+    ```
+    psql -h localhost -U upsignonpro -p 5432 upsignonpro
+    ```
+    Si besoin, modifier le mot de passe pour l'utilisateur upsignonpro
+    ```
+    sudo -u postgres -i
+    psql
+    ```
+    puis
+    ```
+    \password upsignonpro
+    ```
+
+# Démarrage du serveur
+
+- option 1 avec pm2 : `pm2 start ecosystem.config.js --only upsignon-pro-server`
+- option 2 sans pm2 : `node ./compiled/server.js`
 
 # Génération d'un certificat SSL
 
@@ -169,6 +170,8 @@ server {
 }
 ```
 
+NB, si vous avez choisi de ne pas installer de certificat SSL pour le serveur local, remplacez `proxy_pass https://localhost:3000;` par `proxy_pass http://localhost:3000;`
+
 Redémarrer Nginx
 
 ```
@@ -206,8 +209,8 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `yarn` (pour mettre à jour les dépendances si besoin)
 - `yarn build`
 - avec pm2
-  - mise à jour de la base de données : `pm2 reload ecosystem.production.config.js --only upsignon-pro-db-migrate`
-  - redémarrage du serveur : `pm2 reload ecosystem.production.config.js --only upsignon-pro-server`
+  - mise à jour de la base de données : `pm2 reload ecosystem.config.js --only upsignon-pro-db-migrate`
+  - redémarrage du serveur : `pm2 reload ecosystem.config.js --only upsignon-pro-server`
 - sans pm2 :
   - mise à jour de la base de données : `node ./scripts/migrateUp.js`
   - redémarrage du serveur : `node ./compiled/server.js`

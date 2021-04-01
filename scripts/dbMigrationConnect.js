@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 var { Client } = require('pg');
+var path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 try {
   var db = new Client({

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+import path from 'path';
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 import express from 'express';
 import { startServer } from './helpers/serverProcess';
 import { requestAccess } from './routes/requestAccess';
