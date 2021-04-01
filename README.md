@@ -23,22 +23,22 @@ Cette procédure configure un utilisateur linux qui sera le propriétaire de la 
 
 - Vous voudrez sans doute créer un utilisateur linux pour exécuter le serveur UpSignOn PRO dans un environnement à privilèges limités.
   Pour créer un utilisateur appelé 'upsignonpro', utilisez la commande : `createuser upsignonpro --password` (un mot de passe va vous être demandé, attention, le collage d'un mot de passe ne fonctionne pas, il faut le saisir manuellement)
-- pour créer la base de données et pour qu'elle soit accessible par l'utilisateur linux que nous venons de créer, utilisez la commande : `createdb nom_de_la_base -O upsignonpro` (typiquement `createdb upsignonpro -O upsignonpro`)
+- pour créer la base de données et pour qu'elle soit accessible par l'utilisateur linux que nous venons de créer:
+  `su - postgres` puis `createdb upsignonpro -O upsignonpro`.
   - NB: cette base de données sera provisionnée dans l'étape suivante
-  - NB2 : choisir le même nom pour l'utilisateur et pour la base de données simplifie l'usage de la commande psql : au lieu de devoir écrire `psql nom_de_la_base`, il suffit d'écrire `psql`
-- à partir de là, vous devrier pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`sudo -i -u upsignonpro`) en tapant la commande `psql nom_de_la_base` ou simplement `psql`
+- à partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`su - upsignonpro`) en tapant la commande `psql upsignonpro`
 
 Dans la suite, les variables d'environnement suivantes feront référence à la configuration de la base de données
 
-- DB_USER: nom de l'utilisateur propriétaire de la base de données
+- DB_USER: nom de l'utilisateur propriétaire de la base de données (ici 'upsignonpro')
 - DB_PASS: mot de passe d'accès à la base de données
-- DB_NAME: nom de la base de données
-- DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données
-- DB_PORT: port sur lequel est servi la base de données
+- DB_NAME: nom de la base de données (ici 'upsignonpro')
+- DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
+- DB_PORT: port sur lequel est servi la base de données ('5432')
 
 # Installation du serveur UpSignOn PRO
 
-Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
+Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - upsignonpro` ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
 
 - ce serveur va envoyer des emails à vos utilisateurs. Vous devez donc définir une adresse email d'envoi pour ces emails. La configuration de cette adresse email sera stockée dans les variables d'environnement suivantes
 
@@ -48,9 +48,13 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui 
   - EMAIL_PASS: mot de passe pour cette adresse email
 
 - installer Node.js (https://nodejs.org/en/download/package-manager/) (toutes les versions > v12 devraient fonctionner)
+
 - installer yarn `npm install --global yarn`
+
 - installer git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
   - NB, il n'est pas nécessaire de définir un utilisateur github
+
 - (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), installez pm2 `npm install pm2 -g`.
 
 - installez un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
@@ -74,7 +78,6 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui 
       - DB_HOST
       - DB_PORT
       - NODE_ENV: doit être 'production'
-      - API_PUBLIC_HOSTNAME: nom d'hôte public sur lequel l'application pourra communiquer avec votre serveur UpSignOn PRO (sans 'https://', peut contenir un chemin)
       - SERVER_PORT: port utilisé pour le serveur local
       - SSL_CERTIFICATE_KEY_PATH
       - SSL_CERTIFICATE_CRT_PATH
@@ -82,12 +85,26 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui 
       - EMAIL_PORT
       - EMAIL_USER
       - EMAIL_PASS
+      - API_PUBLIC_HOSTNAME: nom d'hôte public sur lequel l'application pourra communiquer avec votre serveur UpSignOn PRO (sans 'https://', peut contenir un chemin)
       - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application
     - vous pouvez également choisir les chemins où seront stockés les logs
     - une fois que toutes les variables d'environnement sont correctement définies, exécutez les commandes suivantes
 
       - provisionning de la base de données : `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate`
         - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
+        - en cas d'erreur de connexion, tester via
+        ```
+        psql -h localhost -U upsignonpro -p 5432 upsignonpro
+        ```
+        Si besoin, modifier le mot de passe pour l'utilisateur upsignonpro
+        ```
+        sudo -u postgres -i
+        psql
+        ```
+        puis
+        ```
+        \password upsignonpro
+        ```
       - démarrage du serveur : `pm2 start ecosystem.production.config.js --only upsignon-pro-server`
       - NB: le script `pm2 start ecosystem.production.config.js --only upsignon-pro-db-migrate-down` ne sera a priori jamais utilisé, il permet d'annuler les dernières modifications apportées à la structure de la base de données.
 
@@ -95,9 +112,24 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (ou celui 
     - provisioning de la base de données: `node ./scripts/migrateUp.js`
     - démarrage du serveur: `node ./compiled/server.js`
 
+# Génération d'un certificat SSL
+
+Par exemple avec Let's Encrypt
+
+```
+apt install letsencrypt
+letsencrypt certonly --standalone -d upsignon.domaine.fr
+```
+
+N'oubliez pas de configurer les droits de lecture et d'écriture de votre clé privée (lecture et écriture seulement pour root).
+
 # Configuration du reverse proxy
 
 Voici par exemple une configuration possible avec Nginx
+
+Pour installer Nginx : `apt install nginx`
+
+Dans /etc/nginx/sites-enabled/upsignon
 
 ```
 proxy_set_header X-Real-IP $remote_addr;
@@ -123,7 +155,7 @@ server {
 server {
   listen 443 ssl http2;
   listen [::]:443 ssl http2;
-  server_name upsignon.my-domain.fr;
+  server_name upsignon.domaine.fr;
   proxy_ssl_verify off;
   root /home/upsignonpro/UpSignOn-pro-server/public/;
 
@@ -135,6 +167,12 @@ server {
     return 405;
   }
 }
+```
+
+Redémarrer Nginx
+
+```
+systemctl restart nginx
 ```
 
 # Installation d'un serveur d'administration Forest-Admin
