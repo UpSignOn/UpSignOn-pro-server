@@ -15,19 +15,5 @@ module.exports = {
       kill_timeout: 3000,
       source_map_support: true,
     },
-    {
-      name: 'upsignon-pro-db-migrate-down',
-      script: './scripts/migrateDown.js',
-      error_file: './logs/db-error.log',
-      out_file: './logs/db-output.log',
-      autorestart: false,
-    },
-    {
-      name: 'upsignon-pro-db-migrate',
-      script: './scripts/migrateUp.js',
-      error_file: './logs/db-error.log',
-      out_file: './logs/db-output.log',
-      autorestart: false,
-    },
   ],
 };

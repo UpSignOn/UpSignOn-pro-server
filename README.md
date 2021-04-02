@@ -90,8 +90,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
 # Provisionning de la base de données
 
-- Option 1 : avec pm2 : `pm2 start ecosystem.config.js --only upsignon-pro-db-migrate`
-- Option 2 : sans pm2 : `node ./scripts/migrateUp.js`
+- `node ./scripts/migrateUp.js`
 
   - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
   - en cas d'erreur de connexion, tester via
@@ -208,9 +207,7 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `git pull`
 - `yarn` (pour mettre à jour les dépendances si besoin)
 - `yarn build`
-- avec pm2
-  - mise à jour de la base de données : `pm2 reload ecosystem.config.js --only upsignon-pro-db-migrate`
-  - redémarrage du serveur : `pm2 reload ecosystem.config.js --only upsignon-pro-server`
-- sans pm2 :
-  - mise à jour de la base de données : `node ./scripts/migrateUp.js`
-  - redémarrage du serveur : `node ./compiled/server.js`
+- mise à jour de la base de données : `node ./scripts/migrateUp.js`
+- redémarrage du serveur :
+  - avec pm2 : `pm2 reload ecosystem.config.js --only upsignon-pro-server`
+  - sans pm2 : `node ./compiled/server.js`
