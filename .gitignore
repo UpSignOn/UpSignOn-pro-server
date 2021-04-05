@@ -2,7 +2,8 @@ node_modules
 db-logs
 compiled
 logs
-.env
+.env*
+.env.*
 *.key
 *.crt
 *.csr
