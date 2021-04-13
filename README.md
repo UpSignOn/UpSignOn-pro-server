@@ -70,8 +70,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
   - installez les nodes modules `yarn install`
   - compilez le projet `yarn build`
-  - créez un fichier .env à la racine du dossier et copiez-y le contenu de `dot-env-example`. Ne renommez pas directement `dot-env-example` pour ne pas avoir de changements git.
-  - dans le fichier .env, définissez toutes vos variables d'environnement.
+  - créez un fichier `.env` (le nom doit être exactement `.env`) à la racine du dossier et copiez-y le contenu de `dot-env-example`. Ne renommez pas directement `dot-env-example` pour ne pas avoir de changements git.
+  - dans le fichier `.env`, définissez toutes vos variables d'environnement.
     - DB_USER
     - DB_PASS
     - DB_NAME
@@ -79,8 +79,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
     - DB_PORT
     - NODE_ENV: doit être 'production'
     - SERVER_PORT: port utilisé pour le serveur local
-    - SSL_CERTIFICATE_KEY_PATH
-    - SSL_CERTIFICATE_CRT_PATH
+    - SSL_CERTIFICATE_KEY_PATH (optionnel)
+    - SSL_CERTIFICATE_CRT_PATH (optionnel)
     - EMAIL_HOST
     - EMAIL_PORT
     - EMAIL_USER
