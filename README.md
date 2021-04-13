@@ -1,10 +1,16 @@
 # Avant de commencer
 
 - Envoyez un email à giregk@upsignon.eu en indiquant
+
   - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
   - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/forest-admin)
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
+
+- Ressources minimales
+  - CPU : 1 vcore, (2 vcore conseillés)
+  - RAM : 512Mo pour un nombre d'utilisateurs restreint, 2Go pour un nombre d'utilisateurs plus importants
+  - DD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code, puis 100ko par utilisateur pour la base de données (soit 100mo pour 1000 utilisateurs), puis quelques Go pour stocker les logs (selon la durée de conservation) => 10Go au total devraient être largement suffisants.
 
 # Installation de la base de données
 
@@ -59,6 +65,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
   - NB, il n'est pas nécessaire de définir un utilisateur github
 
 - (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), installez pm2 `npm install pm2 -g`.
+
+  - NB: la capacité de redémarrage automatique en cas de crash est incluse par défaut avec pm2, vous n'avez rien de plus à configurer.
 
 - (optionnel) vous pouvez installer un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
 
