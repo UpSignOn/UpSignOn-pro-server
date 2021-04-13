@@ -2,8 +2,8 @@
 
 - Envoyez un email à giregk@upsignon.eu en indiquant
   - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
-  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr)
-  - l'adresse email d'une personne qui sera administrateur du projet Forest Admin
+  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/admin)
+  - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
 
 # Installation de la base de données
@@ -18,20 +18,23 @@ Vous pouvez installer la base de données postgreSQL selon vos propres procédur
 
 2. création de la base de données pour UpSignOn PRO
 
-Voici une procédure éprouvée pour les environnements Linux (testé sur Debian 9).
+Voici une procédure éprouvée pour les environnements Linux (testé sur Debian 10).
 Cette procédure configure un utilisateur linux qui sera le propriétaire de la base de données et du serveur.
 
 - Vous voudrez sans doute créer un utilisateur linux pour exécuter le serveur UpSignOn PRO dans un environnement à privilèges limités.
-  Pour créer un utilisateur appelé 'upsignonpro', utilisez la commande : `createuser upsignonpro --password` (un mot de passe va vous être demandé, attention, le collage d'un mot de passe ne fonctionne pas, il faut le saisir manuellement)
+  Pour créer un utilisateur appelé 'upsignonpro', utilisez la commande : `sudo adduser upsignonpro`
+
 - pour créer la base de données et pour qu'elle soit accessible par l'utilisateur linux que nous venons de créer:
-  `su - postgres` puis `createdb upsignonpro -O upsignonpro`.
-  - NB: cette base de données sera provisionnée dans l'étape suivante
+  - connection en tant qu'utilisateur postgres: `su - postgres`
+  - créons un rôle PostgreSQL appelé 'upsignonpro': `createuser upsignonpro`
+  - créons la base de données `createdb upsignonpro -O upsignonpro` (NB: cette base de données sera provisionnée dans l'étape suivante)
+  - ajoutons un mot de passe au rôle 'upsignonpro': `psql` puis dans l'invite PostgreSQL, `\password upsignonpro`
 - à partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`su - upsignonpro`) en tapant la commande `psql upsignonpro`
 
 Dans la suite, les variables d'environnement suivantes feront référence à la configuration de la base de données
 
 - DB_USER: nom de l'utilisateur propriétaire de la base de données (ici 'upsignonpro')
-- DB_PASS: mot de passe d'accès à la base de données
+- DB_PASS: mot de passe d'accès à la base de données (celui du role 'upsignonpro')
 - DB_NAME: nom de la base de données (ici 'upsignonpro')
 - DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
