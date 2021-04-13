@@ -1,5 +1,6 @@
 var fs = require('fs');
 var db = require('./dbMigrationConnect');
+var path = require('path');
 
 function getMigrationPromise(file, index) {
   return async function () {
@@ -18,7 +19,7 @@ function getMigrationPromise(file, index) {
   };
 }
 
-fs.readdir('./migrations', function (err, files) {
+fs.readdir(path.join(__dirname, '../migrations'), function (err, files) {
   var requests = files.sort().map(getMigrationPromise);
   requests
     .reduce(function (cur, next) {
