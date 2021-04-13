@@ -50,7 +50,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
   - EMAIL_USER: adresse email à partir de laquelle seront envoyés les mails de validation
   - EMAIL_PASS: mot de passe pour cette adresse email
 
-- installer Node.js (https://nodejs.org/en/download/package-manager/) (toutes les versions > v12 devraient fonctionner)
+- installer Node.js (https://nodejs.org/en/download/package-manager/) (testé en v12 et v15)
 
 - installer yarn `npm install --global yarn`
 
@@ -96,18 +96,9 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 - `node ./scripts/migrateUp.js`
 
   - vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
-  - en cas d'erreur de connexion, tester via
+  - en cas d'erreur de connexion, vous pouvez tester via la commande
     ```
     psql -h localhost -U upsignonpro -p 5432 upsignonpro
-    ```
-    Si besoin, modifier le mot de passe pour l'utilisateur upsignonpro
-    ```
-    sudo -u postgres -i
-    psql
-    ```
-    puis
-    ```
-    \password upsignonpro
     ```
 
 # Démarrage du serveur
@@ -115,24 +106,19 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 - option 1 avec pm2 : `pm2 start ecosystem.config.js --only upsignon-pro-server`
 - option 2 sans pm2 : `node ./compiled/server.js`
 
-# Génération d'un certificat SSL
-
-Par exemple avec Let's Encrypt
-
-```
-apt install letsencrypt
-letsencrypt certonly --standalone -d upsignon.domaine.fr
-```
-
-N'oubliez pas de configurer les droits de lecture et d'écriture de votre clé privée (lecture et écriture seulement pour root).
-
-# Configuration du reverse proxy
+# Configuration d'un reverse proxy
 
 Voici par exemple une configuration possible avec Nginx
 
-Pour installer Nginx : `apt install nginx`
+- Pour installer Nginx : `apt install nginx`
+- Vous aurez besoin d'un certificat et d'une clé privée pour votre sous-domaine
 
 Dans /etc/nginx/sites-enabled/upsignon
+
+<details>
+  <summary>Example de configuration Nginx</summary>
+
+<p>
 
 ```
 proxy_set_header X-Real-IP $remote_addr;
@@ -160,10 +146,13 @@ server {
   listen [::]:443 ssl http2;
   server_name upsignon.domaine.fr;
   proxy_ssl_verify off;
-  root /home/upsignonpro/UpSignOn-pro-server/public/;
 
   location / {
+    # if you use local SSL
     proxy_pass https://localhost:3000;
+
+    # if you don't use local SSL
+    proxy_pass http://localhost:3000;
   }
   if ($request_method !~ ^(GET|HEAD|POST)$ )
   {
@@ -172,9 +161,12 @@ server {
 }
 ```
 
+</p>
+</details>
+
 NB, si vous avez choisi de ne pas installer de certificat SSL pour le serveur local, remplacez `proxy_pass https://localhost:3000;` par `proxy_pass http://localhost:3000;`
 
-Redémarrer Nginx
+- Redémarrer Nginx
 
 ```
 systemctl restart nginx
@@ -197,9 +189,7 @@ Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui 
 
 # Lancement auprès des utilisateurs
 
-Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant
-"https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où
-<VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignon.my-domain.fr')` soit "https%3A%2F%2Fupsignon.my-domain.fr"
+Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignon.my-domain.fr')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
 
 Ce lien va les rediriger vers une page web qui ouvrira l'application UpSignOn sur la page de configuration.
 
