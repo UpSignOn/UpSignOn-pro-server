@@ -2,7 +2,7 @@
 
 - Envoyez un email à giregk@upsignon.eu en indiquant
   - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
-  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/admin)
+  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/forest-admin)
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
 
@@ -116,7 +116,11 @@ Voici par exemple une configuration possible avec Nginx
 Dans /etc/nginx/sites-enabled/upsignon
 
 <details>
-  <summary>Example de configuration Nginx</summary>
+<summary>Example de configuration Nginx</summary>
+
+Pensez à bien modifier les valeurs sous les `# TODO`
+
+Dans le fichier `/etc/nginx/sites-enabled/upsignonpro`
 
 <p>
 
@@ -132,7 +136,9 @@ add_header X-Download-Options "noopen";
 add_header X-Content-Type-Options "nosniff";
 add_header X-Permitted-Cross-Domain-Policies "none";
 
+# TODO
 ssl_certificate /etc/certificate/myDomainCertificateSignedByTrustedAuthority.cer;
+# TODO
 ssl_certificate_key /etc/certificate/myDomainCertificatePrivateKey.key;
 ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
 
@@ -144,14 +150,12 @@ server {
 server {
   listen 443 ssl http2;
   listen [::]:443 ssl http2;
+  # TODO
   server_name upsignon.domaine.fr;
   proxy_ssl_verify off;
 
   location / {
-    # if you use local SSL
-    proxy_pass https://localhost:3000;
-
-    # if you don't use local SSL
+    # TODO (choix entre http et https & choix du port)
     proxy_pass http://localhost:3000;
   }
   if ($request_method !~ ^(GET|HEAD|POST)$ )
@@ -162,9 +166,10 @@ server {
 ```
 
 </p>
-</details>
 
-NB, si vous avez choisi de ne pas installer de certificat SSL pour le serveur local, remplacez `proxy_pass https://localhost:3000;` par `proxy_pass http://localhost:3000;`
+NB, si vous avez choisi de configurer un certificat SSL pour le serveur local, remplacez `proxy_pass http://localhost:3000;` par `proxy_pass https://localhost:3000;`
+
+</details>
 
 - Redémarrer Nginx
 
