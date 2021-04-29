@@ -62,11 +62,12 @@ export const requestAccess = async (req: any, res: any) => {
 
     if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'AUTHORIZED') {
       return res.status(200).json({ authorizationStatus: 'AUTHORIZED' });
-    }
-    if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
-      return res.status(200).json({ authorizationStatus: 'REVOKED_BY_USER' });
-    }
-    if (
+    } else if (
+      deviceRes.rowCount > 0 &&
+      deviceRes.rows[0].authorization_status === 'REVOKED_BY_USER'
+    ) {
+      await db.query('DELETE FROM user_devices WHERE id=$1', [deviceRes.rows[0].id]);
+    } else if (
       deviceRes.rowCount > 0 &&
       deviceRes.rows[0].authorization_status === 'PENDING' &&
       !isExpired(deviceRes.rows[0].auth_code_expiration_date)
