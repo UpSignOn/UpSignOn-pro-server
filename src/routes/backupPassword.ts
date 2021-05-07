@@ -5,16 +5,18 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 export const backupPassword = async (req: any, res: any) => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const backups = req.body?.backups;
 
     // Check params
-    if (!userEmail) return res.status(401).end();
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
     if (!backups || !Array.isArray(backups)) return res.status(401).end();
+
+    userEmail = userEmail.toLowerCase();
 
     // Request DB
     const dbRes = await db.query(

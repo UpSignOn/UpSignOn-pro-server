@@ -23,7 +23,11 @@ import env from '../helpers/env';
 export const requestAccess = async (req: any, res: any) => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string' || userEmail.indexOf('@') === -1)
+      return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const deviceName = req.body?.deviceName;
@@ -32,7 +36,6 @@ export const requestAccess = async (req: any, res: any) => {
     const appVersion = req.body?.appVersion;
 
     // Check params
-    if (!userEmail || userEmail.indexOf('@') === -1) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
 

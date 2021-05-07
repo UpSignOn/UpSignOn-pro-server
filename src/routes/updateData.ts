@@ -6,7 +6,10 @@ import { getSharedItems } from './getData';
 export const updateData = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const newEncryptedData = req.body?.newEncryptedData;
@@ -17,7 +20,6 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const dataStats = req.body?.dataStats;
 
     // Check params
-    if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
     if (!newEncryptedData) return res.status(401).end();

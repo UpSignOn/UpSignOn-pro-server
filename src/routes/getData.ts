@@ -13,7 +13,10 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
 

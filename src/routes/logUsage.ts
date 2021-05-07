@@ -5,13 +5,15 @@ import { db } from '../helpers/connection';
 export const logUsage = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const logType = req.body?.logType;
 
     // Check params
-    if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
     if (!logType) return res.status(401).end();
 

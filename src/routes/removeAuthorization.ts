@@ -5,13 +5,15 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 export const removeAuthorization = async (req: any, res: any) => {
   try {
     // Get params
-    const userEmail = req.body?.userEmail;
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
     const deviceId = req.body?.deviceId;
     const deviceAccessCode = req.body?.deviceAccessCode;
     const deviceToDelete = req.body?.deviceToDelete || deviceId;
 
     // Check params
-    if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode) return res.status(401).end();
 
