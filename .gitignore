@@ -15,4 +15,3 @@ scripts/**
 !scripts/migrateDown.js
 !scripts/migrateUp.js
 !scripts/migrateMake.sh
-DOC.pdf
