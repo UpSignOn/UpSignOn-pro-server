@@ -7,10 +7,30 @@
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
 
-- Ressources minimales
-  - CPU : 1 vcore, (2 vcore conseillés)
-  - RAM : 512Mo pour un nombre d'utilisateurs restreint, 2Go pour un nombre d'utilisateurs plus importants
-  - DD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code, puis 100ko par utilisateur pour la base de données (soit 100mo pour 1000 utilisateurs), puis quelques Go pour stocker les logs (selon la durée de conservation) => 10Go au total devraient être largement suffisants.
+- Ressources minimales estimées
+  - CPU : 2vcore
+  - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (or système d'exploitation, donc compter peut-être 4Go si windows server, plus gourmand qu'un linux)
+  - HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code, puis 100ko par utilisateur pour la base de données (soit 100mo pour 1000 utilisateurs), puis quelques Go pour stocker les logs (selon la durée de conservation)
+
+# Schéma d'architecture générale
+
+![](./doc/integrationSchemeGeneral.png)
+
+Voici deux implémentations possibles, sachant qu'il peut y avoir des variantes en fonction de vos habitudes et de vos standards.
+
+## Déploiement type 1
+
+Le plus simple.
+
+![](./doc/integrationScheme1.png)
+
+## Déploiement type 2
+
+- plus complexe
+- séparation des processus dans des VM différentes
+- permet notamment si vous le souhaitez de mettre le serveur Forest Admin dans une zone qui n'est pas accessible depuis l'extérieur de votre réseau puisque seuls vos administrateurs sont sensés être autorisés à s'y connecter de toute façon (ce qui pourrait aussi être fait dans le schéma 1 avec des proxys)
+
+![](./doc/integrationScheme2.png)
 
 # Installation de la base de données
 
