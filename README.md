@@ -101,7 +101,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
   - installez les nodes modules `yarn install`
   - compilez le projet `yarn build`
-  - créez un fichier `.env` (le nom doit être exactement `.env`) à la racine du dossier et copiez-y le contenu de `dot-env-example`. Ne renommez pas directement `dot-env-example` pour ne pas avoir de changements git.
+  - créez le fichier `.env` : `cp dot-env-example .env` (attention, le nom de ce fichier doit être exactement `.env`)
   - dans le fichier `.env`, définissez toutes vos variables d'environnement.
     - DB_USER
     - DB_PASS
