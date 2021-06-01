@@ -66,7 +66,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       );
       if (dataStats) {
         await db.query(
-          'INSERT INTO data_stats (user_id, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak) VALUES ($1,$2,$3,$4,$5,$6)',
+          'INSERT INTO data_stats (user_id, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_duplicate_password) VALUES ($1,$2,$3,$4,$5,$6,$7)',
           [
             dbRes.rows[0].user_id,
             dataStats.nbAccounts,
@@ -74,6 +74,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
             dataStats.nbAccountsWithStrongPassword,
             dataStats.nbAccountsWithMediumPassword,
             dataStats.nbAccountsWithWeakPassword,
+            dataStats.nbAccountsWithDuplicatePasswords,
           ],
         );
       }
