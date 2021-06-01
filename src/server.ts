@@ -32,6 +32,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '3Mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/', (req, res) => res.status(200).send('UpSignOn PRO server is running'));
 app.get('/check-device', checkDevice);
 
 app.post('/config', getConfig);

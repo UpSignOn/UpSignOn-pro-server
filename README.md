@@ -1,9 +1,15 @@
 # Avant de commencer
 
-- Envoyez un email à giregk@upsignon.eu en indiquant
+- Choisissez les URL suivantes
 
   - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
+    > NB: il est préférable (mais non obligatoire) que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps.
   - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/forest-admin)
+    > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS.
+
+- Envoyez un email à giregk@upsignon.eu en indiquant
+
+  - l'URL de votre serveur UpSignOn PRO pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
 
@@ -131,7 +137,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
 # Démarrage du serveur
 
-- option 1 avec pm2 : `pm2 start ecosystem.config.js --only upsignon-pro-server`
+- option 1 avec pm2 : `yarn start`
 - option 2 sans pm2 : `node ./compiled/server.js`
 
 # Configuration d'un reverse proxy
@@ -235,5 +241,5 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `yarn build`
 - mise à jour de la base de données : `node ./scripts/migrateUp.js`
 - redémarrage du serveur :
-  - avec pm2 : `pm2 reload ecosystem.config.js --only upsignon-pro-server`
+  - avec pm2 : `yarn restart`
   - sans pm2 : `node ./compiled/server.js`

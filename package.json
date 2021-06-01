@@ -4,7 +4,8 @@
   "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
   "scripts": {
     "build": "rm -rf compiled && tsc -p .",
-    "restart": "yarn build && pm2 startOrReload ecosystem.config.js --only upsignon-pro-server",
+    "start": "pm2 startOrReload ecosystem.config.js --only upsignon-pro-server",
+    "restart": "pm2 del upsignon-pro-server && pm2 startOrReload ecosystem.config.js --only upsignon-pro-server",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
   "dependencies": {
