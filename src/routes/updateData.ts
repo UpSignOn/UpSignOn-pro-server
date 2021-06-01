@@ -18,6 +18,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     const sharingPublicKey = req.body?.sharingPublicKey;
     const returningSharedItems = req.body?.returningSharedItems;
     const dataStats = req.body?.dataStats;
+    const domainsForAutocompletion = req.body?.domainsForAutocompletion;
 
     // Check params
     if (!deviceId) return res.status(401).end();
@@ -60,10 +61,17 @@ export const updateData = async (req: any, res: any): Promise<void> => {
         [newEncryptedData, sharingPublicKey, userEmail],
       );
     } else {
-      updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
-        [newEncryptedData, userEmail, lastUpdateDate],
-      );
+      if (domainsForAutocompletion) {
+        updateRes = await db.query(
+          'UPDATE users SET (encrypted_data, updated_at, domain_list)=($1, CURRENT_TIMESTAMP(0), $4) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
+          [newEncryptedData, userEmail, lastUpdateDate, JSON.stringify(domainsForAutocompletion)],
+        );
+      } else {
+        updateRes = await db.query(
+          'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
+          [newEncryptedData, userEmail, lastUpdateDate],
+        );
+      }
       if (dataStats) {
         await db.query(
           'INSERT INTO data_stats (user_id, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_duplicate_password) VALUES ($1,$2,$3,$4,$5,$6,$7)',
