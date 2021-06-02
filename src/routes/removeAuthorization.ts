@@ -19,7 +19,7 @@ export const removeAuthorization = async (req: any, res: any) => {
 
     // Request DB
     const dbRes = await db.query(
-      "SELECT users.id AS userid, user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'",
+      'SELECT users.id AS userid, user_devices.access_code_hash AS access_code_hash FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
       [userEmail, deviceId],
     );
 
@@ -33,7 +33,7 @@ export const removeAuthorization = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     await db.query(
-      "UPDATE user_devices SET authorization_status='REVOKED_BY_USER', access_code_hash='', encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3",
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', access_code_hash='', encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3",
       [new Date().toISOString(), deviceToDelete, dbRes.rows[0].userid],
     );
     // Return res
