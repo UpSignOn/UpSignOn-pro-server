@@ -90,7 +90,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
   - NB, il n'est pas nécessaire de définir un utilisateur github
 
-- (optionnel) si vous souhaitez utiliser pm2 comme gestionnaire de processus (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), installez pm2 `npm install pm2 -g`.
+- installer le gestionnaire de processus pm2 (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), `npm install pm2 -g`.
 
   - NB: la capacité de redémarrage automatique en cas de crash est incluse par défaut avec pm2, vous n'avez rien de plus à configurer.
 
@@ -137,8 +137,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
 # Démarrage du serveur
 
-- option 1 avec pm2 : `yarn start`
-- option 2 sans pm2 : `node ./compiled/server.js`
+- `yarn start`
+  - NB: à des fins de tests, vous pouvez également utiliser `node ./compiled/server.js`
 
 # Configuration d'un reverse proxy
 
@@ -240,6 +240,4 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `yarn` (pour mettre à jour les dépendances si besoin)
 - `yarn build`
 - mise à jour de la base de données : `node ./scripts/migrateUp.js`
-- redémarrage du serveur :
-  - avec pm2 : `yarn restart`
-  - sans pm2 : `node ./compiled/server.js`
+- redémarrage du serveur `yarn restart`
