@@ -42,7 +42,7 @@ export const checkDevice = async (req: any, res: any) => {
     return res
       .status(200)
       .send(
-        `<p>Succès : vous pouvez maintenant accéder à votre espace confidentiel UpSignOn PRO à partir de l\'appareil ${dbRes.rows[0].device_name}.</p>`,
+        `<!DOCTYPE html><html lang="fr"><body style="display:flex; justify-content: center; align-items:center;"><div style="max-width: 500px;"><h1>Votre appareil ${dbRes.rows[0].device_name} est maintenant autorisé !</h1><h3>Retournez dans l'application UpSignOn pour accéder à votre espace confidentiel PRO.</h3></div></body></html>`,
       );
   } catch (e) {
     console.error('checkDevice', e);
