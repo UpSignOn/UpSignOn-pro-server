@@ -26,6 +26,7 @@ import { getContactForSharedItem } from './routes/getContactsForSharedItem';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 import { logUsage } from './routes/logUsage';
+import { testEmail } from './routes/testEmail';
 
 const app = express();
 app.disable('x-powered-by');
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => res.status(200).send('UpSignOn PRO server is running'));
 app.get('/check-device', checkDevice);
+app.get('/test-email', testEmail);
 
 app.post('/config', getConfig);
 app.post('/url-list', getUrlList);

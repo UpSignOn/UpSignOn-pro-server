@@ -1,13 +1,13 @@
 # IMPORTANT avant de commencer
 
-- Choisissez les URL suivantes
+- Choisissez un sous-domaine pour la configuration DNS (typiquement upsignonpro)
 
-  - l'url sur laquelle votre serveur UpSignOn pro sera accessible (typiquement https://upsignonpro.votre-domaine.fr/server)
+  - l'url sur laquelle votre serveur UpSignOn pro sera accessible sera https://upsignonpro.votre-domaine.fr/server)
     > NB: il est fortement recommandé que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps. Si vous challengez cela, nous vous recommandons d'en discuter avec nous ou de nous écrire à contact@upsignon.eu. Utiliser une URL privée nuit à la valeur ajoutée d'UpSignOn.
-  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (typiquement: https://upsignonpro.votre-domaine.fr/forest-admin)
+  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible sera https://upsignonpro.votre-domaine.fr/admin)
     > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS. Cependant, nous recommandons d'installer le serveur Forest Admin sur la même machine que le serveur UpSignOn PRO pour simplifier l'installation et la maintenance.
 
-- Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le(s) domaine(s) que vous avez choisi
+- Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le sous-domaine que vous avez choisi
 
   - ceci est **obligatoire**
   - les certificats wildcard sont autorisés
@@ -15,9 +15,10 @@
 
 - Envoyez un email **avant de commencer l'installation** à giregk@upsignon.eu en indiquant
 
-  - l'URL de votre serveur UpSignOn PRO pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
+  - l'URL de votre serveur UpSignOn PRO (https://upsignonpro.votre-domaine.fr/server chemin compris) pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
-    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire
+    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
+    - comme expliqué dans la documentation d'installation du serveur Forest Admin, vous recevrez une invitation par email pour créer un compte sur Forest Admin et accéder au projet que nous vous aurons préparé.
   - si vous ne nous envoyez pas cet email, vous perdrez du temps lors de l'installation
 
 - Ressources minimales estimées
@@ -101,7 +102,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 
   - NB: la capacité de redémarrage automatique en cas de crash est incluse par défaut avec pm2, vous n'avez rien de plus à configurer.
 
-- (optionnel) vous pouvez installer un certificat SSL pour que la connection entre le reverse proxy et le serveur local soit sécurisée. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
+- (OPTIONNEL) vous pouvez installer un certificat SSL pour que le serveur utilise HTTPS pour les connexions locales. Cette option est proposée uniquement pour les cas où vous souhaiteriez exposer directement le processus nodeJS en https. Dans le cas de l'utilisation d'un reverse proxy, la sécurité sera portée directement par le reverse proxy. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
 
   - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
   - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
@@ -181,6 +182,7 @@ add_header X-Permitted-Cross-Domain-Policies "none";
 ssl_certificate /etc/certificate/myDomainCertificateSignedByTrustedAuthority.cer;
 # TODO
 ssl_certificate_key /etc/certificate/myDomainCertificatePrivateKey.key;
+
 ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
 
 server {
@@ -196,20 +198,26 @@ server {
   proxy_ssl_verify off;
 
   location /server/ {
-    proxy_pass http://localhost:3000;
+    proxy_pass http://localhost:3000/;
   }
 }
 ```
+
+> attention le '/' final dans 'location /server/' et dans 'http://localhost:3000/' sont importants.
 
 </p>
 
 </details>
 
-- Redémarrer Nginx
+Redémarrer Nginx
 
 ```
 systemctl restart nginx
 ```
+
+En ouvrant la page https://upsignonpro.votre-domaine.fr/server dans votre navigateur, vous devriez voir une page de succès.
+
+Vous pouvez également tester que l'envoi des mails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/server/test-email?email=votre-email@votre-domaine.fr
 
 # Installation d'un serveur d'administration Forest-Admin
 
