@@ -1,17 +1,24 @@
-# Avant de commencer
+# IMPORTANT avant de commencer
 
 - Choisissez les URL suivantes
 
-  - l'url sur laquelle votre serveur UpSignOn pro sera accessible (ex https://upsignon.domaine.fr)
-    > NB: il est préférable (mais non obligatoire) que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps.
-  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (ex: https://admin-upsignon.domaine.fr, ou https://upsignon.domaine.fr/forest-admin)
-    > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS.
+  - l'url sur laquelle votre serveur UpSignOn pro sera accessible (typiquement https://upsignonpro.votre-domaine.fr/server)
+    > NB: il est fortement recommandé que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps. Si vous challengez cela, nous vous recommandons d'en discuter avec nous ou de nous écrire à contact@upsignon.eu. Utiliser une URL privée nuit à la valeur ajoutée d'UpSignOn.
+  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible (typiquement: https://upsignonpro.votre-domaine.fr/forest-admin)
+    > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS. Cependant, nous recommandons d'installer le serveur Forest Admin sur la même machine que le serveur UpSignOn PRO pour simplifier l'installation et la maintenance.
 
-- Envoyez un email à giregk@upsignon.eu en indiquant
+- Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le(s) domaine(s) que vous avez choisi
+
+  - ceci est **obligatoire**
+  - les certificats wildcard sont autorisés
+  - les certificats autosignés ne fonctionneront pas sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
+
+- Envoyez un email **avant de commencer l'installation** à giregk@upsignon.eu en indiquant
 
   - l'URL de votre serveur UpSignOn PRO pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
-    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
+    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire
+  - si vous ne nous envoyez pas cet email, vous perdrez du temps lors de l'installation
 
 - Ressources minimales estimées
   - CPU : 2vcore
@@ -24,7 +31,7 @@
 
 Voici deux implémentations possibles, sachant qu'il peut y avoir des variantes en fonction de vos habitudes et de vos standards.
 
-## Déploiement type 1
+## Déploiement type 1 (déploiement standard, recommandé)
 
 Le plus simple.
 
@@ -185,23 +192,16 @@ server {
   listen 443 ssl http2;
   listen [::]:443 ssl http2;
   # TODO
-  server_name upsignon.domaine.fr;
+  server_name upsignonpro.votre-domaine.fr;
   proxy_ssl_verify off;
 
-  location / {
-    # TODO (choix entre http et https & choix du port)
+  location /server/ {
     proxy_pass http://localhost:3000;
-  }
-  if ($request_method !~ ^(GET|HEAD|POST)$ )
-  {
-    return 405;
   }
 }
 ```
 
 </p>
-
-NB, si vous avez choisi de configurer un certificat SSL pour le serveur local, remplacez `proxy_pass http://localhost:3000;` par `proxy_pass https://localhost:3000;`
 
 </details>
 
@@ -228,7 +228,7 @@ Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui 
 
 # Lancement auprès des utilisateurs
 
-Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignon.my-domain.fr')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
+Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignonpro.votre-domaine.fr/server')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
 
 Ce lien va les rediriger vers une page web qui ouvrira l'application UpSignOn sur la page de configuration.
 
