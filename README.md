@@ -2,7 +2,7 @@
 
 - Choisissez un sous-domaine pour la configuration DNS (typiquement upsignonpro)
 
-  - l'url sur laquelle votre serveur UpSignOn pro sera accessible sera https://upsignonpro.votre-domaine.fr/server)
+  - l'url sur laquelle votre serveur UpSignOn pro sera accessible sera https://upsignonpro.votre-domaine.fr)
     > NB: il est fortement recommandé que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps. Si vous challengez cela, nous vous recommandons d'en discuter avec nous ou de nous écrire à contact@upsignon.eu. Utiliser une URL privée nuit à la valeur ajoutée d'UpSignOn.
   - l'url sur laquelle votre serveur d'administration forest-admin sera accessible sera https://upsignonpro.votre-domaine.fr/admin)
     > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS. Cependant, nous recommandons d'installer le serveur Forest Admin sur la même machine que le serveur UpSignOn PRO pour simplifier l'installation et la maintenance.
@@ -15,7 +15,7 @@
 
 - Envoyez un email **avant de commencer l'installation** à giregk@upsignon.eu en indiquant
 
-  - l'URL de votre serveur UpSignOn PRO (https://upsignonpro.votre-domaine.fr/server chemin compris) pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
+  - l'URL de votre serveur UpSignOn PRO (https://upsignonpro.votre-domaine.fr, chemin y compris le cas échéant) pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
   - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
     A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
     - comme expliqué dans la documentation d'installation du serveur Forest Admin, vous recevrez une invitation par email pour créer un compte sur Forest Admin et accéder au projet que nous vous aurons préparé.
@@ -81,6 +81,8 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 
 # Installation du serveur UpSignOn PRO
 
+- en tant que root, installer Node.js (https://nodejs.org/en/download/package-manager/) (testé en v12 et v15)
+
 Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - upsignonpro` ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
 
 - ce serveur va envoyer des emails à vos utilisateurs. Vous devez donc définir une adresse email d'envoi pour ces emails. La configuration de cette adresse email sera stockée dans les variables d'environnement suivantes
@@ -89,8 +91,6 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
   - EMAIL_PORT: '587' a priori (dépend de votre configuration)
   - EMAIL_USER: adresse email à partir de laquelle seront envoyés les mails de validation
   - EMAIL_PASS: mot de passe pour cette adresse email
-
-- installer Node.js (https://nodejs.org/en/download/package-manager/) (testé en v12 et v15)
 
 - installer yarn `npm install --global yarn`
 
@@ -130,8 +130,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
     - EMAIL_PORT
     - EMAIL_USER
     - EMAIL_PASS
-    - API_PUBLIC_HOSTNAME: nom d'hôte public sur lequel l'application pourra communiquer avec votre serveur UpSignOn PRO (sans 'https://', peut contenir un chemin)
-    - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application
+    - API_PUBLIC_HOSTNAME: l'URL entière (chemin compris) de ce serveur UpSignOn PRO, sans 'https://'.
+    - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application. Typiquement, le nom de votre organisation.
 
 # Provisionning de la base de données
 
@@ -157,14 +157,11 @@ Voici par exemple une configuration possible avec Nginx
 
 Dans /etc/nginx/sites-enabled/upsignon
 
-<details>
-<summary>Example de configuration Nginx</summary>
+**Fichier de configuration NGINX**
 
 Pensez à bien modifier les valeurs sous les `# TODO`
 
 Dans le fichier `/etc/nginx/sites-enabled/upsignonpro`
-
-<p>
 
 ```
 proxy_set_header X-Real-IP $remote_addr;
@@ -197,17 +194,15 @@ server {
   server_name upsignonpro.votre-domaine.fr;
   proxy_ssl_verify off;
 
-  location /server/ {
+  location / {
     proxy_pass http://localhost:3000/;
   }
 }
 ```
 
-> attention le '/' final dans 'location /server/' et dans 'http://localhost:3000/' sont importants.
+> attention le '/' final dans 'http://localhost:3000/' est important.
 
-</p>
-
-</details>
+**Après avoir configuré Nginx**
 
 Redémarrer Nginx
 
@@ -217,7 +212,7 @@ systemctl restart nginx
 
 En ouvrant la page https://upsignonpro.votre-domaine.fr/server dans votre navigateur, vous devriez voir une page de succès.
 
-Vous pouvez également tester que l'envoi des mails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/server/test-email?email=votre-email@votre-domaine.fr
+Vous pouvez également tester que l'envoi des mails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/test-email?email=votre-email@votre-domaine.fr
 
 # Installation d'un serveur d'administration Forest-Admin
 
@@ -236,7 +231,7 @@ Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui 
 
 # Lancement auprès des utilisateurs
 
-Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignonpro.votre-domaine.fr/server')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
+Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignonpro.votre-domaine.fr')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
 
 Ce lien va les rediriger vers une page web qui ouvrira l'application UpSignOn sur la page de configuration.
 

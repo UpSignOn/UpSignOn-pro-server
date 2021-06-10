@@ -15,8 +15,8 @@ EMAIL_PORT=587
 EMAIL_USER=user@domain.fr
 EMAIL_PASS=password
 
-API_PUBLIC_HOSTNAME=mon-espace-pro.fr
-DISPLAY_NAME_IN_APP=Mon Espace Pro
+API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
+DISPLAY_NAME_IN_APP=NOM DE VOTRE ORGANISATION
 
 # OPTIONAL local SSL configuration
 SSL_CERTIFICATE_KEY_PATH=
