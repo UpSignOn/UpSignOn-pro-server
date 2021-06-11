@@ -11,7 +11,7 @@
 
   - ceci est **obligatoire**
   - les certificats wildcard sont autorisés
-  - les certificats autosignés ne fonctionneront pas sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
+  - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
 
 - Envoyez un email **avant de commencer l'installation** à giregk@upsignon.eu en indiquant
 
