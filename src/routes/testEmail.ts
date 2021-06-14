@@ -15,6 +15,7 @@ export const testEmail = async (req: any, res: any) => {
       env.API_PUBLIC_HOSTNAME,
       'ID',
       'CODE',
+      true,
     );
 
     // Return res

@@ -9,6 +9,7 @@ export const sendDeviceRequestEmail = async (
   hostname: string,
   requestId: string,
   requestToken: string,
+  verificationMode?: boolean,
 ): Promise<void> => {
   try {
     const transportOptions = {
@@ -21,6 +22,18 @@ export const sendDeviceRequestEmail = async (
       },
     };
     const transporter = nodemailer.createTransport(transportOptions);
+
+    if (verificationMode) {
+      transporter.verify(function (error) {
+        if (error) {
+          console.log('Email configuration is not correct.');
+          console.log(error);
+          console.error(error);
+        } else {
+          console.log('Email configuration seems correct.');
+        }
+      });
+    }
 
     const link = `https://${hostname}/check-device?requestId=${requestId}&requestToken=${requestToken}`;
     await transporter.sendMail({
