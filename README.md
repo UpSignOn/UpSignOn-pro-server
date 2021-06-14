@@ -244,3 +244,23 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 - `yarn build`
 - mise à jour de la base de données : `node ./scripts/migrateUp.js`
 - redémarrage du serveur `yarn restart`
+
+# Résolution de problèmes
+
+- si à l'ouverture du lien de configuration, vous obtenez une erreur
+
+```
+Le serveur https://... ne peut pas être contacté. Assurez-vous d'avoir une connexion internet.
+```
+
+vous avez probablement l'un des problèmes suivants
+
+- votre serveur n'est accessible que depuis un réseau local et vous n'y êtes pas connecté
+  - assurez-vous d'être connecté à votre VPN
+- votre certificat est autosigné ou la chaine de certification est cassée
+  - vous pouvez le vérifier simplement en ouvrant l'url de votre serveur dans un navigateur
+  - les certificats autosignés ne fonctionneront qu'à condition d'être approuvés par votre système d'exploitation
+  - votre fichier .crt doit contenir les uns à la suite des autres la chaine de certificats jusqu'à un certificat approuvé par votre système (soit un certificat racine d'une autorité de certification, soit un certificat de votre entreprise installé sur tous les ordinateurs de vos collaborateurs)
+- votre parefeu interdit la connexion par défaut et doit être explicitement configuré pour l'autoriser
+
+Si tout ce qui précède semble bon, essayez d'ajouter un espace personnel vide. Si vous êtes capables de le créer sans générer de toaster d'erreur, la connexion internet n'est pas en cause et le problème est spécifique à votre serveur.
