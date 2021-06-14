@@ -19,7 +19,7 @@ export const testEmail = async (req: any, res: any) => {
     );
 
     // Return res
-    return res.status(204).send('An email should have been sent to your email address.');
+    return res.status(200).send('An email should have been sent to your email address.');
   } catch (e) {
     console.error('testEmail', e);
     res.status(400).end();
