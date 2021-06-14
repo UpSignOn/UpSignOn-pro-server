@@ -38,6 +38,7 @@ app.get('/check-device', checkDevice);
 app.get('/test-email', testEmail);
 
 app.post('/config', getConfig);
+app.get('/config', getConfig);
 app.post('/url-list', getUrlList);
 app.post('/request-access', requestAccess);
 app.post('/request-password-reset', requestPasswordReset);
