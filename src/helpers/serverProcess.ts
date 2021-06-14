@@ -3,7 +3,7 @@ import { db } from './connection';
 import https from 'https';
 import fs from 'fs';
 
-export const startServer = (app: any) => {
+export const startServer = (app: any, then: any) => {
   if (env.SSL_CERTIFICATE_KEY_PATH && env.SSL_CERTIFICATE_CRT_PATH) {
     // Set express trust-proxy so that secure sessions cookies can work
     app.set('trust proxy', 1);
@@ -16,6 +16,7 @@ export const startServer = (app: any) => {
         `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server listening`,
         server.address(),
       );
+      then();
     });
     listenForGracefulShutdown(server);
   } else {

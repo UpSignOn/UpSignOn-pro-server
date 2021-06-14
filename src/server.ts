@@ -27,6 +27,8 @@ import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 import { logUsage } from './routes/logUsage';
 import { testEmail } from './routes/testEmail';
+import { verifyEmail } from './helpers/verifyEmail';
+import env from './helpers/env';
 
 const app = express();
 app.disable('x-powered-by');
@@ -65,7 +67,12 @@ app.post('/update-device-metadata', updateDeviceMetaData);
 app.post('/log-usage', logUsage);
 
 if (module === require.main) {
-  startServer(app);
+  startServer(app, () => {
+    verifyEmail();
+    console.log(
+      `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}/config\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
+    );
+  });
 }
 
 module.exports = app;

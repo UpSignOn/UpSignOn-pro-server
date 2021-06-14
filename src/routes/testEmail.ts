@@ -7,7 +7,7 @@ export const testEmail = async (req: any, res: any) => {
     const userEmail = req.query.email;
     if (!userEmail) return res.status(400).send('Please provide your email in the url.');
 
-    sendDeviceRequestEmail(
+    await sendDeviceRequestEmail(
       userEmail,
       'DEVICE TEST',
       'TEST',
@@ -15,13 +15,12 @@ export const testEmail = async (req: any, res: any) => {
       env.API_PUBLIC_HOSTNAME,
       'ID',
       'CODE',
-      true,
     );
 
     // Return res
     return res.status(200).send('An email should have been sent to your email address.');
   } catch (e) {
     console.error('testEmail', e);
-    res.status(400).end();
+    res.status(400).send();
   }
 };
