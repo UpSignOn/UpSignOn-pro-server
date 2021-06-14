@@ -7,7 +7,7 @@ export const testEmail = async (req: any, res: any) => {
     const userEmail = req.query.email;
     if (!userEmail) return res.status(400).send('Please provide your email in the url.');
 
-    await sendDeviceRequestEmail(
+    sendDeviceRequestEmail(
       userEmail,
       'DEVICE TEST',
       'TEST',
