@@ -68,10 +68,13 @@ app.post('/log-usage', logUsage);
 
 if (module === require.main) {
   startServer(app, () => {
-    verifyEmail();
     console.log(
       `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}/config\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
     );
+    console.log(
+      `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
+    );
+    verifyEmail();
   });
 }
 

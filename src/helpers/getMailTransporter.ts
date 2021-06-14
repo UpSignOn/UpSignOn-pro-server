@@ -1,7 +1,12 @@
 import nodemailer from 'nodemailer';
 import env from './env';
 
-export const getMailTransporter = (options: { debug: boolean }) => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const getMailTransporter = (options: {
+  debug: boolean;
+  logger?: boolean;
+  connectionTimeout?: number;
+}) => {
   const transportOptions = {
     host: env.EMAIL_HOST,
     port: env.EMAIL_PORT,
@@ -10,7 +15,7 @@ export const getMailTransporter = (options: { debug: boolean }) => {
       user: env.EMAIL_USER,
       pass: env.EMAIL_PASS,
     },
-    debug: options.debug,
+    ...options,
   };
   const transporter = nodemailer.createTransport(transportOptions);
   return transporter;
