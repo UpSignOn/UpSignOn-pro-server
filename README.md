@@ -260,7 +260,7 @@ vous avez probablement l'un des problèmes suivants
 - votre certificat est autosigné ou la chaine de certification est cassée
   - vous pouvez le vérifier simplement en ouvrant l'url de votre serveur dans un navigateur
   - les certificats autosignés ne fonctionneront qu'à condition d'être approuvés par votre système d'exploitation
-  - votre fichier .crt doit contenir les uns à la suite des autres la chaine de certificats jusqu'à un certificat approuvé par votre système (soit un certificat racine d'une autorité de certification, soit un certificat de votre entreprise installé sur tous les ordinateurs de vos collaborateurs)
+  - votre fichier .crt doit contenir les uns à la suite des autres la chaine de certificats jusqu'à un certificat signé par une autorité de certification (qui lui n'a pas besoin d'être inclus). Utilisez l'outil https://whatsmychaincert.com/ pour vérifier la validité de votre certificat.
 - votre parefeu interdit la connexion par défaut et doit être explicitement configuré pour l'autoriser
 
 Si tout ce qui précède semble bon, essayez d'ajouter un espace personnel vide. Si vous êtes capables de le créer sans générer de toaster d'erreur, la connexion internet n'est pas en cause et le problème est spécifique à votre serveur.
