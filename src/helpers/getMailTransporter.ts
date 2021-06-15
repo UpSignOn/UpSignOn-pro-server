@@ -15,8 +15,21 @@ export const getMailTransporter = (options: {
       user: env.EMAIL_USER,
       pass: env.EMAIL_PASS,
     },
+    tls: {},
     ...options,
   };
+  if (options.debug) {
+    transportOptions.tls = {
+      ...transportOptions.tls,
+      enableTrace: true,
+    };
+  }
+  if (env.EMAIL_ALLOW_INVALID_CERTIFICATE) {
+    transportOptions.tls = {
+      ...transportOptions.tls,
+      rejectUnauthorized: false,
+    };
+  }
   const transporter = nodemailer.createTransport(transportOptions);
   return transporter;
 };
