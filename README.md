@@ -247,7 +247,9 @@ Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'applicat
 
 # Résolution de problèmes
 
-- si à l'ouverture du lien de configuration, vous obtenez une erreur
+## L'application affiche une erreur à l'ouverture du lien de configuration
+
+Si à l'ouverture du lien de configuration, vous obtenez une erreur
 
 ```
 Le serveur https://... ne peut pas être contacté. Assurez-vous d'avoir une connexion internet.
@@ -264,3 +266,8 @@ vous avez probablement l'un des problèmes suivants
 - votre parefeu interdit la connexion par défaut et doit être explicitement configuré pour l'autoriser
 
 Si tout ce qui précède semble bon, essayez d'ajouter un espace personnel vide. Si vous êtes capables de le créer sans générer de toaster d'erreur, la connexion internet n'est pas en cause et le problème est spécifique à votre serveur.
+
+## L'envoi des mails ne fonctionne pas
+
+- vérifiez que le port que vous avez défini dans votre fichier .env est bien ouvert sur le serveur smtp ciblé
+- vérifiez que le compte que vous avez défini dans votre fichier .env pour envoyer vos emails n'est pas configuré pour exiger des authentifications multi-facteurs.
