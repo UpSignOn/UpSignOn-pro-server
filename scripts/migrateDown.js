@@ -14,7 +14,7 @@ var db = require('./dbMigrationConnect');
     console.log('Migration down: ' + name);
     var down = require('../migrations/' + name).down;
     await down(db);
-    await db.query(`DELETE FROM migrations WHERE name='${name}'`);
+    await db.query(`DELETE FROM migrations WHERE name='$1'`, [name]);
   } catch (e) {
     console.error(e);
   } finally {
