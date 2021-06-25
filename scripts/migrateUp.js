@@ -10,10 +10,10 @@ function getMigrationPromise(file, index) {
       await up(db);
       return;
     }
-    var res = await db.query(`SELECT * from migrations WHERE name='$1'`, [file]);
+    var res = await db.query('SELECT * from migrations WHERE name=$1', [file]);
     if (res.rowCount === 0) {
       await up(db);
-      await db.query(`INSERT INTO migrations (name) VALUES ('$1')`, [file]);
+      await db.query('INSERT INTO migrations (name) VALUES ($1)', [file]);
       console.log('Migration ' + file);
     }
   };
