@@ -11,13 +11,16 @@ export const getMailTransporter = (options: {
     host: env.EMAIL_HOST,
     port: env.EMAIL_PORT,
     secure: env.EMAIL_PORT === 465,
-    auth: {
-      user: env.EMAIL_USER,
-      pass: env.EMAIL_PASS,
-    },
     tls: {},
     ...options,
   };
+  if (env.EMAIL_PASS) {
+    // @ts-ignore
+    transportOptions.auth = {
+      user: env.EMAIL_USER,
+      pass: env.EMAIL_PASS,
+    };
+  }
   if (options.debug) {
     transportOptions.tls = {
       ...transportOptions.tls,

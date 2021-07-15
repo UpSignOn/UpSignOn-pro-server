@@ -13,11 +13,14 @@ export const sendPasswordResetRequestEmail = async (
       host: env.EMAIL_HOST,
       port: env.EMAIL_PORT,
       secure: env.EMAIL_PORT === 465,
-      auth: {
+    };
+    if (env.EMAIL_PASS) {
+      // @ts-ignore
+      transportOptions.auth = {
         user: env.EMAIL_USER,
         pass: env.EMAIL_PASS,
-      },
-    };
+      };
+    }
     const transporter = nodemailer.createTransport(transportOptions);
 
     const expirationTime = extractTime(expirationDate);
