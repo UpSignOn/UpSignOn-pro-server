@@ -239,7 +239,7 @@ NB: les paramètres de configuration d'OpenId Connect sont optionnels. S'ils son
 <details>
 <summary>Trouver votre lien OpenId Connect correspondant à votre installation ADFS, Azure AD ou Azure B2C:</summary>
 
-From the Microsoft documentation:
+From the Microsoft documentation: (more details [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-client-application-configuration))
 
 - AAD authorities are of the form https://login.microsoftonline.com/\{Enter_the_Tenant_Info_Here\}.
   - If your application supports Accounts in one organizational directory, replace "Enter_the_Tenant_Info_Here" value with the Tenant Id or Tenant name (for example, contoso.microsoft.com).
