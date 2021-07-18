@@ -82,6 +82,9 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 # Installation du serveur UpSignOn PRO
 
 - en tant que root, installer Node.js (https://nodejs.org/en/download/package-manager/) (testé en v12 et v15)
+- installer git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
+  - NB, il n'est pas nécessaire de définir un utilisateur github
 
 Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - upsignonpro` ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
 
@@ -93,10 +96,6 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
   - EMAIL_PASS: mot de passe pour cette adresse email
 
 - installer yarn `npm install --global yarn`
-
-- installer git (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-  - NB, il n'est pas nécessaire de définir un utilisateur github
 
 - installer le gestionnaire de processus pm2 (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), `npm install pm2 -g`.
 
@@ -161,7 +160,8 @@ Dans /etc/nginx/sites-enabled/upsignon
 
 Pensez à bien modifier les valeurs sous les `# TODO`
 
-Dans le fichier `/etc/nginx/sites-enabled/upsignonpro`
+- `cd /etc/nginx/sites-enabled`
+- `nano upsignonpro`
 
 ```
 proxy_set_header X-Real-IP $remote_addr;
