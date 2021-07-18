@@ -231,11 +231,25 @@ Ceci installera un deuxième serveur, indépendant du serveur UpSignOn PRO, qui 
 
 # Lancement auprès des utilisateurs
 
-Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir le lien suivant "https://upsignon.eu/pro-setup?url=<VOTRE_URL_ENCODÉE>" où <VOTRE_URL_ENCODÉE> = le résultat en javascript de `encodeURIComponent('https://upsignonpro.votre-domaine.fr')` soit "https%3A%2F%2Fupsignon.my-domain.fr" (vous pouvez facilement utiliser votre console javascript dans votre navigateur pour obtenir le résultat).
+Pour configurer leur espace PRO, vos utilisateurs vont devoir ouvrir un lien (ou le scanner sous forme de QR code).
+Ce lien peut être simplement généré en utilisant notre outil : https://upsignon.github.io/pro-setup-link-generator/
 
-Ce lien va les rediriger vers une page web qui ouvrira l'application UpSignOn sur la page de configuration.
+NB: les paramètres de configuration d'OpenId Connect sont optionnels. S'ils sont présents, l'application exigera une pré-authentification sur le service OpenId Connect désigné avant de pouvoir accéder à leur espace PRO. (Contactez-nous pour plus de détails).
 
-Un QR code est aussi un bon moyen de transmettre ce lien. D'ailleurs, l'application fournit un scanneur de QR code intégré pour simplifier ce mécanisme.
+<details>
+<summary>Trouver votre lien OpenId Connect correspondant à votre installation ADFS, Azure AD ou Azure B2C:</summary>
+
+From the Microsoft documentation:
+
+- AAD authorities are of the form https://login.microsoftonline.com/\{Enter_the_Tenant_Info_Here\}.
+  - If your application supports Accounts in one organizational directory, replace "Enter_the_Tenant_Info_Here" value with the Tenant Id or Tenant name (for example, contoso.microsoft.com).
+  - If your application supports Accounts in any organizational directory, replace "Enter_the_Tenant_Info_Here" value with organizations.
+  - If your application supports Accounts in any organizational directory and personal Microsoft accounts, replace "Enter_the_Tenant_Info_Here" value with common.
+  - To restrict support to Personal Microsoft accounts only, replace "Enter_the_Tenant_Info_Here" value with consumers.
+- Azure B2C authorities are of the form https://\{instance\}/\{tenant\}/\{policy\}. Each policy is considered its own authority. You will have to set the all of the knownAuthorities at the time of the client application construction.
+- ADFS authorities are of the form https://\{instance\}/adfs.
+
+</details>
 
 # Mise à jour du serveur
 
