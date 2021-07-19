@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 var fs = require('fs');
 var db = require('./dbMigrationConnect');
 
