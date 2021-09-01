@@ -147,14 +147,22 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 - `yarn start`
   - NB: à des fins de tests, vous pouvez également utiliser `node ./compiled/server.js`
 
-<!-- # Configuration du redémarrage automatique du serveur
+# Configuration du redémarrage automatique du serveur
+
+Ceci nécessite la version 5.1.1 de pm2 minimum.
+Pour mettre à jour pm2, procédez ainsi :
+
+- npm install pm2 -g
+- pm2 update
+
+Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 
 - `pm2 save` (pour sauvegarder la liste des processus)
-- `pm2 startup -u upsignonpro` (le paramètre -u contient le nom d' l'utilisateur système responable des processus, ici upsignonpro)
+- `pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
 - lancez la commande suggérée en tant que root.
 
 C'est tout.
-Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS. -->
+Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS.
 
 # Configuration d'un reverse proxy
 
