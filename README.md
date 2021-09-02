@@ -157,11 +157,11 @@ Pour mettre à jour pm2, procédez ainsi :
 
 Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 
-- `pm2 save` (pour sauvegarder la liste des processus)
+- `pm2 status` pour vérifier que le processus 'upsignon-pro-server' est bien en cours d'exécution (sinon, voir la section dédiée au lancement du serveur)
+- `pm2 save` (pour sauvegarder la liste des processus en cours d'exécution)
 - `pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
 - lancez la commande suggérée en tant que root.
 
-C'est tout.
 Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS.
 
 # Configuration d'un reverse proxy
