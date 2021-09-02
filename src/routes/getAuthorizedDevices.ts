@@ -32,7 +32,7 @@ export const getAuthorizedDevices = async (req: any, res: any) => {
     if (!isAccessGranted) return res.status(401).end();
 
     const devicesRes = await db.query(
-      "SELECT device_name, device_unique_id FROM user_devices WHERE authorization_status='AUTHORIZED' AND user_id=$1",
+      "SELECT device_name, device_unique_id, created_at, device_type, os_version, app_version FROM user_devices WHERE authorization_status='AUTHORIZED' AND user_id=$1",
       [dbRes.rows[0].userid],
     );
     // Return res
