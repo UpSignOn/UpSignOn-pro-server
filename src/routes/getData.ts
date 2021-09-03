@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { logError } from '../helpers/logger';
 
 /**
  * Returns
@@ -51,7 +52,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
       sharedItems,
     });
   } catch (e) {
-    console.error('getData', e);
+    logError('getData', e);
     return res.status(400).end();
   }
 };

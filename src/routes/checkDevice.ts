@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { isExpired } from '../helpers/dateHelper';
+import { logError } from '../helpers/logger';
 
 /**
  * Returns
@@ -45,7 +46,7 @@ export const checkDevice = async (req: any, res: any) => {
         `<!DOCTYPE html><html lang="fr"><body style="display:flex; justify-content: center; align-items:center;"><div style="max-width: 500px;"><h1>Votre appareil ${dbRes.rows[0].device_name} est maintenant autorisé !</h1><h3>Retournez dans l'application UpSignOn pour accéder à votre espace confidentiel PRO.</h3></div></body></html>`,
       );
   } catch (e) {
-    console.error('checkDevice', e);
+    logError('checkDevice', e);
     return res.status(400).end();
   }
 };

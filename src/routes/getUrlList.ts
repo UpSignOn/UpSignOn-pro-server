@@ -1,5 +1,6 @@
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { db } from '../helpers/connection';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getUrlList = async (req: any, res: any): Promise<void> => {
@@ -36,7 +37,7 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
     // Return res
     return res.status(200).json({ urlList: urlListRes.rows });
   } catch (e) {
-    console.error('getUrlList', e);
+    logError('getUrlList', e);
     return res.status(400).end();
   }
 };

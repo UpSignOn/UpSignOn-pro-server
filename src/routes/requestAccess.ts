@@ -4,6 +4,7 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 import env from '../helpers/env';
+import { logError } from '../helpers/logger';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -134,7 +135,7 @@ export const requestAccess = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    console.error('requestAccess', e);
+    logError('requestAccess', e);
     res.status(400).end();
   }
 };

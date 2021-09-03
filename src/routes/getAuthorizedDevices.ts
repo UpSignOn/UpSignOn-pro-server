@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthorizedDevices = async (req: any, res: any) => {
@@ -38,7 +39,7 @@ export const getAuthorizedDevices = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ devices: devicesRes.rows });
   } catch (e) {
-    console.error('getAuthorizedDevices', e);
+    logError('getAuthorizedDevices', e);
     return res.status(400).end();
   }
 };

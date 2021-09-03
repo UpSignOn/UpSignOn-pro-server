@@ -1,6 +1,7 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getSharedItems } from './getData';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
@@ -51,7 +52,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     // Update DB
     if (isNewData && !!dbRes.rows[0].encrypted_data) {
       // a security to increase resilience in case the app contained a bug and tried to update the user's space with empty data
-      console.error('updateData - Attempted to init user data where data already exists.');
+      logError('updateData - Attempted to init user data where data already exists.');
       return res.status(400).end();
     }
     let updateRes;
@@ -99,7 +100,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
     }
   } catch (e) {
-    console.error('updateData', e);
+    logError('updateData', e);
     return res.status(400).end();
   }
 };

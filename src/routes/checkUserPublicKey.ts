@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { logError, logInfo } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkUserPublicKey = async (req: any, res: any) => {
@@ -43,8 +44,8 @@ export const checkUserPublicKey = async (req: any, res: any) => {
     if (dbRes.rows[0].sharing_public_key !== publicKey) {
       matchingKeys = false;
       const message = `---------------\nWARNING! POTENTIAL HACK DETECTED!\nThe public key for user ${userEmail} that was found in the database did not match the public key registered in the user's private space. The database public key was\n\n${dbRes.rows[0].sharing_public_key}\n\nwhile the user's expected public key was\n\n${publicKey}\n\nA database request to update the public key for this user with his expected public key will be made right after this message.\nIt is possible that the hacker has been able to read the passwords of all the accounts that are shared with ${userEmail}.\n---------------`;
-      console.log(message);
-      console.error(message);
+      logInfo(message);
+      logError(message);
       await db.query('UPDATE users SET sharing_public_key = $1 WHERE email=$2', [
         publicKey,
         userEmail,
@@ -53,7 +54,7 @@ export const checkUserPublicKey = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ matchingKeys });
   } catch (e) {
-    console.error('checkUserPublicKey', e);
+    logError('checkUserPublicKey', e);
     return res.status(400).end();
   }
 };

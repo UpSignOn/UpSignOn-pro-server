@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateContactRights = async (req: any, res: any): Promise<void> => {
@@ -62,7 +63,7 @@ export const updateContactRights = async (req: any, res: any): Promise<void> => 
 
     return res.status(200).end();
   } catch (e) {
-    console.error('updateContactRights', e);
+    logError('updateContactRights', e);
     return res.status(400).end();
   }
 };

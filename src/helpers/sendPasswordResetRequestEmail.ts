@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { extractTime } from './dateHelper';
 import env from './env';
+import { logError } from './logger';
 
 export const sendPasswordResetRequestEmail = async (
   emailAddress: string,
@@ -31,6 +32,6 @@ export const sendPasswordResetRequestEmail = async (
       text: `Bonjour,\nVous avez effectué une demande de réinitialisation de votre mot de passe depuis votre appareil "${deviceName}".\n\nPour réinitiliaser votre mot de passe UpSignOn PRO, saisissez le code suivant.\n\n${requestToken}\n\nAttention, ce code n'est valide que pour l'appareil "${deviceName}" et expirera à ${expirationTime}.\n\nBonne journée,\nUpSignOn`,
     });
   } catch (e) {
-    console.error('ERROR sending email:', e);
+    logError('ERROR sending email:', e);
   }
 };

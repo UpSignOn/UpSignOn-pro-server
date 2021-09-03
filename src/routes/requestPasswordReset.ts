@@ -3,6 +3,7 @@ import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
@@ -110,10 +111,10 @@ export const requestPasswordReset = async (req: any, res: any) => {
         return res.status(200).json({ resetStatus: 'mail_sent' });
       }
     }
-    console.error('requestPasswordReset unmet conditions');
+    logError('requestPasswordReset unmet conditions');
     res.status(400).end();
   } catch (e) {
-    console.error('requestPasswordReset', e);
+    logError('requestPasswordReset', e);
     res.status(400).end();
   }
 };

@@ -1,15 +1,16 @@
 import { getMailTransporter } from './getMailTransporter';
+import { logError, logInfo } from './logger';
 
 export const verifyEmail = (): void => {
   const transporter = getMailTransporter({ debug: true, logger: true, connectionTimeout: 30000 });
-  console.log('Start checking configuration email (wait 30 seconds to see the error)...');
+  logInfo('Start checking configuration email (wait 30 seconds to see the error)...');
   transporter.verify(function (error) {
     if (error) {
-      console.log('...Email configuration is not correct.');
-      console.log(error);
-      console.error(error);
+      logInfo('...Email configuration is not correct.');
+      logInfo(error);
+      logError(error);
     } else {
-      console.log('...Email configuration seems correct.');
+      logInfo('...Email configuration seems correct.');
     }
   });
 };

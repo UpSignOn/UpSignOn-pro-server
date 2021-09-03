@@ -1,6 +1,7 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { isExpired } from '../helpers/dateHelper';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup = async (req: any, res: any) => {
@@ -67,7 +68,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
       .status(200)
       .json({ encryptedPasswordBackup: resetRequest.encrypted_password_backup });
   } catch (e) {
-    console.error('getPasswordBackup', e);
+    logError('getPasswordBackup', e);
     res.status(400).end();
   }
 };

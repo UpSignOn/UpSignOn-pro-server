@@ -1,5 +1,6 @@
 import env from './env';
 import { getMailTransporter } from './getMailTransporter';
+import { logError } from './logger';
 
 export const sendDeviceRequestEmail = async (
   emailAddress: string,
@@ -20,6 +21,6 @@ export const sendDeviceRequestEmail = async (
       text: `Bonjour,\nPour autoriser votre appareil "${deviceName}" (${deviceType} ${deviceOS}) à accéder à votre espace confidentiel UpSignOn PRO, ouvrez le lien suivant dans votre navigateur.\n\n${link}\n\nBonne journée,\nUpSignOn`,
     });
   } catch (e) {
-    console.error('ERROR sending email:', e);
+    logError('ERROR sending email:', e);
   }
 };

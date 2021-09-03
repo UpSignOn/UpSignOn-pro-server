@@ -1,5 +1,6 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const backupPassword = async (req: any, res: any) => {
@@ -44,7 +45,7 @@ export const backupPassword = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    console.error('backupPassword', e);
+    logError('backupPassword', e);
     return res.status(400).end();
   }
 };

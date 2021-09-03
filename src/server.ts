@@ -29,13 +29,14 @@ import { logUsage } from './routes/logUsage';
 import { testEmail } from './routes/testEmail';
 import { verifyEmail } from './helpers/verifyEmail';
 import env from './helpers/env';
+import { logInfo } from './helpers/logger';
 
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '3Mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-  console.log(new Date().toISOString() + ' - ' + req.url);
+  logInfo(req.url);
   next();
 });
 
@@ -68,10 +69,10 @@ app.post('/log-usage', logUsage);
 
 if (module === require.main) {
   startServer(app, () => {
-    console.log(
+    logInfo(
       `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}/config\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
     );
-    console.log(
+    logInfo(
       `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
     );
     verifyEmail();

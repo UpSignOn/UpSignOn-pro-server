@@ -1,5 +1,6 @@
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 import env from '../helpers/env';
+import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const testEmail = async (req: any, res: any) => {
@@ -20,7 +21,7 @@ export const testEmail = async (req: any, res: any) => {
     // Return res
     return res.status(200).send('An email should have been sent to your email address.');
   } catch (e) {
-    console.error('testEmail', e);
+    logError('testEmail', e);
     res.status(400).send();
   }
 };
