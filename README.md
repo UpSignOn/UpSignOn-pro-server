@@ -128,7 +128,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
     - EMAIL_HOST
     - EMAIL_PORT
     - EMAIL_USER
-    - EMAIL_PASS
+    - EMAIL_PASS: peut rester vider pour les configurations utilisant un serveur SMTP interne
     - API_PUBLIC_HOSTNAME: l'URL entière (chemin compris) de ce serveur UpSignOn PRO, sans 'https://'.
     - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application. Typiquement, le nom de votre organisation.
 
@@ -152,8 +152,8 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 Ceci nécessite la version 5.1.1 de pm2 minimum.
 Pour mettre à jour pm2, procédez ainsi :
 
-- npm install pm2 -g
-- pm2 update
+- `npm install pm2 -g`
+- `pm2 update`
 
 Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 
@@ -270,10 +270,8 @@ From the Microsoft documentation: (more details [here](https://docs.microsoft.co
 
 # Mise à jour du serveur
 
-- `git pull`
-- `yarn` (pour mettre à jour les dépendances si besoin)
-- `yarn build`
-- mise à jour de la base de données : `node ./scripts/migrateUp.js`
+- se positionner dans le dossier du projet en tant qu'utilisateur upsignonpro, par exemple : `su - upsignonpro && cd ~/upsignon-pro-server`
+- mise à jour du code `yarn get-updates`
 - redémarrage du serveur `yarn restart`
 
 # Résolution de problèmes
