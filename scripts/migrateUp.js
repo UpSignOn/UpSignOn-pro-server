@@ -2,13 +2,13 @@
 var fs = require('fs');
 var db = require('./dbMigrationConnect');
 var path = require('path');
-// const { getLogDate } = require('./logDate');
+const { getLogDate } = require('./logDate');
 
 function getMigrationPromise(file, index) {
   return async function () {
     var up = require('../migrations/' + file).up;
     if (index === 0) {
-      console.log('Migrating ' + file);
+      console.log(getLogDate() + ': ' + 'Migrating ' + file);
       await up(db);
       return;
     }
@@ -16,7 +16,7 @@ function getMigrationPromise(file, index) {
     if (res.rowCount === 0) {
       await up(db);
       await db.query('INSERT INTO migrations (name) VALUES ($1)', [file]);
-      console.log('Migration ' + file);
+      console.log(getLogDate() + ': ' + 'Migration ' + file);
     }
   };
 }
@@ -28,7 +28,7 @@ fs.readdir(path.join(__dirname, '../migrations'), function (err, files) {
       return cur.then(next);
     }, db.connect())
     .catch(function (e) {
-      console.error(e);
+      console.error(getLogDate() + ': ' + e);
     })
     .finally(function () {
       db.release();
