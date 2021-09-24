@@ -68,6 +68,8 @@ export const getSharedItems = async (
     login: null | string;
     isManager: boolean;
     encryptedPassword: string;
+    aesEncryptedData: string;
+    encryptedAesKey: string;
   }[]
 > => {
   const sharingRes = await db.query(
@@ -77,8 +79,10 @@ export const getSharedItems = async (
       sa.url AS url,
       sa.name AS name,
       sa.login AS login,
+      sa.aes_encrypted_data AS aes_encrypted_data,
       sau.is_manager AS is_manager,
-      sau.encrypted_password AS encrypted_password
+      sau.encrypted_password AS encrypted_password,
+      sau.encrypted_aes_key AS encrypted_aes_key
     FROM shared_accounts AS sa
     INNER JOIN shared_account_users AS sau
     ON sau.shared_account_id=sa.id
@@ -90,6 +94,8 @@ export const getSharedItems = async (
     url: s.url,
     name: s.name,
     login: s.login,
+    aesEncryptedData: s.aes_encrypted_data,
+    encryptedAesKey: s.encrypted_aes_key,
     isManager: s.is_manager,
     encryptedPassword: s.encrypted_password,
   }));

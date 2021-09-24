@@ -19,7 +19,13 @@ export const share = async (req: any, res: any): Promise<void> => {
       login: null | string;
       dbId: null | number;
       idInUserEnv: null | number;
-      contacts: { email: string; isManager: boolean; encryptedPassword: string }[];
+      contacts: {
+        email: string;
+        isManager: boolean;
+        encryptedPassword: string;
+        encryptedAesKey: string;
+      }[];
+      aesEncryptedData: string;
     }[] = req.body?.sharings;
 
     // Check params
@@ -60,12 +66,14 @@ export const share = async (req: any, res: any): Promise<void> => {
             email: contact.email,
             isManager: true,
             encryptedPassword: contact.encryptedPassword,
+            encryptedAesKey: contact.encryptedAesKey,
           });
         } else {
           cleanContacts.push({
             email: contact.email,
             isManager: contact.isManager,
             encryptedPassword: contact.encryptedPassword,
+            encryptedAesKey: contact.encryptedAesKey,
           });
         }
       }
@@ -87,8 +95,8 @@ export const share = async (req: any, res: any): Promise<void> => {
         sharingId = sharing.dbId;
       } else {
         const newSharedAccount = await db.query(
-          'INSERT INTO shared_accounts (url, name, type, login) VALUES ($1, $2, $3, $4) RETURNING id',
-          [sharing.url, sharing.name, sharing.type, sharing.login],
+          'INSERT INTO shared_accounts (url, name, type, login, aes_encrypted_data) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+          [sharing.url, sharing.name, sharing.type, sharing.login, sharing.aesEncryptedData],
         );
         sharingId = newSharedAccount.rows[0].id;
         if (!sharing.idInUserEnv) {
@@ -102,11 +110,12 @@ export const share = async (req: any, res: any): Promise<void> => {
       for (let cc = 0; cc < cleanContacts.length; cc++) {
         try {
           await db.query(
-            'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, encrypted_password) SELECT $1 AS shared_account_id, id AS user_id, $2 AS is_manager, $3 AS encrypted_password FROM users WHERE email=$4',
+            'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, encrypted_password, encrypted_aes_key) SELECT $1 AS shared_account_id, id AS user_id, $2 AS is_manager, $3 AS encrypted_password, $4 AS encrypted_aes_key FROM users WHERE email=$5',
             [
               sharingId,
               cleanContacts[cc].isManager,
               cleanContacts[cc].encryptedPassword,
+              cleanContacts[cc].encryptedAesKey,
               cleanContacts[cc].email,
             ],
           );

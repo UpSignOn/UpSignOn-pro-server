@@ -14,6 +14,7 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
     const deviceAccessCode = req.body?.deviceAccessCode;
     const sharedItem = req.body?.sharedItem;
     const contactPasswords = req.body?.contactPasswords;
+    const aesKeyUpdates = req.body?.aesKeyUpdates;
 
     // Check params
     if (!deviceId) return res.status(401).end();
@@ -45,12 +46,16 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
-    await db.query('UPDATE shared_accounts SET (url, name, login)=($1, $2, $3) WHERE id=$4', [
-      sharedItem.url,
-      sharedItem.name,
-      sharedItem.login,
-      sharedItem.id,
-    ]);
+    await db.query(
+      'UPDATE shared_accounts SET (url, name, login, aes_encrypted_data)=($1, $2, $3, $4) WHERE id=$5',
+      [
+        sharedItem.url,
+        sharedItem.name,
+        sharedItem.login,
+        sharedItem.aesEncryptedData,
+        sharedItem.id,
+      ],
+    );
 
     if (contactPasswords && Array.isArray(contactPasswords)) {
       for (let i = 0; i < contactPasswords.length; i++) {
@@ -60,6 +65,18 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
         await db.query(
           'UPDATE shared_account_users SET encrypted_password=$1  WHERE shared_account_id = $2 AND user_id = $3',
           [encPwd, sharedItem.id, userId],
+        );
+      }
+    }
+
+    if (aesKeyUpdates && Array.isArray(aesKeyUpdates)) {
+      for (let i = 0; i < aesKeyUpdates.length; i++) {
+        // Security: do not use foreach or map
+        const userId = aesKeyUpdates[i].id;
+        const encKey = aesKeyUpdates[i].encryptedAesKey;
+        await db.query(
+          'UPDATE shared_account_users SET encrypted_aes_key=$1  WHERE shared_account_id = $2 AND user_id = $3',
+          [encKey, sharedItem.id, userId],
         );
       }
     }
