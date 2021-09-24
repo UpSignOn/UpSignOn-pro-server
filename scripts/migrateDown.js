@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-var fs = require('fs');
 var db = require('./dbMigrationConnect');
 const { getLogDate } = require('./logDate');
 
@@ -16,7 +15,7 @@ const { getLogDate } = require('./logDate');
     console.log(getLogDate() + ': ' + 'Migration down: ' + name);
     var down = require('../migrations/' + name).down;
     await down(db);
-    await db.query(`DELETE FROM migrations WHERE name='$1'`, [name]);
+    await db.query(`DELETE FROM migrations WHERE name=$1`, [name]);
   } catch (e) {
     console.error(getLogDate() + ': ' + e);
   } finally {
