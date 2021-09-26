@@ -1,11 +1,17 @@
 import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
+import { isStrictlyLowerVersion } from '../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateSharedItem = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
+    const appVersion = req.body?.appVersion;
+    if (isStrictlyLowerVersion(appVersion, '4.5.0')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
+
     let userEmail = req.body?.userEmail;
     if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
     userEmail = userEmail.toLowerCase();
