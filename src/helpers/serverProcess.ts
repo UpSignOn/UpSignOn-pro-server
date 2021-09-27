@@ -3,6 +3,7 @@ import { db } from './connection';
 import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';
+import { sendStatusUpdate } from './serverStatus';
 
 export const startServer = (app: any, then: any): void => {
   if (env.SSL_CERTIFICATE_KEY_PATH && env.SSL_CERTIFICATE_CRT_PATH) {
@@ -30,6 +31,7 @@ export const startServer = (app: any, then: any): void => {
     });
     listenForGracefulShutdown(server);
   }
+  sendStatusUpdate();
 };
 
 const listenForGracefulShutdown = (server: any) => {
