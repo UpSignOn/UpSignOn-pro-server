@@ -31,6 +31,7 @@ import { verifyEmail } from './helpers/verifyEmail';
 import env from './helpers/env';
 import { logInfo } from './helpers/logger';
 import { getMatchingEmailAddressesForSharing } from './routes/getMatchingEmailAddressesForSharing';
+import { getContactsSharingItemsWithMe } from './routes/getContactsSharingItemsWithMe';
 
 const app = express();
 app.disable('x-powered-by');
@@ -58,6 +59,7 @@ app.post('/rename-device', renameDevice);
 app.post('/backup-password', backupPassword);
 app.post('/get-password-backup', getPasswordBackup);
 app.post('/get-matching-email-addresses-for-sharing', getMatchingEmailAddressesForSharing);
+app.post('/get-contacts-sharing-items-with-me', getContactsSharingItemsWithMe);
 app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
 app.post('/share', share);
 app.post('/update-shared-item', updateSharedItem);
