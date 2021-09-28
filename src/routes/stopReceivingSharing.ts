@@ -3,7 +3,7 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const getContactsForSharedItem = async (req: any, res: any) => {
+export const stopReceivingSharing = async (req: any, res: any): Promise<void> => {
   try {
     // Get params
     let userEmail = req.body?.userEmail;
@@ -22,10 +22,14 @@ export const getContactsForSharedItem = async (req: any, res: any) => {
     // Request DB
     const dbRes = await db.query(
       `SELECT
-        user_devices.access_code_hash AS access_code_hash
-      FROM user_devices
-      INNER JOIN users ON user_devices.user_id = users.id
-      WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND authorization_status = 'AUTHORIZED'`,
+        u.id AS user_id,
+        ud.access_code_hash AS access_code_hash
+      FROM user_devices AS ud
+      INNER JOIN users AS u ON ud.user_id = u.id
+      WHERE
+        u.email=$1
+        AND ud.device_unique_id = $2
+        AND ud.authorization_status = 'AUTHORIZED'`,
       [userEmail, deviceId],
     );
 
@@ -38,14 +42,22 @@ export const getContactsForSharedItem = async (req: any, res: any) => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
-    const contactRes = await db.query(
-      'SELECT users.id AS id, users.email AS email, sau.is_manager AS is_manager FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1',
-      [itemId],
+    const userId = dbRes.rows[0].user_id;
+    const hasOtherManagersResult = await db.query(
+      'SELECT COUNT(*) FROM shared_account_users WHERE shared_account_id=$1 AND user_id!=$2 AND is_manager=true',
+      [itemId, userId],
     );
-    // Return res
-    return res.status(200).json({ contacts: contactRes.rows.filter((c) => c.email !== userEmail) });
+    if (parseInt(hasOtherManagersResult.rows[0].count) === 0) {
+      return res.status(401).end();
+    }
+    await db.query('DELETE FROM shared_account_users WHERE shared_account_id=$1 AND user_id=$2', [
+      itemId,
+      userId,
+    ]);
+
+    return res.status(200).end();
   } catch (e) {
-    logError('getContactsForSharedItem', e);
+    logError('stopReceivingSharing', e);
     return res.status(400).end();
   }
 };
