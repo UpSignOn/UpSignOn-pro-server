@@ -9,7 +9,7 @@ let contactSearchSessions: { session: string; expirationTimestamp: number }[] = 
 export const getMatchingEmailAddressesForSharing = async (req: any, res: any) => {
   try {
     const emailAddressSearch = req.body?.emailAddressSearch;
-    if (!emailAddressSearch) return res.status(401).end();
+    if (!emailAddressSearch || emailAddressSearch.length < 3) return res.status(401).end();
 
     // session mechanism for performance (this route will necessarily be called multiple times in a row, let's avoid unecessary db queries)
     let session = req.body?.session;
