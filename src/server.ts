@@ -34,6 +34,7 @@ import { getMatchingEmailAddressesForSharing } from './routes/getMatchingEmailAd
 import { getContactsSharingItemsWithMe } from './routes/getContactsSharingItemsWithMe';
 import { deleteSharing } from './routes/deleteSharing';
 import { stopReceivingSharing } from './routes/stopReceivingSharing';
+import { deleteSingledSharings } from './routes/deleteSingledSharings';
 
 const app = express();
 app.disable('x-powered-by');
@@ -69,6 +70,7 @@ app.post('/get-contacts-public-keys', getContactsPublicKeys);
 app.post('/update-contact-rights', updateContactRights);
 app.post('/stop-sharing-with-contact', stopSharingWithContact);
 app.post('/delete-sharing', deleteSharing);
+app.post('/delete-singled-sharings', deleteSingledSharings);
 app.post('/stop-receiving-sharing', stopReceivingSharing);
 app.post('/get-contacts-for-shared-item', getContactsForSharedItem);
 app.post('/check-user-public-key', checkUserPublicKey);
