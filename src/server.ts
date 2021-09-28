@@ -32,6 +32,7 @@ import env from './helpers/env';
 import { logInfo } from './helpers/logger';
 import { getMatchingEmailAddressesForSharing } from './routes/getMatchingEmailAddressesForSharing';
 import { getContactsSharingItemsWithMe } from './routes/getContactsSharingItemsWithMe';
+import { deleteSharing } from './routes/deleteSharing';
 
 const app = express();
 app.disable('x-powered-by');
@@ -66,6 +67,7 @@ app.post('/update-shared-item', updateSharedItem);
 app.post('/get-contacts-public-keys', getContactsPublicKeys);
 app.post('/update-contact-rights', updateContactRights);
 app.post('/stop-sharing-with-contact', stopSharingWithContact);
+app.post('/delete-sharing', deleteSharing);
 app.post('/get-contacts-for-shared-item', getContactForSharedItem);
 app.post('/check-user-public-key', checkUserPublicKey);
 app.post('/update-device-metadata', updateDeviceMetaData);
