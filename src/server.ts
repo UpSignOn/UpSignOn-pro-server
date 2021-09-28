@@ -35,6 +35,7 @@ import { getContactsSharingItemsWithMe } from './routes/getContactsSharingItemsW
 import { deleteSharing } from './routes/deleteSharing';
 import { stopReceivingSharing } from './routes/stopReceivingSharing';
 import { deleteSingledSharings } from './routes/deleteSingledSharings';
+import { sendStats } from './routes/sendStats';
 
 const app = express();
 app.disable('x-powered-by');
@@ -76,6 +77,7 @@ app.post('/get-contacts-for-shared-item', getContactsForSharedItem);
 app.post('/check-user-public-key', checkUserPublicKey);
 app.post('/update-device-metadata', updateDeviceMetaData);
 app.post('/log-usage', logUsage);
+app.post('/send-stats', sendStats);
 
 if (module === require.main) {
   startServer(app, () => {
