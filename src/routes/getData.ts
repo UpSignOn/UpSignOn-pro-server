@@ -82,11 +82,13 @@ export const getSharedItems = async (
       sa.aes_encrypted_data AS aes_encrypted_data,
       sau.is_manager AS is_manager,
       sau.encrypted_password AS encrypted_password,
-      sau.encrypted_aes_key AS encrypted_aes_key
+      sau.encrypted_aes_key AS encrypted_aes_key,
+      (SELECT COUNT(user_id) FROM shared_account_users WHERE shared_account_id=sau.shared_account_id) < 2 AS has_single_user
     FROM shared_accounts AS sa
     INNER JOIN shared_account_users AS sau
     ON sau.shared_account_id=sa.id
-    WHERE sau.user_id=${userId}`,
+    WHERE sau.user_id=$1`,
+    [userId],
   );
   return sharingRes.rows.map((s) => ({
     id: s.id,
@@ -98,5 +100,6 @@ export const getSharedItems = async (
     encryptedAesKey: s.encrypted_aes_key,
     isManager: s.is_manager,
     encryptedPassword: s.encrypted_password,
+    hasSingleUser: s.has_single_user,
   }));
 };
