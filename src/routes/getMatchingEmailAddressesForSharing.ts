@@ -50,7 +50,7 @@ export const getMatchingEmailAddressesForSharing = async (req: any, res: any) =>
     }
 
     const searchRes = await db.query(
-      'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key IS NOT NULL LIMIT 5',
+      'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key IS NOT NULL',
       [emailAddressSearch + '%'],
     );
     // Return res
