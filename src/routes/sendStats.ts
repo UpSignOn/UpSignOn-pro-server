@@ -39,6 +39,11 @@ export const sendStats = async (req: any, res: any): Promise<void> => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
+    // remove previous stats this same day
+    await db.query(
+      "DELETE FROM data_stats WHERE user_id=$1 AND date_trunc('day', date)=date_trunc('day', now())",
+      [dbRes.rows[0].user_id],
+    );
     await db.query(
       'INSERT INTO data_stats (user_id, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_duplicate_password) VALUES ($1,$2,$3,$4,$5,$6,$7)',
       [
