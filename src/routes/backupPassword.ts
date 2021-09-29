@@ -5,12 +5,11 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const backupPassword = async (req: any, res: any) => {
   try {
-    const basicAuth = await checkBasicAuth(req);
-    if (!basicAuth.granted) return res.status(401).end();
-
-    // Get params
     const backups = req.body?.backups;
     if (!backups || !Array.isArray(backups)) return res.status(401).end();
+
+    const basicAuth = await checkBasicAuth(req);
+    if (!basicAuth.granted) return res.status(401).end();
 
     await Promise.all(
       backups.map((backup) =>

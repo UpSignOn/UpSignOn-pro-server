@@ -1,54 +1,26 @@
 import { db } from '../helpers/connection';
-import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const deleteSingledSharings = async (req: any, res: any): Promise<void> => {
   try {
-    // Get params
-    let userEmail = req.body?.userEmail;
-    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
-    userEmail = userEmail.toLowerCase();
-
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
     const itemIds = req.body?.itemIds;
-
-    // Check params
-    if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode) return res.status(401).end();
     if (!itemIds || !Array.isArray(itemIds)) return res.status(401).end();
 
-    // Request DB
-    const dbRes = await db.query(
-      `SELECT
-        u.id AS user_id,
-        ud.access_code_hash AS access_code_hash,
-        sau.shared_account_id AS shared_account_id
-      FROM user_devices AS ud
-      INNER JOIN users AS u ON ud.user_id = u.id
-      INNER JOIN shared_account_users AS sau ON u.id = sau.user_id
-      WHERE
-        u.email=$1
-        AND ud.device_unique_id = $2
-        AND sau.is_manager = true
-        AND ud.authorization_status = 'AUTHORIZED'`,
-      [userEmail, deviceId],
-    );
-
-    if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
-
-    // Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      dbRes.rows[0].access_code_hash,
-    );
-    if (!isAccessGranted) return res.status(401).end();
+    const basicAuth = await checkBasicAuth(req);
+    if (!basicAuth.granted) return res.status(401).end();
 
     for (let i = 0; i < itemIds.length; i++) {
       const itemId = itemIds[i];
-      if (dbRes.rows.some((r) => r.shared_account_id === itemId)) {
-        await db.query('DELETE FROM shared_account_users WHERE shared_account_id=$1', [itemId]);
+      const sharedItemUserDeletion = await db.query(
+        `DELETE FROM shared_account_users
+        WHERE shared_account_id=$1
+        AND user_id=$2
+        AND is_manager=true`,
+        [itemId, basicAuth.userId],
+      );
+      if (sharedItemUserDeletion.rowCount > 0) {
         await db.query('DELETE FROM shared_accounts WHERE id=$1', [itemId]);
       }
     }

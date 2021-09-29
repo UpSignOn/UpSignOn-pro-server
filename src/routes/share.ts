@@ -1,22 +1,16 @@
 import { db } from '../helpers/connection';
-import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
 import { isStrictlyLowerVersion } from '../helpers/appVersionChecker';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const share = async (req: any, res: any): Promise<void> => {
   try {
-    // Get params
     const appVersion = req.body?.appVersion;
     if (isStrictlyLowerVersion(appVersion, '4.5.0')) {
       return res.status(403).send({ error: 'deprecated_app' });
     }
-    let userEmail = req.body?.userEmail;
-    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
-    userEmail = userEmail.toLowerCase();
 
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
     const sharings: {
       type: string;
       url: null | string;
@@ -33,26 +27,10 @@ export const share = async (req: any, res: any): Promise<void> => {
       aesEncryptedData: string;
     }[] = req.body?.sharings;
 
-    // Check params
-    if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode) return res.status(401).end();
     if (!sharings || !Array.isArray(sharings)) return res.status(401).end();
 
-    // Request DB
-    const dbRes = await db.query(
-      "SELECT users.id AS user_id, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2 AND user_devices.authorization_status='AUTHORIZED'",
-      [userEmail, deviceId],
-    );
-
-    if (!dbRes || dbRes.rowCount === 0) return res.status(404).end();
-    const currentUserId = dbRes.rows[0].user_id;
-
-    // Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      dbRes.rows[0].access_code_hash,
-    );
-    if (!isAccessGranted) return res.status(401).end();
+    const basicAuth = await checkBasicAuth(req);
+    if (!basicAuth.granted) return res.status(401).end();
 
     const errors = [];
     const newSharedItemIdsMap: any = {};
@@ -65,7 +43,7 @@ export const share = async (req: any, res: any): Promise<void> => {
       let isCurrentUserInList = false;
       for (let c = 0; c < sharing.contacts.length; c++) {
         const contact = sharing.contacts[c];
-        if (contact.email === userEmail) {
+        if (contact.email === basicAuth.userEmail) {
           isCurrentUserInList = true;
           cleanContacts.push({
             email: contact.email,
@@ -92,7 +70,7 @@ export const share = async (req: any, res: any): Promise<void> => {
       if (sharing.dbId) {
         const isManagerCheck = await db.query(
           'SELECT is_manager FROM shared_account_users WHERE user_id=$1 AND shared_account_id=$2',
-          [currentUserId, sharing.dbId],
+          [basicAuth.userId, sharing.dbId],
         );
         if (isManagerCheck.rowCount === 0 || !isManagerCheck.rows[0].is_manager) {
           return res.status(401).end();
