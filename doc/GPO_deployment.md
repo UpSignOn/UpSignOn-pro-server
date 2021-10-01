@@ -47,25 +47,6 @@ Documentation complète: [https://github.com/mozilla/policy-templates/blob/maste
   ]
   ```
 
-- [Handlers](https://github.com/mozilla/policy-templates/blob/master/README.md#handlers)
-
-  Configurez l'application UpSignOn comme destinataire des liens d'application upsignon:// afin d'éviter les popups de confirmation générées par Firefox (à tester)
-
-  ```
-  Handlers: {
-    "schemes": {
-      "upsignon": {
-        "action": "useSystemDefault",
-        "ask": "false",
-        "handlers": {
-          "name": "UpSignOn",
-          "path": "C:\\Program Files..." TODO
-        }
-      }
-    }
-  }
-  ```
-
 # Chrome
 
 Documentation générale: [https://support.google.com/chrome/a/answer/187202?hl=fr](https://support.google.com/chrome/a/answer/187202?hl=fr)
