@@ -88,26 +88,21 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 
 Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - upsignonpro` ou celui que vous avez choisi) pour que le serveur UpSignOn Pro soit exécuté dans un environnement à privilèges limités.
 
-- ce serveur va envoyer des emails à vos utilisateurs. Vous devez donc définir une adresse email d'envoi pour ces emails. La configuration de cette adresse email sera stockée dans les variables d'environnement suivantes
+- configurer votre proxy si besoin:
 
-  - EMAIL_HOST: nom du serveur smtp permettant d'envoyer des mails de validation aux utilisateurs
-  - EMAIL_PORT: '587' a priori (dépend de votre configuration)
-  - EMAIL_USER: adresse email à partir de laquelle seront envoyés les mails de validation
-  - EMAIL_PASS: mot de passe pour cette adresse email
+  ```
+    git config --global http.proxy http://proxyUsername:proxyPassword@proxy.server.com:port
+    git config --global http.sslVerify false
+    git config --global http.proxyAuthMethod 'basic'
+    npm config set proxy http://username:password@host:port
+    yarn config set proxy http://username:password@host:port
+  ```
 
 - installer yarn `npm install --global yarn`
 
 - installer le gestionnaire de processus pm2 (redémarrage automatique du serveur, gestion de plusieurs instances, gestion des logs), `npm install pm2 -g`.
 
   - NB: la capacité de redémarrage automatique en cas de crash est incluse par défaut avec pm2, vous n'avez rien de plus à configurer.
-
-- (OPTIONNEL) vous pouvez installer un certificat SSL pour que le serveur utilise HTTPS pour les connexions locales. Cette option est proposée uniquement pour les cas où vous souhaiteriez exposer directement le processus nodeJS en https. Dans le cas de l'utilisation d'un reverse proxy, la sécurité sera portée directement par le reverse proxy. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
-
-  - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
-  - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
-
-  - NB : l'utilisateur linux propriétaire du serveur doit pouvoir accéder à ces fichiers en lecture. N'oubliez pas de configurer les droits d'accès à ces fichiers correctement.
-  - si ces deux variables d'environnement ne sont pas définies, le serveur local fonctionnera en http.
 
 - clone du repo `git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git <DESTINATION_DIRECTORY>`
 - dans le dossier <DESTINATION_DIRECTORY>
@@ -116,6 +111,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
   - compilez le projet `yarn build`
   - créez le fichier `.env` : `cp dot-env-example .env` (attention, le nom de ce fichier doit être exactement `.env`)
   - dans le fichier `.env`, définissez toutes vos variables d'environnement.
+
     - DB_USER
     - DB_PASS
     - DB_NAME
@@ -123,14 +119,24 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
     - DB_PORT
     - NODE_ENV: doit être 'production'
     - SERVER_PORT: port utilisé pour le serveur local
-    - SSL_CERTIFICATE_KEY_PATH (optionnel)
-    - SSL_CERTIFICATE_CRT_PATH (optionnel)
-    - EMAIL_HOST
-    - EMAIL_PORT
-    - EMAIL_USER
-    - EMAIL_PASS: peut rester vider pour les configurations utilisant un serveur SMTP interne
+    - EMAIL_HOST: nom du serveur smtp permettant d'envoyer des mails de validation aux utilisateurs
+    - EMAIL_PORT: '587' a priori (dépend de votre configuration)
+    - EMAIL_USER: adresse email à partir de laquelle seront envoyés les mails de validation
+    - EMAIL_PASS: mot de passe pour cette adresse email. Peut rester vide dans certaines configurations
     - API_PUBLIC_HOSTNAME: l'URL entière (chemin compris) de ce serveur UpSignOn PRO, sans 'https://'.
     - DISPLAY_NAME_IN_APP: le nom qui sera affiché aux utilisateurs dans l'application. Typiquement, le nom de votre organisation.
+    - SSL_CERTIFICATE_KEY_PATH (optionnel)
+    - SSL_CERTIFICATE_CRT_PATH (optionnel)
+
+  - NB : ce serveur va envoyer des emails à vos utilisateurs. Vous devez donc définir une adresse email d'envoi pour ces emails (cf les variables EMAIL\_\* ci dessus);
+
+- (OPTIONNEL) vous pouvez installer un certificat SSL pour que le serveur utilise HTTPS pour les connexions locales. Cette option est proposée uniquement pour les cas où vous souhaiteriez exposer directement le processus nodeJS en https. Dans le cas de l'utilisation d'un reverse proxy, la sécurité sera portée directement par le reverse proxy. Les chemins d'accès à ce certificat seront stockés dans les variables d'environnement suivantes:
+
+  - SSL_CERTIFICATE_KEY_PATH: chemin absolu vers le fichier .key (ou .pem) utilisé pour la communication SSL locale
+  - SSL_CERTIFICATE_CRT_PATH: chemin absolu vers le fichier .crt (ou .pem) utilisé pour la communication SSL locale
+
+  - NB : l'utilisateur linux propriétaire du serveur doit pouvoir accéder à ces fichiers en lecture. N'oubliez pas de configurer les droits d'accès à ces fichiers correctement.
+  - si ces deux variables d'environnement ne sont pas définies, le serveur local fonctionnera en http.
 
 # Provisionning de la base de données
 
