@@ -158,6 +158,7 @@ Ce qui suit doit être exécuté en tant qu'utilisateur "upsignonpro" (`su - ups
 Ceci nécessite la version 5.1.1 de pm2 minimum.
 Pour mettre à jour pm2, procédez ainsi :
 
+- `su - upsignonpro`
 - `npm install pm2 -g`
 - `pm2 update`
 
@@ -167,8 +168,16 @@ Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 - `pm2 save` (pour sauvegarder la liste des processus en cours d'exécution)
 - `pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
 - lancez la commande suggérée en tant que root.
+- `su - upsignonpro`
+- `cd ~/upsignon-pro-server`
+- `pm2 save`
+- puis redémarrez la VM
+- puis `su - upsignonpro`
+- puis vérifiez que `pm2 status` affiche bien le serveur upsignon-pro-server comme en cours d'exécution
 
-Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS.
+NB1: pm2 status n'affiche pas les mêmes résultats selon que vous êtes root ou upsignonpro
+
+NB2: Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS.
 
 # Configuration d'un reverse proxy
 
