@@ -8,8 +8,15 @@ let contactSearchSessions: { session: string; expirationTimestamp: number }[] = 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getMatchingEmailAddressesForSharing = async (req: any, res: any) => {
   try {
-    const emailAddressSearch = req.body?.emailAddressSearch;
-    if (!emailAddressSearch || emailAddressSearch.length < 3) return res.status(401).end();
+    let emailAddressSearch = req.body?.emailAddressSearch;
+    if (
+      !emailAddressSearch ||
+      typeof emailAddressSearch != 'string' ||
+      emailAddressSearch.length < 3
+    )
+      return res.status(401).end();
+
+    emailAddressSearch = emailAddressSearch.toLowerCase();
 
     // session mechanism for performance (this route will necessarily be called multiple times in a row, let's avoid unecessary db queries)
     let session = req.body?.session;

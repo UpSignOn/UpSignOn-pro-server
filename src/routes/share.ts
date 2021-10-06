@@ -43,6 +43,9 @@ export const share = async (req: any, res: any): Promise<void> => {
       let isCurrentUserInList = false;
       for (let c = 0; c < sharing.contacts.length; c++) {
         const contact = sharing.contacts[c];
+        if (typeof contact.email === 'string') {
+          contact.email = contact.email.toLowerCase();
+        }
         if (contact.email === basicAuth.userEmail) {
           isCurrentUserInList = true;
           cleanContacts.push({
