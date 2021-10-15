@@ -16,7 +16,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const userAppVersions = userAppVersionsResult.rows.map((v) => v.app_version);
 
     const serverStatus = {
-      displayName: env.DISPLAY_NAME_IN_APP,
+      displayName: env.ORGANISATION_NAME,
       gitCommit,
       lastMigration,
       licenseCount,
