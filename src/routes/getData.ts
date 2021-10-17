@@ -32,7 +32,18 @@ export const getData = async (req: any, res: any): Promise<void> => {
       [userEmail, deviceId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(404).json({ error: 'revoked' });
+    if (!dbRes || dbRes.rowCount === 0) {
+      // Check if the email address has changed
+      const emailChangeRes = await db.query(
+        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1',
+        [userEmail],
+      );
+      if (emailChangeRes.rowCount === 0) {
+        return res.status(404).json({ error: 'revoked' });
+      } else {
+        return res.status(401).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
+      }
+    }
     if (
       dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' ||
       dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
@@ -52,11 +63,14 @@ export const getData = async (req: any, res: any): Promise<void> => {
     const sharedItems = await getSharedItems(dbRes.rows[0].user_id);
 
     // Return res
-    return res.status(200).json({
+    res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
       lastUpdateDate: dbRes.rows[0].updated_at,
       sharedItems,
     });
+
+    // Clean changed_emails table if necessary
+    cleanChangedEmails(dbRes.rows[0].user_id, deviceId);
   } catch (e) {
     logError('getData', e);
     return res.status(400).end();
@@ -108,4 +122,41 @@ export const getSharedItems = async (
     encryptedPassword: s.encrypted_password,
     hasSingleUser: s.has_single_user,
   }));
+};
+
+const cleanChangedEmails = async (userId: number, deviceUniqueId: string) => {
+  try {
+    const changedEmails = await db.query(
+      'SELECT aware_devices FROM changed_emails WHERE user_id = $1',
+      [userId],
+    );
+    if (changedEmails.rowCount > 0) {
+      // get all devices for this user
+      const devices = await db.query(
+        'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1',
+        [userId],
+      );
+
+      let areAllDevicesAware = true;
+      devices.rows.forEach(async (d) => {
+        if (!changedEmails.rows[0].aware_devices.includes(d.id)) {
+          if (d.device_unique_id === deviceUniqueId) {
+            // do update all changed_emails for user_id and not only for changed_emails wher old_email = userEmail
+            // because this will help make sure the database cleans itself automatically in the end
+            await db.query('UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2', [
+              JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]),
+              userId,
+            ]);
+          } else {
+            areAllDevicesAware = false;
+          }
+        }
+      });
+      if (areAllDevicesAware) {
+        await db.query('DELETE FROM changed_emails WHERE user_id=$1', [userId]);
+      }
+    }
+  } catch (e) {
+    console.error('Error in cleanChangedEmails:', e);
+  }
 };
