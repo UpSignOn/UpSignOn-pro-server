@@ -33,7 +33,10 @@ export const getData = async (req: any, res: any): Promise<void> => {
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(404).json({ error: 'revoked' });
-    if (dbRes.rows[0].authorization_status !== 'REVOKED_BY_ADMIN')
+    if (
+      dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' ||
+      dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
+    )
       return res.status(404).json({ error: 'revoked' });
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
