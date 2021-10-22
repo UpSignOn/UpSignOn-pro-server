@@ -32,6 +32,7 @@ export const startServer = (app: any, then: any): void => {
     listenForGracefulShutdown(server);
   }
   sendStatusUpdate();
+  setInterval(sendStatusUpdate, 24 * 3600 * 1000);
 };
 
 const listenForGracefulShutdown = (server: any) => {
