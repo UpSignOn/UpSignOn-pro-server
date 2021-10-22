@@ -5,6 +5,7 @@ import https from 'https';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
+    if (!env.IS_PRODUCTION) return;
     const gitCommit = childProcess.execSync('git rev-parse HEAD').toString().trim();
     const lastMigrationResult = await db.query(
       'SELECT name FROM migrations ORDER BY name desc limit 1',
