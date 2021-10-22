@@ -24,7 +24,7 @@ export const share = async (req: any, res: any): Promise<void> => {
         encryptedPassword: string;
         encryptedAesKey: string;
       }[];
-      aesEncryptedData: string;
+      aesEncryptedData: null | string;
     }[] = req.body?.sharings;
 
     if (!sharings || !Array.isArray(sharings)) return res.status(401).end();
@@ -37,6 +37,12 @@ export const share = async (req: any, res: any): Promise<void> => {
     for (let i = 0; i < sharings.length; i++) {
       // Security: do not use foreach or map
       const sharing = sharings[i];
+
+      if (sharing.dbId && !sharing.aesEncryptedData) {
+        errors.push({ name: sharing.name, error: 'no_data_for_new_sharing' });
+        continue;
+      }
+
       // check at least current user is in contact list
       // and force current user to be manager
       const cleanContacts = [];
