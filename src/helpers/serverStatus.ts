@@ -5,11 +5,13 @@ import https from 'https';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
-    if (!env.IS_PRODUCTION) return;
-    let gitCommit = 'unknown';
-    try {
-      gitCommit = childProcess.execSync('git rev-parse HEAD').toString().trim();
-    } catch {}
+    // if (!env.IS_PRODUCTION) return;
+    const gitCommit = await new Promise((resolve) => {
+      childProcess.exec('git rev-parse HEAD', (error, stdout) => {
+        console.log(error, stdout);
+        resolve(stdout?.toString().trim() || 'unknown');
+      });
+    });
     const lastMigrationResult = await db.query(
       'SELECT name FROM migrations ORDER BY name desc limit 1',
     );
