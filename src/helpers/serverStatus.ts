@@ -21,6 +21,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const stats = await getStats();
     const serverStatus = {
       displayName: env.ORGANISATION_NAME,
+      serverUrl: env.API_PUBLIC_HOSTNAME,
       gitCommit,
       lastMigration,
       licenseCount,
