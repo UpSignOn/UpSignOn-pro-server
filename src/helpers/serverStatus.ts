@@ -19,8 +19,8 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
     const licenseCount = licenseCountResult.rows[0].count;
     const userAppVersionsResult = await db.query('SELECT DISTINCT(app_version) FROM user_devices');
-    const userAppVersions = userAppVersionsResult.rows.map((v) => v.app_version);
-    const stats = await getStats();
+    const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
+    const stats: any[] = await getStats();
     const serverStatus = {
       displayName: env.ORGANISATION_NAME,
       serverUrl: env.API_PUBLIC_HOSTNAME,
@@ -28,7 +28,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       lastMigration,
       licenseCount,
       userAppVersions,
-      securityGraph: stats,
+      securityGraph: JSON.stringify(stats),
     };
 
     sendToUpSignOn(serverStatus);
@@ -52,7 +52,7 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
   return res;
 };
 
-const getStats = async () => {
+const getStats = async (): Promise<any[]> => {
   // Clean data_stats to make there is at most one line per user per day
   await db.query(
     "DELETE FROM data_stats as ds1 USING data_stats as ds2 WHERE ds1.user_id=ds2.user_id AND date_trunc('day',ds1.date)=date_trunc('day', ds2.date) AND ds1.date<ds2.date;",
@@ -132,7 +132,7 @@ const getStats = async () => {
   });
 
   const result = Object.values(chartDataObjet);
-  return JSON.stringify(result);
+  return result;
 };
 
 const sendToUpSignOn = (status: any) => {
