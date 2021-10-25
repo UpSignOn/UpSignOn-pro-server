@@ -21,7 +21,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       'SELECT DISTINCT(app_version) FROM user_devices ORDER BY app_version DESC',
     );
     const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
-    const stats: any[] = await getStats();
+    const stats: { def: string[]; data: number[] } = await getStats();
     const serverStatus = {
       displayName: env.ORGANISATION_NAME,
       serverUrl: env.API_PUBLIC_HOSTNAME,
@@ -53,7 +53,7 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
   return res;
 };
 
-const getStats = async (): Promise<any[]> => {
+const getStats = async (): Promise<{ def: string[]; data: number[] }> => {
   // Clean data_stats to make there is at most one line per user per day
   await db.query(
     "DELETE FROM data_stats as ds1 USING data_stats as ds2 WHERE ds1.user_id=ds2.user_id AND date_trunc('day',ds1.date)=date_trunc('day', ds2.date) AND ds1.date<ds2.date;",
@@ -63,7 +63,7 @@ const getStats = async (): Promise<any[]> => {
   );
 
   if (rawStats.rowCount === 0) {
-    return [];
+    return { def: [], data: [] };
   }
 
   /*
@@ -131,7 +131,22 @@ const getStats = async (): Promise<any[]> => {
   });
 
   const result = Object.values(chartDataObjet);
-  return result;
+  return {
+    def: ['n', 'cd', 'st', 'md', 'wk', 'no', 'dp', 'gr', 'or', 'rd'],
+    // @ts-ignore
+    data: result.map((val: any) => [
+      val.n,
+      val.cd,
+      val.st,
+      val.md,
+      val.wk,
+      val.no,
+      val.dp,
+      val.gr,
+      val.or,
+      val.rd,
+    ]),
+  };
 };
 
 const sendToUpSignOn = (status: any) => {
