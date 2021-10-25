@@ -94,17 +94,17 @@ const getStats = async (): Promise<any[]> => {
   const chartDataObjet: any = {};
   days.forEach((d) => {
     chartDataObjet[d] = {
-      day: d,
-      nbAccounts: 0,
-      nbCodes: 0,
-      nbAccountsStrong: 0,
-      nbAccountsMedium: 0,
-      nbAccountsWeak: 0,
-      nbAccountsWithNoPassword: 0,
-      nbDuplicatePasswords: 0,
-      nbAccountsGreen: 0,
-      nbAccountsOrange: 0,
-      nbAccountsRed: 0,
+      d: d, // day
+      n: 0, // accounts
+      cd: 0, // codes
+      st: 0, // strong
+      md: 0, // medium
+      wk: 0, // weak
+      no: 0, // no password
+      dp: 0, // duplicate
+      gr: 0, // green
+      or: 0, // orange
+      rd: 0, // red
     };
   });
 
@@ -117,18 +117,16 @@ const getStats = async (): Promise<any[]> => {
       if (userStats[d]) {
         lastKnownStats = userStats[d];
       }
-      chartDataObjet[d].nbCodes += lastKnownStats?.nb_codes || 0;
-      chartDataObjet[d].nbAccountsStrong += lastKnownStats?.nb_accounts_strong || 0;
-      chartDataObjet[d].nbAccountsMedium += lastKnownStats?.nb_accounts_medium || 0;
-      chartDataObjet[d].nbAccountsWeak += lastKnownStats?.nb_accounts_weak || 0;
-      chartDataObjet[d].nbAccountsWithNoPassword +=
-        lastKnownStats?.nb_accounts_with_no_password || 0;
-      chartDataObjet[d].nbAccounts += lastKnownStats?.nb_accounts || 0;
-      chartDataObjet[d].nbDuplicatePasswords +=
-        lastKnownStats?.nb_accounts_with_duplicate_password || 0;
-      chartDataObjet[d].nbAccountsGreen += lastKnownStats?.nb_accounts_green || 0;
-      chartDataObjet[d].nbAccountsOrange += lastKnownStats?.nb_accounts_orange || 0;
-      chartDataObjet[d].nbAccountsRed += lastKnownStats?.nb_accounts_green || 0;
+      chartDataObjet[d].n += lastKnownStats?.nb_accounts || 0;
+      chartDataObjet[d].cd += lastKnownStats?.nb_codes || 0;
+      chartDataObjet[d].st += lastKnownStats?.nb_accounts_strong || 0;
+      chartDataObjet[d].md += lastKnownStats?.nb_accounts_medium || 0;
+      chartDataObjet[d].wk += lastKnownStats?.nb_accounts_weak || 0;
+      chartDataObjet[d].no += lastKnownStats?.nb_accounts_with_no_password || 0;
+      chartDataObjet[d].dp += lastKnownStats?.nb_accounts_with_duplicate_password || 0;
+      chartDataObjet[d].gr += lastKnownStats?.nb_accounts_green || 0;
+      chartDataObjet[d].or += lastKnownStats?.nb_accounts_orange || 0;
+      chartDataObjet[d].rd += lastKnownStats?.nb_accounts_green || 0;
     });
   });
 
