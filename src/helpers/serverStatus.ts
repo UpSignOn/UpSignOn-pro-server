@@ -18,7 +18,9 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const lastMigration = lastMigrationResult.rows[0].name;
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
     const licenseCount = licenseCountResult.rows[0].count;
-    const userAppVersionsResult = await db.query('SELECT DISTINCT(app_version) FROM user_devices');
+    const userAppVersionsResult = await db.query(
+      'SELECT DISTINCT(app_version) FROM user_devices ORDER BY app_versions DESC',
+    );
     const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
     const stats: any[] = await getStats();
     const serverStatus = {
