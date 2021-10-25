@@ -2,13 +2,12 @@ import env from './env';
 import { db } from './connection';
 import childProcess from 'child_process';
 import https from 'https';
+import http from 'http';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
-    // if (!env.IS_PRODUCTION) return;
     const gitCommit = await new Promise((resolve) => {
       childProcess.exec('git rev-parse HEAD', (error, stdout) => {
-        console.log(error, stdout);
         resolve(stdout?.toString().trim() || 'unknown');
       });
     });
@@ -19,7 +18,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
     const licenseCount = licenseCountResult.rows[0].count;
     const userAppVersionsResult = await db.query(
-      'SELECT DISTINCT(app_version) FROM user_devices ORDER BY app_versions DESC',
+      'SELECT DISTINCT(app_version) FROM user_devices ORDER BY app_version DESC',
     );
     const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
     const stats: any[] = await getStats();
@@ -140,17 +139,32 @@ const getStats = async (): Promise<any[]> => {
 const sendToUpSignOn = (status: any) => {
   const dataString = JSON.stringify(status);
 
-  const options = {
-    hostname: 'app.upsignon.eu',
-    port: 443,
-    path: '/pro-status',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+  let req;
+  if (env.IS_PRODUCTION) {
+    const options = {
+      hostname: 'app.upsignon.eu',
+      port: 443,
+      path: '/pro-status',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-  const req = https.request(options, () => {});
+    req = https.request(options, () => {});
+  } else {
+    const options = {
+      hostname: 'localhost',
+      port: 8080,
+      path: '/pro-status',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    req = http.request(options, () => {});
+  }
 
   req.on('error', (error) => {
     console.error(error);
