@@ -135,7 +135,7 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
     def: ['d', 'n', 'cd', 'st', 'md', 'wk', 'no', 'dp', 'gr', 'or', 'rd'],
     // @ts-ignore
     data: result.map((val: any) => [
-      val.d,
+      val.d.split('T')[0],
       val.n,
       val.cd,
       val.st,
