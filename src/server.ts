@@ -46,7 +46,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => res.status(200).send('UpSignOn PRO server is running'));
+app.get('/', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.status(200).send('UpSignOn PRO server is running');
+});
 app.get('/check-device', checkDevice);
 app.get('/test-email', testEmail);
 
