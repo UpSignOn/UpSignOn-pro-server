@@ -70,7 +70,7 @@ export const requestAccess = async (req: any, res: any) => {
     const userId = userRes.rows[0].id;
 
     const deviceRes = await db.query(
-      'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND group_id=$2',
+      'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND group_id=$3',
       [userId, deviceId, groupId],
     );
 
