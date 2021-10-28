@@ -164,6 +164,6 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
       }
     }
   } catch (e) {
-    console.error('Error in cleanChangedEmails:', e);
+    logError('cleanChangedEmails:', e);
   }
 };

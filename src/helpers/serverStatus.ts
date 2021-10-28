@@ -3,6 +3,7 @@ import { db } from './connection';
 import childProcess from 'child_process';
 import https from 'https';
 import http from 'http';
+import { logError } from './logger';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
@@ -33,7 +34,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
 
     sendToUpSignOn(serverStatus);
   } catch (e) {
-    console.error(e);
+    logError('sendStatusUpdate', e);
   }
 };
 
@@ -180,7 +181,7 @@ const sendToUpSignOn = (status: any) => {
   }
 
   req.on('error', (error) => {
-    console.error(error);
+    logError('sendToUpSignOn', error);
   });
 
   req.write(dataString);
