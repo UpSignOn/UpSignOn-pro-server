@@ -23,8 +23,7 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestAccess = async (req: any, res: any) => {
   try {
-    const groupId = req.params.groupId;
-    if (!groupId) throw new Error('Missing groupId');
+    const groupId = parseInt(req.params.groupId || 1);
 
     // Get params
     let userEmail = req.body?.userEmail;

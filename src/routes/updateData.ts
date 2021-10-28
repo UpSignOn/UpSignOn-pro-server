@@ -34,7 +34,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       );
     } else {
       updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) AND group_id=$4 RETURNING updated_at',
+        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) AND users.group_id=$4 RETURNING updated_at',
         [newEncryptedData, basicAuth.userEmail, lastUpdateDate, basicAuth.groupId],
       );
     }

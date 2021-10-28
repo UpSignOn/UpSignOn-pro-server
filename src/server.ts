@@ -83,10 +83,7 @@ groupRouter.post('/log-usage', logUsage);
 groupRouter.post('/send-stats', sendStats);
 
 // default group is 1 (for retrocompatibility)
-app.use('/', (req, res, next) => {
-  req.params.groupId = '1';
-  return groupRouter(req, res, next);
-});
+app.use('/', groupRouter);
 // group sent in url
 app.use('/:groupId/', groupRouter);
 

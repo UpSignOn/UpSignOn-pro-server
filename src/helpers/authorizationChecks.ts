@@ -21,12 +21,11 @@ export const checkBasicAuth = async (
       encryptedData: null | string;
       deviceId: null | number;
       granted: true;
-      groupId: string;
+      groupId: number;
     }
   | { granted: false }
 > => {
-  const groupId = req.params.groupId;
-  if (!groupId) throw new Error('BUG : Missing groupId');
+  const groupId = parseInt(req.params.groupId || 1);
 
   let userEmail = req.body?.userEmail;
   const deviceUId = req.body?.deviceId;
@@ -76,7 +75,7 @@ export const checkBasicAuth = async (
       u.email=$1
       AND ud.device_unique_id = $2
       AND ud.authorization_status='AUTHORIZED'
-      AND group_id=$3
+      AND u.group_id=$3
       ${accountManagerWhere}
       ${accountRecipientWhere}
       `,

@@ -23,7 +23,6 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
     const stats: { def: string[]; data: number[] } = await getStats();
     const serverStatus = {
-      displayName: env.ORGANISATION_NAME,
       serverUrl: env.API_PUBLIC_HOSTNAME,
       gitCommit,
       lastMigration,

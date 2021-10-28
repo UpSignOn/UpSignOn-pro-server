@@ -13,8 +13,7 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
-    const groupId = req.params.groupId;
-    if (!groupId) throw new Error('Missing groupId');
+    const groupId = parseInt(req.params.groupId || 1);
 
     // Get params
     let userEmail = req.body?.userEmail;
@@ -82,7 +81,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
 export const getSharedItems = async (
   userId: number,
-  groupId: string,
+  groupId: number,
 ): Promise<
   {
     id: number;
@@ -129,7 +128,7 @@ export const getSharedItems = async (
   }));
 };
 
-const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupId: string) => {
+const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupId: number) => {
   try {
     const changedEmails = await db.query(
       'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND group_id=$2',
