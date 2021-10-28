@@ -12,7 +12,10 @@ export const deleteSharing = async (req: any, res: any): Promise<void> => {
     if (!basicAuth.granted) return res.status(401).end();
 
     // NB shared_account_users will be deleted by cascade
-    await db.query('DELETE FROM shared_accounts WHERE id=$1', [itemId]);
+    await db.query('DELETE FROM shared_accounts WHERE id=$1 AND group_id=$2', [
+      itemId,
+      basicAuth.groupId,
+    ]);
 
     return res.status(200).end();
   } catch (e) {

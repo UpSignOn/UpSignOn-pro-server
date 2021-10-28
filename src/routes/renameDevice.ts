@@ -14,8 +14,8 @@ export const renameDevice = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     await db.query(
-      'UPDATE user_devices SET device_name=$1 WHERE user_id=$2 AND device_unique_id=$3',
-      [newName, basicAuth.userId, deviceToRename],
+      'UPDATE user_devices SET device_name=$1 WHERE user_id=$2 AND device_unique_id=$3 AND group_id=$4',
+      [newName, basicAuth.userId, deviceToRename, basicAuth.groupId],
     );
     // Return res
     return res.status(204).end();

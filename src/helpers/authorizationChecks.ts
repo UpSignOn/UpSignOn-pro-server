@@ -21,9 +21,13 @@ export const checkBasicAuth = async (
       encryptedData: null | string;
       deviceId: null | number;
       granted: true;
+      groupId: string;
     }
   | { granted: false }
 > => {
+  const groupId = req.params.groupId;
+  if (!groupId) throw new Error('BUG : Missing groupId');
+
   let userEmail = req.body?.userEmail;
   const deviceUId = req.body?.deviceId;
   const deviceAccessCode = req.body?.deviceAccessCode;
@@ -45,13 +49,13 @@ export const checkBasicAuth = async (
       ? 'INNER JOIN shared_account_users AS sau ON u.id = sau.user_id'
       : '';
   const accountManagerWhere = options?.checkIsManagerForItemId
-    ? 'AND sau.is_manager=true AND sau.shared_account_id=$3'
+    ? 'AND sau.is_manager=true AND sau.shared_account_id=$4'
     : '';
   const accountManagerParam = options?.checkIsManagerForItemId
     ? [options.checkIsManagerForItemId]
     : [];
   const accountRecipientWhere = options?.checkIsRecipientForItemId
-    ? 'AND sau.shared_account_id=$3'
+    ? 'AND sau.shared_account_id=$4'
     : '';
   const accountRecipientParam = options?.checkIsRecipientForItemId
     ? [options.checkIsRecipientForItemId]
@@ -72,10 +76,11 @@ export const checkBasicAuth = async (
       u.email=$1
       AND ud.device_unique_id = $2
       AND ud.authorization_status='AUTHORIZED'
+      AND group_id=$3
       ${accountManagerWhere}
       ${accountRecipientWhere}
       `,
-    [userEmail, deviceUId, ...accountManagerParam, ...accountRecipientParam],
+    [userEmail, deviceUId, groupId, ...accountManagerParam, ...accountRecipientParam],
   );
 
   if (!dbRes || dbRes.rowCount === 0) return { granted: false };
@@ -95,5 +100,6 @@ export const checkBasicAuth = async (
     encryptedData: dbRes.rows[0].encrypted_data,
     deviceId: dbRes.rows[0].device_id,
     granted: true,
+    groupId,
   };
 };

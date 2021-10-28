@@ -23,6 +23,9 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestAccess = async (req: any, res: any) => {
   try {
+    const groupId = req.params.groupId;
+    if (!groupId) throw new Error('Missing groupId');
+
     // Get params
     let userEmail = req.body?.userEmail;
     if (!userEmail || typeof userEmail !== 'string' || userEmail.indexOf('@') === -1)
@@ -41,10 +44,15 @@ export const requestAccess = async (req: any, res: any) => {
     if (!deviceAccessCode) return res.status(401).end();
 
     // Request DB
-    let userRes = await db.query('SELECT id FROM users WHERE email=$1', [userEmail]);
+    let userRes = await db.query('SELECT id FROM users WHERE email=$1 AND group_id=$2', [
+      userEmail,
+      groupId,
+    ]);
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
-      const emailRes = await db.query('SELECT pattern from allowed_emails');
+      const emailRes = await db.query('SELECT pattern FROM allowed_emails WHERE group_id=$1', [
+        groupId,
+      ]);
       if (
         !emailRes.rows.some((emailPattern) => {
           if (emailPattern.pattern.indexOf('*@') === 0) {
@@ -55,13 +63,16 @@ export const requestAccess = async (req: any, res: any) => {
         })
       )
         return res.status(401).json({ error: 'email_address_not_allowed' });
-      userRes = await db.query('INSERT INTO users (email) VALUES ($1) RETURNING id', [userEmail]);
+      userRes = await db.query('INSERT INTO users (email, group_id) VALUES ($1,$2) RETURNING id', [
+        userEmail,
+        groupId,
+      ]);
     }
     const userId = userRes.rows[0].id;
 
     const deviceRes = await db.query(
-      'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2',
-      [userId, deviceId],
+      'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND group_id=$2',
+      [userId, deviceId, groupId],
     );
 
     if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'AUTHORIZED') {
@@ -90,7 +101,7 @@ export const requestAccess = async (req: any, res: any) => {
     let requestId;
     if (deviceRes.rowCount === 0) {
       const insertRes = await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id',
+        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id',
         [
           userId,
           deviceName,
@@ -102,13 +113,14 @@ export const requestAccess = async (req: any, res: any) => {
           'PENDING',
           randomAuthorizationCode,
           expirationDate,
+          groupId,
         ],
       );
       requestId = insertRes.rows[0].id;
     } else {
       // request is pending and expired, let's update it
       const updateRes = await db.query(
-        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 RETURNING id',
+        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 AND group_id=$8 RETURNING id',
         [
           deviceName,
           hashedAccessCode,
@@ -117,6 +129,7 @@ export const requestAccess = async (req: any, res: any) => {
           expirationDate,
           userId,
           deviceId,
+          groupId,
         ],
       );
       requestId = updateRes.rows[0].id;

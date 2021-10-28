@@ -78,8 +78,8 @@ export const share = async (req: any, res: any): Promise<void> => {
       let sharingId;
       if (sharing.dbId) {
         const isManagerCheck = await db.query(
-          'SELECT is_manager FROM shared_account_users WHERE user_id=$1 AND shared_account_id=$2',
-          [basicAuth.userId, sharing.dbId],
+          'SELECT is_manager FROM shared_account_users WHERE user_id=$1 AND shared_account_id=$2 AND group_id=$3',
+          [basicAuth.userId, sharing.dbId, basicAuth.groupId],
         );
         if (isManagerCheck.rowCount === 0 || !isManagerCheck.rows[0].is_manager) {
           return res.status(401).end();
@@ -87,8 +87,15 @@ export const share = async (req: any, res: any): Promise<void> => {
         sharingId = sharing.dbId;
       } else {
         const newSharedAccount = await db.query(
-          'INSERT INTO shared_accounts (url, name, type, login, aes_encrypted_data) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-          [sharing.url, sharing.name, sharing.type, sharing.login, sharing.aesEncryptedData],
+          'INSERT INTO shared_accounts (url, name, type, login, aes_encrypted_data, group_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+          [
+            sharing.url,
+            sharing.name,
+            sharing.type,
+            sharing.login,
+            sharing.aesEncryptedData,
+            basicAuth.groupId,
+          ],
         );
         sharingId = newSharedAccount.rows[0].id;
         if (!sharing.idInUserEnv) {
@@ -102,13 +109,14 @@ export const share = async (req: any, res: any): Promise<void> => {
       for (let cc = 0; cc < cleanContacts.length; cc++) {
         try {
           await db.query(
-            'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, encrypted_password, encrypted_aes_key) SELECT $1 AS shared_account_id, id AS user_id, $2 AS is_manager, $3 AS encrypted_password, $4 AS encrypted_aes_key FROM users WHERE email=$5',
+            'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, encrypted_password, encrypted_aes_key, group_id) SELECT $1 AS shared_account_id, id AS user_id, $2 AS is_manager, $3 AS encrypted_password, $4 AS encrypted_aes_key, $6 AS group_id FROM users WHERE email=$5',
             [
               sharingId,
               cleanContacts[cc].isManager,
               cleanContacts[cc].encryptedPassword,
               cleanContacts[cc].encryptedAesKey,
               cleanContacts[cc].email,
+              basicAuth.groupId,
             ],
           );
         } catch {

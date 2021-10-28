@@ -13,8 +13,8 @@ export const checkEmailAddressForSharing = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const checkRes = await db.query(
-      'SELECT sharing_public_key FROM users WHERE email=$1 AND sharing_public_key IS NOT NULL',
-      [emailAddress],
+      'SELECT sharing_public_key FROM users WHERE email=$1 AND sharing_public_key IS NOT NULL AND group_id=$2',
+      [emailAddress, basicAuth.groupId],
     );
     // Return res
     return res

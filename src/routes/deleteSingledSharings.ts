@@ -17,11 +17,15 @@ export const deleteSingledSharings = async (req: any, res: any): Promise<void> =
         `DELETE FROM shared_account_users
         WHERE shared_account_id=$1
         AND user_id=$2
-        AND is_manager=true`,
-        [itemId, basicAuth.userId],
+        AND is_manager=true
+        AND group_id=$3`,
+        [itemId, basicAuth.userId, basicAuth.groupId],
       );
       if (sharedItemUserDeletion.rowCount > 0) {
-        await db.query('DELETE FROM shared_accounts WHERE id=$1', [itemId]);
+        await db.query('DELETE FROM shared_accounts WHERE id=$1 AND group_id=$2', [
+          itemId,
+          basicAuth.groupId,
+        ]);
       }
     }
 

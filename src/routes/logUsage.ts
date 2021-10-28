@@ -12,9 +12,10 @@ export const logUsage = async (req: any, res: any): Promise<void> => {
     if (!basicAuth.granted) return res.status(401).end();
 
     // db request
-    await db.query('INSERT INTO usage_logs (device_id, log_type) VALUES ($1,$2)', [
+    await db.query('INSERT INTO usage_logs (device_id, log_type, group_id) VALUES ($1,$2, $3)', [
       basicAuth.deviceId,
       logType,
+      basicAuth.groupId,
     ]);
 
     return res.status(204).end();

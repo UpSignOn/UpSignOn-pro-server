@@ -53,34 +53,42 @@ app.get('/', (req, res) => {
 app.get('/check-device', checkDevice);
 app.get('/test-email', testEmail);
 
-app.post('/config', getConfig);
-app.get('/config', getConfig);
-app.post('/url-list', getUrlList);
-app.post('/request-access', requestAccess);
-app.post('/request-password-reset', requestPasswordReset);
-app.post('/remove-authorization', removeAuthorization);
-app.post('/get-authorized-devices', getAuthorizedDevices);
-app.post('/get-data', getData);
-app.post('/update-data', updateData);
-app.post('/rename-device', renameDevice);
-app.post('/backup-password', backupPassword);
-app.post('/get-password-backup', getPasswordBackup);
-app.post('/get-matching-email-addresses-for-sharing', getMatchingEmailAddressesForSharing);
-app.post('/get-contacts-sharing-items-with-me', getContactsSharingItemsWithMe);
-app.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
-app.post('/share', share);
-app.post('/update-shared-item', updateSharedItem);
-app.post('/get-contacts-public-keys', getContactsPublicKeys);
-app.post('/update-contact-rights', updateContactRights);
-app.post('/stop-sharing-with-contact', stopSharingWithContact);
-app.post('/delete-sharing', deleteSharing);
-app.post('/delete-singled-sharings', deleteSingledSharings);
-app.post('/stop-receiving-sharing', stopReceivingSharing);
-app.post('/get-contacts-for-shared-item', getContactsForSharedItem);
-app.post('/check-user-public-key', checkUserPublicKey);
-app.post('/update-device-metadata', updateDeviceMetaData);
-app.post('/log-usage', logUsage);
-app.post('/send-stats', sendStats);
+const groupRouter = express.Router();
+groupRouter.all('/config', getConfig);
+groupRouter.post('/url-list', getUrlList);
+groupRouter.post('/request-access', requestAccess);
+groupRouter.post('/request-password-reset', requestPasswordReset);
+groupRouter.post('/remove-authorization', removeAuthorization);
+groupRouter.post('/get-authorized-devices', getAuthorizedDevices);
+groupRouter.post('/get-data', getData);
+groupRouter.post('/update-data', updateData);
+groupRouter.post('/rename-device', renameDevice);
+groupRouter.post('/backup-password', backupPassword);
+groupRouter.post('/get-password-backup', getPasswordBackup);
+groupRouter.post('/get-matching-email-addresses-for-sharing', getMatchingEmailAddressesForSharing);
+groupRouter.post('/get-contacts-sharing-items-with-me', getContactsSharingItemsWithMe);
+groupRouter.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
+groupRouter.post('/share', share);
+groupRouter.post('/update-shared-item', updateSharedItem);
+groupRouter.post('/get-contacts-public-keys', getContactsPublicKeys);
+groupRouter.post('/update-contact-rights', updateContactRights);
+groupRouter.post('/stop-sharing-with-contact', stopSharingWithContact);
+groupRouter.post('/delete-sharing', deleteSharing);
+groupRouter.post('/delete-singled-sharings', deleteSingledSharings);
+groupRouter.post('/stop-receiving-sharing', stopReceivingSharing);
+groupRouter.post('/get-contacts-for-shared-item', getContactsForSharedItem);
+groupRouter.post('/check-user-public-key', checkUserPublicKey);
+groupRouter.post('/update-device-metadata', updateDeviceMetaData);
+groupRouter.post('/log-usage', logUsage);
+groupRouter.post('/send-stats', sendStats);
+
+// default group is 1 (for retrocompatibility)
+app.use('/', (req, res, next) => {
+  req.params.groupId = '1';
+  return groupRouter(req, res, next);
+});
+// group sent in url
+app.use('/:groupId/', groupRouter);
 
 if (module === require.main) {
   startServer(app, () => {

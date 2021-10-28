@@ -13,8 +13,9 @@ export const getContactsSharingItemsWithMe = async (req: any, res: any) => {
         'FROM users AS u INNER JOIN shared_account_users AS sau ON u.id=sau.user_id ' +
         'INNER JOIN shared_account_users AS sau2 ON sau.shared_account_id=sau2.shared_account_id ' +
         'INNER JOIN users AS u2 ON sau2.user_id = u2.id AND u2.email=$1 ' +
-        'WHERE u.email != $1',
-      [basicAuth.userEmail],
+        'WHERE u.email != $1 ' +
+        'AND users.group_id=$2',
+      [basicAuth.userEmail, basicAuth.groupId],
     );
     // Return res
     return res.status(200).json({

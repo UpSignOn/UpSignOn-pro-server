@@ -12,8 +12,8 @@ export const getContactsForSharedItem = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const contactRes = await db.query(
-      'SELECT users.id AS id, users.email AS email, sau.is_manager AS is_manager FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1',
-      [itemId],
+      'SELECT users.id AS id, users.email AS email, sau.is_manager AS is_manager FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1 AND users.group_id=$2',
+      [itemId, basicAuth.groupId],
     );
     // Return res
     return res

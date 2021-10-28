@@ -8,7 +8,9 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 
-    const urlListRes = await db.query('SELECT * FROM url_list');
+    const urlListRes = await db.query('SELECT * FROM url_list WHERE group_id=$1', [
+      basicAuth.groupId,
+    ]);
 
     // Return res
     return res.status(200).json({ urlList: urlListRes.rows });

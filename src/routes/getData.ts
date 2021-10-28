@@ -13,6 +13,9 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
+    const groupId = req.params.groupId;
+    if (!groupId) throw new Error('Missing groupId');
+
     // Get params
     let userEmail = req.body?.userEmail;
     if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
@@ -28,15 +31,15 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT users.id AS user_id, user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2',
-      [userEmail, deviceId],
+      'SELECT users.id AS user_id, user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2  AND users.group_id=$3',
+      [userEmail, deviceId, groupId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
-        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1',
-        [userEmail],
+        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND group_id=$2',
+        [userEmail, groupId],
       );
       if (emailChangeRes.rowCount === 0) {
         return res.status(404).json({ error: 'revoked' });
@@ -60,7 +63,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     );
     if (!isAccessGranted) return res.status(401).end();
 
-    const sharedItems = await getSharedItems(dbRes.rows[0].user_id);
+    const sharedItems = await getSharedItems(dbRes.rows[0].user_id, groupId);
 
     // Return res
     res.status(200).json({
@@ -70,7 +73,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     });
 
     // Clean changed_emails table if necessary
-    cleanChangedEmails(dbRes.rows[0].user_id, deviceId);
+    cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
   } catch (e) {
     logError('getData', e);
     return res.status(400).end();
@@ -79,6 +82,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
 export const getSharedItems = async (
   userId: number,
+  groupId: string,
 ): Promise<
   {
     id: number;
@@ -107,8 +111,9 @@ export const getSharedItems = async (
     FROM shared_accounts AS sa
     INNER JOIN shared_account_users AS sau
     ON sau.shared_account_id=sa.id
-    WHERE sau.user_id=$1`,
-    [userId],
+    WHERE sau.user_id=$1
+    AND sa.group_id=$2`,
+    [userId, groupId],
   );
   return sharingRes.rows.map((s) => ({
     id: s.id,
@@ -124,17 +129,17 @@ export const getSharedItems = async (
   }));
 };
 
-const cleanChangedEmails = async (userId: number, deviceUniqueId: string) => {
+const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupId: string) => {
   try {
     const changedEmails = await db.query(
-      'SELECT aware_devices FROM changed_emails WHERE user_id = $1',
-      [userId],
+      'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND group_id=$2',
+      [userId, groupId],
     );
     if (changedEmails.rowCount > 0) {
       // get all devices for this user
       const devices = await db.query(
-        'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1',
-        [userId],
+        'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1 AND group_id=$2',
+        [userId, groupId],
       );
 
       let areAllDevicesAware = true;
@@ -143,17 +148,20 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string) => {
           if (d.device_unique_id === deviceUniqueId) {
             // do update all changed_emails for user_id and not only for changed_emails wher old_email = userEmail
             // because this will help make sure the database cleans itself automatically in the end
-            await db.query('UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2', [
-              JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]),
-              userId,
-            ]);
+            await db.query(
+              'UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2 AND group_id=$3',
+              [JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]), userId, groupId],
+            );
           } else {
             areAllDevicesAware = false;
           }
         }
       });
       if (areAllDevicesAware) {
-        await db.query('DELETE FROM changed_emails WHERE user_id=$1', [userId]);
+        await db.query('DELETE FROM changed_emails WHERE user_id=$1 AND group_id=$2', [
+          userId,
+          groupId,
+        ]);
       }
     }
   } catch (e) {

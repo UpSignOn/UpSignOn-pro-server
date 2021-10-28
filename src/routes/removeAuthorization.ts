@@ -11,8 +11,8 @@ export const removeAuthorization = async (req: any, res: any) => {
     const deviceToDelete = req.body?.deviceToDelete || basicAuth.deviceUId;
 
     await db.query(
-      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', access_code_hash='', encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3",
-      [new Date().toISOString(), deviceToDelete, basicAuth.userId],
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', access_code_hash='', encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
+      [new Date().toISOString(), deviceToDelete, basicAuth.userId, basicAuth.groupId],
     );
     // Return res
     return res.status(204).end();

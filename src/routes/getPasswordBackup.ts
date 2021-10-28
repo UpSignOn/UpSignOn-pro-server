@@ -6,6 +6,9 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup = async (req: any, res: any) => {
   try {
+    const groupId = req.params.groupId;
+    if (!groupId) throw new Error('Missing groupId');
+
     // Get params
     let userEmail = req.body?.userEmail;
     if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
@@ -37,8 +40,9 @@ export const getPasswordBackup = async (req: any, res: any) => {
         users.email=$1
         AND user_devices.device_unique_id = $2
         AND user_devices.authorization_status='AUTHORIZED'
+        AND user_devices.group_id=$3
       LIMIT 1`,
-      [userEmail, deviceId],
+      [userEmail, deviceId, groupId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();

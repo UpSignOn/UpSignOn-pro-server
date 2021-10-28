@@ -17,8 +17,8 @@ export const stopSharingWithContact = async (req: any, res: any): Promise<void> 
     if (basicAuth.userId === contactId) return res.status(401).end();
 
     const deleteRes = await db.query(
-      'DELETE FROM shared_account_users WHERE shared_account_id=$1 AND user_id=$2',
-      [itemId, contactId],
+      'DELETE FROM shared_account_users WHERE shared_account_id=$1 AND user_id=$2 AND group_id=$3',
+      [itemId, contactId, basicAuth.groupId],
     );
 
     if (deleteRes.rowCount !== 1) return res.status(400).end();

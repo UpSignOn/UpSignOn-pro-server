@@ -13,8 +13,8 @@ export const updateDeviceMetaData = async (req: any, res: any): Promise<void> =>
     if (!basicAuth.granted) return res.status(401).end();
 
     await db.query(
-      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4',
-      [deviceName, osVersion, appVersion, basicAuth.deviceId],
+      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
+      [deviceName, osVersion, appVersion, basicAuth.deviceId, basicAuth.groupId],
     );
 
     return res.status(200).end();

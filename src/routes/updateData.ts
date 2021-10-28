@@ -29,13 +29,13 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     let updateRes;
     if (isNewData) {
       updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 RETURNING updated_at',
-        [newEncryptedData, sharingPublicKey, basicAuth.userEmail],
+        'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
+        [newEncryptedData, sharingPublicKey, basicAuth.userEmail, basicAuth.groupId],
       );
     } else {
       updateRes = await db.query(
-        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) RETURNING updated_at',
-        [newEncryptedData, basicAuth.userEmail, lastUpdateDate],
+        'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) AND group_id=$4 RETURNING updated_at',
+        [newEncryptedData, basicAuth.userEmail, lastUpdateDate, basicAuth.groupId],
       );
     }
     if (updateRes.rowCount === 0) {
@@ -44,7 +44,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     }
 
     if (returningSharedItems) {
-      const sharedItems = await getSharedItems(basicAuth.userId);
+      const sharedItems = await getSharedItems(basicAuth.userId, basicAuth.groupId);
       return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, sharedItems });
     } else {
       return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
