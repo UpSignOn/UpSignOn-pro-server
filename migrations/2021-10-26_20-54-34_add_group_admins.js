@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'ALTER TABLE admins ADD COLUMN group_id INTEGER, ADD CONSTRAINT fk_admin_group FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE',
+    'ALTER TABLE admins ADD COLUMN group_id SMALLINT, ADD CONSTRAINT fk_admin_group FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE',
   );
 };
 

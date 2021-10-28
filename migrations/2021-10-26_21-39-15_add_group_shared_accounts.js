@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'ALTER TABLE shared_accounts ADD COLUMN group_id INTEGER NOT NULL DEFAULT 1, ADD CONSTRAINT fk_shared_accounts_group FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE',
+    'ALTER TABLE shared_accounts ADD COLUMN group_id SMALLINT NOT NULL DEFAULT 1, ADD CONSTRAINT fk_shared_accounts_group FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE',
   );
 };
 
