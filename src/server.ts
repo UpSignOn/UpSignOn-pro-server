@@ -53,39 +53,40 @@ app.get('/', (req, res) => {
 app.get('/check-device', checkDevice);
 app.get('/test-email', testEmail);
 
-const groupRouter = express.Router();
-groupRouter.all('/config', getConfig);
-groupRouter.post('/url-list', getUrlList);
-groupRouter.post('/request-access', requestAccess);
-groupRouter.post('/request-password-reset', requestPasswordReset);
-groupRouter.post('/remove-authorization', removeAuthorization);
-groupRouter.post('/get-authorized-devices', getAuthorizedDevices);
-groupRouter.post('/get-data', getData);
-groupRouter.post('/update-data', updateData);
-groupRouter.post('/rename-device', renameDevice);
-groupRouter.post('/backup-password', backupPassword);
-groupRouter.post('/get-password-backup', getPasswordBackup);
-groupRouter.post('/get-matching-email-addresses-for-sharing', getMatchingEmailAddressesForSharing);
-groupRouter.post('/get-contacts-sharing-items-with-me', getContactsSharingItemsWithMe);
-groupRouter.post('/check-email-address-for-sharing', checkEmailAddressForSharing);
-groupRouter.post('/share', share);
-groupRouter.post('/update-shared-item', updateSharedItem);
-groupRouter.post('/get-contacts-public-keys', getContactsPublicKeys);
-groupRouter.post('/update-contact-rights', updateContactRights);
-groupRouter.post('/stop-sharing-with-contact', stopSharingWithContact);
-groupRouter.post('/delete-sharing', deleteSharing);
-groupRouter.post('/delete-singled-sharings', deleteSingledSharings);
-groupRouter.post('/stop-receiving-sharing', stopReceivingSharing);
-groupRouter.post('/get-contacts-for-shared-item', getContactsForSharedItem);
-groupRouter.post('/check-user-public-key', checkUserPublicKey);
-groupRouter.post('/update-device-metadata', updateDeviceMetaData);
-groupRouter.post('/log-usage', logUsage);
-groupRouter.post('/send-stats', sendStats);
-
-// default group is 1 (for retrocompatibility)
-app.use('/', groupRouter);
-// group sent in url
-app.use('/:groupId/', groupRouter);
+// GROUP ROUTING with or without groupid (default groupid is 1)
+app.all(['/:groupId/config', '/config'], getConfig);
+app.post(['/:groupId/url-list', '/url-list'], getUrlList);
+app.post(['/:groupId/request-access', '/request-access'], requestAccess);
+app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
+app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
+app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
+app.post(['/:groupId/get-data', '/get-data'], getData);
+app.post(['/:groupId/update-data', '/update-data'], updateData);
+app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
+app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
+app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+// prettier-ignore
+app.post(['/:groupId/get-matching-email-addresses-for-sharing','/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
+// prettier-ignore
+app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
+app.post(['/:groupId/share', '/share'], share);
+app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
+app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactRights);
+// prettier-ignore
+app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], stopSharingWithContact);
+app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
+app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], deleteSingledSharings);
+app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-for-shared-item', '/get-contacts-for-shared-item'], getContactsForSharedItem);
+app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
+app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
+app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
+app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
 
 if (module === require.main) {
   startServer(app, () => {
