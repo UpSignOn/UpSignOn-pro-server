@@ -8,5 +8,5 @@ exports.up = async function (db) {
 };
 
 exports.down = function (db) {
-  return db.query();
+  return;
 };
