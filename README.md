@@ -1,81 +1,97 @@
-# IMPORTANT avant de commencer
+# Schéma d'architecture
 
-- Choisissez un sous-domaine pour la configuration DNS (typiquement upsignonpro)
+Vous allez devoir installer une base de données PostgreSQL et deux serveurs applicatifs (3 processus). Notez que ces 3 processus n'ont pas besoin de s'exécuter sur la même machine.
 
-  - l'url sur laquelle votre serveur UpSignOn pro sera accessible sera https://upsignonpro.votre-domaine.fr)
-    > NB: il est fortement recommandé que cette URL soit accesible depuis n'importe où afin que vos utilisateurs puissent accéder à leurs données tout le temps. Si vous challengez cela, nous vous recommandons d'en discuter avec nous ou de nous écrire à contact@upsignon.eu. Utiliser une URL privée nuit à la valeur ajoutée d'UpSignOn.
-  - l'url sur laquelle votre serveur d'administration forest-admin sera accessible sera https://upsignonpro.votre-domaine.fr/admin)
-    > NB: cette URL n'a pas besoin d'être accessible depuis l'extérieur de votre réseau. Vous pouvez donc utiliser une URL interne sans déclaration DNS. Cependant, nous recommandons d'installer le serveur Forest Admin sur la même machine que le serveur UpSignOn PRO pour simplifier l'installation et la maintenance.
+## Architecture type 1 (Architecture standard, la plus simple)
 
-- Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le sous-domaine que vous avez choisi
-
-  - ceci est **obligatoire**
-  - les certificats wildcard sont autorisés
-  - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
-
-- Envoyez un email **avant de commencer l'installation** à giregk@upsignon.eu en indiquant
-
-  - l'URL de votre serveur UpSignOn PRO (https://upsignonpro.votre-domaine.fr, chemin y compris le cas échéant) pour qu'elle soit ajoutée dans notre base de données d'URLs autorisées
-  - l'adresse email d'une personne qui sera administrateur du projet Forest Admin (le panneau d'administration)
-    A réception de ce mail, nous vous préparerons un projet forest-admin pour que vous n'ayiez pas à le faire.
-    - comme expliqué dans la documentation d'installation du serveur Forest Admin, vous recevrez une invitation par email pour créer un compte sur Forest Admin et accéder au projet que nous vous aurons préparé.
-  - si vous ne nous envoyez pas cet email, vous perdrez du temps lors de l'installation
-
-- Ressources minimales estimées
-  - CPU : 2vcore
-  - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (or système d'exploitation, donc compter peut-être 4Go si windows server, plus gourmand qu'un linux)
-  - HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code, puis 100ko par utilisateur pour la base de données (soit 100mo pour 1000 utilisateurs), puis quelques Go pour stocker les logs (selon la durée de conservation)
-
-# Schéma d'architecture générale
-
-![](./doc/integrationSchemeGeneral.png)
-
-Voici deux implémentations possibles, sachant qu'il peut y avoir des variantes en fonction de vos habitudes et de vos standards.
-
-## Déploiement type 1 (déploiement standard, recommandé)
-
-Le plus simple.
+Nous recommandons cette architecture pour simplifier l'installation et la maintenance.
 
 ![](./doc/integrationScheme1.png)
 
-## Déploiement type 2
+## Architecture type 2
 
-- plus complexe
-- séparation des processus dans des VM différentes
-- permet notamment si vous le souhaitez de mettre le serveur Forest Admin dans une zone qui n'est pas accessible depuis l'extérieur de votre réseau puisque seuls vos administrateurs sont sensés être autorisés à s'y connecter de toute façon (ce qui pourrait aussi être fait dans le schéma 1 avec des proxys)
+Ce type d'architecture sera notamment adapté pour les cas où vous voulez ajouter une couche de protection supplémentaire sur le serveur d'administration en le rendant accessible uniquement depuis votre réseau d'entreprise interne afin de limiter la surface d'attaque possible.
 
+Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'importe où pour que le client lourd puisse s'y connecter.
 ![](./doc/integrationScheme2.png)
+
+## Ressources nécessaires estimées par serveur
+
+- OS : Debian 10
+- CPU : 2vcore
+- RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (or système d'exploitation, donc compter peut-être 4Go si windows server, plus gourmand qu'un linux)
+- HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code
+
+Serveur de base de données
+
+- votre OS de prédilection
+- CPU: 1vcore
+- RAM 512Mo
+- HD ou SD : compter environ 100ko par utilisateur, soit 100mo pour 1000 utilisateurs, puis quelques Go pour stocker les logs (selon la durée de conservation)
+
+## Tableau des flux
+
+| Origine                  | Destination                                        | PORT       |
+| ------------------------ | -------------------------------------------------- | ---------- |
+| Client lourd             | Serveur UpSignOn PRO                               | 443        |
+| Navigateur               | Serveur d'administration                           | 443        |
+| Serveur UpSignOn PRO     | Base de données                                    | 5432       |
+| Serveur d'administration | Base de données                                    | 5432       |
+| Serveur UpSignOn PRO     | Serveur SMTP                                       | 587 ou 465 |
+| Serveur d'administration | Serveur SMTP                                       | 587 ou 465 |
+| Serveur UpSignOn PRO     | app.upsignon.eu                                    | 443        |
+| Serveur UpSignOn PRO     | internet (pour l'installation et les mises à jour) | 443        |
+| Serveur d'administration | internet (pour l'installation et les mises à jour) | 443        |
+
+# Avant de commencer l'installation
+
+## Configuration DNS
+
+Choisissez un sous-domaine (typiquement upsignonpro) sur lequel seront accessibles les deux serveurs
+
+- l'url du serveur UpSignOn pro, par exemple https://upsignonpro.votre-domaine.fr
+
+- l'url du serveur d'administration, par exemple https://upsignonpro.votre-domaine.fr/admin
+
+## Certificat SSL
+
+Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le sous-domaine que vous avez choisi
+
+- ceci est **obligatoire**
+- les certificats wildcard sont autorisés
+- **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
+
+## Déclarez-nous vos urls
+
+Nous devons déclarer vos urls dans notre base de données pour qu'elles soit autorisées.
+
+- l'URL de votre serveur UpSignOn PRO, https://upsignonpro.votre-domaine.fr, chemin y compris le cas échéant
+- l'URL de votre serveur d'administration, https://upsignonpro.votre-domaine.fr/admin, chemin y compris le cas échéant
+
+Envoyez-nous ces deux urls par email (giregk@upsignon.eu) **avant** de commencer l'installation pour ne pas perdre de temps.
 
 # Installation de la base de données
 
-Vous pouvez installer la base de données postgreSQL selon vos propres procédures si vous maîtrisez bien le sujet.
-
 1. installation de postgresql
 
-- suivez le tutoriel correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner)
+- suivez les instructions correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner, prenez la dernière version LTS).
 - sur linux, saisissez `sudo -i -u postgres` pour vous connecter en tant qu'utilisateur postgres
   - la commande `psql` devrait alors fonctioner et vous faire entrer dans l'interface en ligne de commande de postgresql
 
 2. création de la base de données pour UpSignOn PRO
+   La procédure qui suis a été écrite pour Debian 10.
 
-Voici une procédure éprouvée pour les environnements Linux (testé sur Debian 10).
-Cette procédure configure un utilisateur linux qui sera le propriétaire de la base de données et du serveur.
-
-- Vous voudrez sans doute créer un utilisateur linux pour exécuter le serveur UpSignOn PRO dans un environnement à privilèges limités.
-  Pour créer un utilisateur appelé 'upsignonpro', utilisez la commande : `sudo adduser upsignonpro`
-
-- pour créer la base de données et pour qu'elle soit accessible par l'utilisateur linux que nous venons de créer:
-  - connection en tant qu'utilisateur postgres: `su - postgres`
-  - créons un rôle PostgreSQL appelé 'upsignonpro': `createuser upsignonpro`
-  - créons la base de données `createdb upsignonpro -O upsignonpro` (NB: cette base de données sera provisionnée dans l'étape suivante)
-  - ajoutons un mot de passe au rôle 'upsignonpro': `psql` puis dans l'invite PostgreSQL, `\password upsignonpro`
+- Créez un utilisateur système upsignonpro : `sudo adduser upsignonpro`
+- Connectez-vous en tant qu'utilisateur postgres : `su - postgres`
+- Créons la base de données `createdb upsignonpro -O upsignonpro` (NB: cette base de données sera provisionnée dans l'étape suivante)
+- ajoutons un mot de passe au rôle 'upsignonpro': `psql` puis dans l'invite PostgreSQL, `\password upsignonpro`
 - à partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`su - upsignonpro`) en tapant la commande `psql upsignonpro`
 
 Dans la suite, les variables d'environnement suivantes feront référence à la configuration de la base de données
 
-- DB_USER: nom de l'utilisateur propriétaire de la base de données (ici 'upsignonpro')
+- DB_USER: nom de l'utilisateur propriétaire de la base de données soit 'upsignonpro'
 - DB_PASS: mot de passe d'accès à la base de données (celui du role 'upsignonpro')
-- DB_NAME: nom de la base de données (ici 'upsignonpro')
+- DB_NAME: nom de la base de données, soit 'upsignonpro'
 - DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
 
