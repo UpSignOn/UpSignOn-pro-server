@@ -14,8 +14,6 @@ const {
   EMAIL_USER,
   EMAIL_PASS,
   EMAIL_ALLOW_INVALID_CERTIFICATE,
-  DISPLAY_NAME_IN_APP,
-  ORGANISATION_NAME,
 } = process.env;
 
 export default {

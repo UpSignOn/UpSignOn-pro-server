@@ -91,7 +91,7 @@ app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
 if (module === require.main) {
   startServer(app, () => {
     logInfo(
-      `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}/config\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
+      `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
     );
     logInfo(
       `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
