@@ -20,14 +20,14 @@ Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'impo
 - OS : Debian 10
 - CPU : 2vcore
 - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (or système d'exploitation, donc compter peut-être 4Go si windows server, plus gourmand qu'un linux)
-- HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code
+- HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par serveur maximum. Soit, pour l'architecture 1, 15Go de HD/SSD (hors base de données) et dans l'architecture 2, 2 fois 9 Go de HD/SSD.
 
 Serveur de base de données
 
 - votre OS de prédilection
 - CPU: 1vcore
 - RAM 512Mo
-- HD ou SD : compter environ 100ko par utilisateur, soit 100mo pour 1000 utilisateurs, puis quelques Go pour stocker les logs (selon la durée de conservation)
+- HD ou SD : compter environ 200ko par utilisateur, soit 100mo pour 500 utilisateurs.
 
 ## Tableau des flux
 
@@ -133,6 +133,8 @@ su - upsignonpro
 npm install --global yarn
 
 npm install pm2 -g
+
+pm2 install pm2-logrotate
 ```
 
 Configurer votre proxy si besoin:
