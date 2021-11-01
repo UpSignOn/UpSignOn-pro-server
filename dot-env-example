@@ -16,6 +16,9 @@ EMAIL_PASS=password # can be empty
 #  - with path if needed
 API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 
+# PROXY CONFIGURATION
+HTTP_PROXY= # keep empty if not applicable
+
 # OPTIONAL LOCAL SSL CONFIGURATION
 # Not necessary if you use a reverse-proxy (Nginx), as described in this documentation
 # Defining these paths will make the nodejs server use HTTPS

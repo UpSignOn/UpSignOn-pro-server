@@ -5,6 +5,14 @@ import fs from 'fs';
 import { logInfo } from './logger';
 import { sendStatusUpdate } from './serverStatus';
 
+if (env.HTTP_PROXY) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const globalAgent = require('global-agent');
+  globalAgent.bootstrap();
+  // @ts-ignore
+  global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY;
+}
+
 export const startServer = (app: any, then: any): void => {
   if (env.SSL_CERTIFICATE_KEY_PATH && env.SSL_CERTIFICATE_CRT_PATH) {
     // Set express trust-proxy so that secure sessions cookies can work

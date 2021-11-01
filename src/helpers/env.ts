@@ -14,6 +14,7 @@ const {
   EMAIL_USER,
   EMAIL_PASS,
   EMAIL_ALLOW_INVALID_CERTIFICATE,
+  HTTP_PROXY,
 } = process.env;
 
 export default {
@@ -32,4 +33,5 @@ export default {
   EMAIL_USER,
   EMAIL_PASS,
   EMAIL_ALLOW_INVALID_CERTIFICATE,
+  HTTP_PROXY,
 };
