@@ -2,18 +2,20 @@
 
 Vous allez devoir installer une base de données PostgreSQL et deux serveurs applicatifs (3 processus). Notez que ces 3 processus n'ont pas besoin de s'exécuter sur la même machine.
 
+![](/doc/integrationSchemeGeneral.png)
+
 ## Architecture type 1 (Architecture standard, la plus simple)
 
 Nous recommandons cette architecture pour simplifier l'installation et la maintenance.
 
-![](./doc/integrationScheme1.png)
+![](/doc/integrationScheme1.png)
 
 ## Architecture type 2
 
 Ce type d'architecture sera notamment adapté pour les cas où vous voulez ajouter une couche de protection supplémentaire sur le serveur d'administration en le rendant accessible uniquement depuis votre réseau d'entreprise interne afin de limiter la surface d'attaque possible.
 
 Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'importe où pour que le client lourd puisse s'y connecter.
-![](./doc/integrationScheme2.png)
+![](/doc/integrationScheme2.png)
 
 ## Ressources nécessaires estimées par serveur
 
@@ -25,7 +27,7 @@ Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'impo
 Serveur de base de données
 
 - votre OS de prédilection
-- CPU: 1vcore
+- CPU: 2vcore
 - RAM 512Mo
 - HD ou SD : compter environ 200ko par utilisateur, soit 100mo pour 500 utilisateurs.
 
