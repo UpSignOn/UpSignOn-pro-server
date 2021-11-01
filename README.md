@@ -28,6 +28,6 @@ Voir la page dédiée: [/doc/GPO_deployment.md](/doc/GPO_deployment.md)
 
 Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md)
 
-# Transfer de la base de données
+# Transfert de la base de données
 
 Voir la page dédiée: [/doc/DBTransfer.md](/doc/DBTransfer.md)
