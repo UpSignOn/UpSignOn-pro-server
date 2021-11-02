@@ -20,6 +20,19 @@ cd ~/upsignon-pro-dashboard
 ./update.sh
 ```
 
+# Téléchargement de l'application
+
+- iOS (via AppStore) https://apps.apple.com/us/app/upsignon/id1474805603?l=fr
+- Android (via Play Store) https://play.google.com/store/apps/details?id=eu.upsignon&hl=fr&gl=US
+- MacOS (via Mac App Store) https://apps.apple.com/ky/app/upsignon/id1474805603
+- Windows 10 (du plus recommandé au moins recommandé)
+  - via Microsoft Store https://www.microsoft.com/fr-fr/p/upsignon/9n811tstg52w
+  - via AppInstaller (permet également la mise-à-jour automatique de l'application) https://app.upsignon.eu/windows-sideloading/
+    Vous pouvez également distribuer directement le fichier https://app.upsignon.eu/windows-sideloading/UpSignOn.appinstaller par GPO
+  - via un script d'installation (mises-à-jour manuelles)
+    - https://app.upsignon.eu/windows-sideloading/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip)
+    - https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip) Cette version est signée par le Microsoft Store et sera par conséquent plus facile à installer)
+
 # Déploiement des extensions de navigateur
 
 Voir la page dédiée: [/doc/GPO_deployment.md](/doc/GPO_deployment.md)
