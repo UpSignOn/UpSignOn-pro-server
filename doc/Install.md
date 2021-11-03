@@ -63,6 +63,15 @@ Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le (sous
 - les certificats wildcard sont autorisés
 - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais ils restent déconseillés
 
+## Serveur de mail
+
+Assurez-vous de disposer d'une configuration pour l'envoi de mails
+
+- serveur smtp (smtp.domaine.fr)
+- port d'envoi (ex: 25, 587, 465)
+- adresse email (ex: noreply@domaine.fr)
+- mot de passe pour cette adresse email si nécessaire
+
 ## Déclarez-nous vos urls
 
 Nous devons déclarer vos urls dans notre base de données pour qu'elles soit autorisées.
@@ -336,7 +345,7 @@ Une fois que tout ce qui précède est en place, et que nous avons autorisé vos
 
 ```
 su - upsignonpro
-cd ~/upsignon-pro-dashboard
+cd ~/upsignon-pro-dashboard/back
 ```
 
 Puis exécutez la commande suivante
