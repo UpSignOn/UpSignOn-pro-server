@@ -87,18 +87,26 @@ Envoyez-nous ces deux urls par email (giregk@upsignon.eu) **avant** de commencer
 
 Suivez les instructions correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner, prenez la dernière version LTS).
 
-Sur linux, saisissez ensuite `sudo -i -u postgres` pour vous connecter en tant qu'utilisateur postgres. La commande `psql` devrait alors fonctioner et vous faire entrer dans l'interface en ligne de commande de postgresql. Utilisez CTRL+D pour sortir de psql.
-
 2. création de la base de données pour UpSignOn PRO
    La procédure qui suis a été écrite pour Debian 10.
 
-Créez un utilisateur système upsignonpro : `sudo adduser upsignonpro`
+Créez un utilisateur système upsignonpro : `adduser upsignonpro`
 
 Connectez-vous en tant qu'utilisateur postgres : `su - postgres`
+Ouvrez la base de données `psql`
+
+```
+postgres=# create role upsignonpro;
+```
+
+Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL
+
+```
+postgres=# \password upsignonpro;
+postgres=# quit
+```
 
 Créons la base de données `createdb upsignonpro -O upsignonpro` (NB: cette base de données sera provisionnée dans l'étape suivante)
-
-Ajoutons un mot de passe au rôle 'upsignonpro': `psql` puis dans l'invite PostgreSQL, `\password upsignonpro`
 
 À partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`su - upsignonpro`) en tapant la commande `psql upsignonpro`
 
