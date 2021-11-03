@@ -110,7 +110,7 @@ En tant que **root**,
 - installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
 
   ```
-  curl -fsSL https://deb.nodesource.com/setup_17.x | bash -
+  curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
   apt-get install -y nodejs
   ```
 
