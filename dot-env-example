@@ -17,7 +17,7 @@ EMAIL_PASS=password # can be empty
 API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 
 # PROXY CONFIGURATION
-HTTP_PROXY= # keep empty if not applicable
+HTTP_PROXY=
 
 # OPTIONAL LOCAL SSL CONFIGURATION
 # Not necessary if you use a reverse-proxy (Nginx), as described in this documentation
