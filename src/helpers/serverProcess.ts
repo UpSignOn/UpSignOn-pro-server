@@ -10,7 +10,7 @@ if (env.HTTP_PROXY) {
   const globalAgent = require('global-agent');
   globalAgent.bootstrap();
   // @ts-ignore
-  global.GLOBAL_AGENT.HTTP_PROXY = process.env.HTTP_PROXY;
+  global.GLOBAL_AGENT.HTTP_PROXY = env.HTTP_PROXY;
 }
 
 export const startServer = (app: any, then: any): void => {
