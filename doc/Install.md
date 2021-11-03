@@ -340,7 +340,7 @@ Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 - `pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
 - lancez la commande suggérée en tant que root.
 - `su - upsignonpro`
-- puis redémarrez la VM `reboot`
+- puis, afin de tester que tout a bien fonctionné, redémarrez la VM `reboot`
 - puis `su - upsignonpro`
 - puis vérifiez que `pm2 status` affiche bien le serveur upsignon-pro-server comme étant en cours d'exécution
 
@@ -371,21 +371,23 @@ Puis exécutez la commande suivante
 node ./scripts/addSuperAdmin.js <votre-email@votre-domaine.fr>
 ```
 
-Cette commande génère un mot de passe que vous pourrez utiliser pour cette première session (voir l'url affichée également en résultat du script).
+NB: l'adresse email qui est saisie ici n'a pas d'importance, vous pourrez la supprimer plus tard et aucun email ne lui sera envoyé.
+
+Cette commande génère un mot de passe que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
 
 Une fois connecté à votre interface superadmin,
 
 - configurez l'url de votre serveur UpSignOn PRO. L'indicateur du statut doit passer au vert.
 - ajoutez un groupe
-- en cliquant sur le titre "Super-Admin" orange, vous pourrez voir la liste de vos gorupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
+- en cliquant sur le titre "Super-Admin" orange, vous pourrez voir la liste de vos groupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
 - Vous voyez alors un lien de configuration. Ce lien devra être utilisé par tous vos utilisateurs pour configurer leur application.
 - Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour ce groupe
-- installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration.
+- installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration / scannez le qr code depuis UpSignOn en cliquant sur "ajouter un espace confidentiel" puis en sélectionnant l'option ESPACE PRO
 - si tout est bien configuré, vous devriez pouvoir créer votre espace UpSignOn PRO dans l'application en suivant les instructions
-- lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour vousajouter à nouveau (en vous laissant le rôle Super-Admin)
+- lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour vous ajouter à nouveau (en vous laissant le rôle Super-Admin). Vous pouvez remettre une adresse email qui existe déjà dans la liste.
 - vous devriez alors recevoir un email (vérifiez vos spams) qui vous permettra d'importer votre "compte" super-admin dans UpSignOn
 - ouvrez le lien que vous aurez reçu par mail puis suivez les instructions dans l'application
-- notez que lors de cette étape, le mot de passe temporaire que vous aviez généré précemment est remplacé par un nouveau mot de passe, généré cette fois par l'application
+- notez que lors de cette étape, le mot de passe temporaire que vous aviez généré précedemment est remplacé par un nouveau mot de passe, généré cette fois par l'application
 - grâce à UpSignOn, vous pouvez maintenant vous connecter en un clic à votre compte super-admin et renouveler votre mot de passe directement depuis l'application.
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
