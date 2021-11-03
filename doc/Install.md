@@ -138,11 +138,16 @@ En tant que **root**,
   ```
 
 - installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
   ```
   apt install git-all
   ```
+
   - NB, il n'est pas nécessaire de définir un utilisateur github
-- installation de Nginx (reverse proxy) `apt install nginx`
+
+- vérifiez que apache2 n'est pas installé `apt uninstall apache2`
+- installer Nginx (reverse proxy) `apt install nginx`
+
 - ajoutez vos fichiers de certificats SSL, par exemple dans le dossier /etc/nginx/ssl
   - `mkdir /etc/nginx/ssl/`
   - fichier certificat: /etc/nginx/ssl/upsignonpro.cer
