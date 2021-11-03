@@ -258,13 +258,7 @@ Puis créez la structure de votre base de données
 node ./scripts/migrateUp.js
 ```
 
-Vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide.
-
-En cas d'erreur de connexion, vous pouvez tester via la commande
-
-```bash
-psql -h localhost -U upsignonpro -p 5432 upsignonpro
-```
+Vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide. (Dans le cas d'une base de données distante, utilisez la commande `psql -h 127.0.0.1 -U upsignonpro -p 5432 upsignonpro`, en remplaçant l'IP par celle de votre base de données)
 
 Démarrez ensuite le serveur
 
@@ -272,6 +266,12 @@ Démarrez ensuite le serveur
 yarn start
 pm2 save
 ```
+
+Si le service upsignon-pro-server s'affiche en statut "Errored", consultez les logs
+
+- upsignon-pro-server/logs
+- ~/.pm2/pm2.logs
+- ou via la commande `pm2 logs` qui affiche tous les logs dont pm2 est responsable
 
 Vous pouvez vérifier que la page https://upsignonpro.votre-domaine.fr affiche bien un message de succès.
 
