@@ -9,7 +9,7 @@ DB_PORT=5432
 EMAIL_HOST=smtp.votre-domaine.fr
 EMAIL_PORT=587
 EMAIL_USER=no-reply@votre-domaine.fr
-EMAIL_PASS=password # can be empty
+EMAIL_PASS=
 
 # UPSIGNON PRO SERVER HOST
 #  - without https://
