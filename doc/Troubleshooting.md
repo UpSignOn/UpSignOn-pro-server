@@ -25,3 +25,13 @@ Si tout ce qui précède semble bon, essayez d'ajouter un espace personnel vide.
 - vérifiez que le port que vous avez défini dans votre fichier .env est bien ouvert sur le serveur smtp ciblé
   `nmap -p 587 upsignon.eu`
 - vérifiez que le compte que vous avez défini dans votre fichier .env pour envoyer vos emails n'est pas configuré pour exiger des authentifications multi-facteurs.
+
+## pm2 status indique "Errored"
+
+Vérifiez les logs dans
+
+- upsignon-pro-server/logs
+- upsignon-pro-dashboard/logs
+- ~/.pm2/pm2.log
+
+ou directement avec la commande `pm2 logs`
