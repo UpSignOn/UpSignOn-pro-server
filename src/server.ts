@@ -43,6 +43,9 @@ app.use(express.json({ limit: '3Mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   logInfo(req.url);
+  if (!env.IS_PRODUCTION) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   next();
 });
 
