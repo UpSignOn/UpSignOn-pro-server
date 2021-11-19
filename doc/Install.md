@@ -45,6 +45,8 @@ Serveur de base de données
 | Serveur UpSignOn PRO     | internet (pour l'installation et les mises à jour) | 443        |
 | Serveur d'administration | internet (pour l'installation et les mises à jour) | 443        |
 
+NB: le serveur SMTP mentionné est le serveur SMTP de votre entreprise et non un serveur qu'il faudrait installer en plus pour UpSignOn.
+
 # Avant de commencer l'installation
 
 ## Configuration DNS
@@ -67,9 +69,9 @@ Assurez-vous de disposer d'un certificat SSL et de sa clé privée pour le (sous
 
 Assurez-vous de disposer d'une configuration pour l'envoi de mails
 
-- serveur smtp (smtp.domaine.fr)
+- serveur smtp (smtp.votre-domaine.fr)
 - port d'envoi (ex: 25, 587, 465)
-- adresse email (ex: noreply@domaine.fr)
+- adresse email (ex: noreply@votre-domaine.fr)
 - mot de passe pour cette adresse email si nécessaire
 
 ## Déclarez-nous vos urls
