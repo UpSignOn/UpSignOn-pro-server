@@ -96,7 +96,7 @@ Connectez-vous en tant qu'utilisateur postgres : `su - postgres`
 Ouvrez la base de données `psql`
 
 ```
-postgres=# create role upsignonpro;
+postgres=# CREATE ROLE upsignonpro WITH LOGIN;
 ```
 
 Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL
