@@ -131,12 +131,6 @@ En tant que **root**,
   apt-get install -y nodejs
   ```
 
-- installer pm2
-
-  ```
-  npm install pm2 -g
-  ```
-
 - installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
   ```
@@ -159,7 +153,13 @@ En tant qu'utilisateur **upsignonpro**
 ```
 su - upsignonpro
 
-npm install --global yarn
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+npm install -g pm2
+npm install -g yarn
 
 pm2 install pm2-logrotate
 ```
