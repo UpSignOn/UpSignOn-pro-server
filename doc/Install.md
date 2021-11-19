@@ -92,25 +92,45 @@ Suivez les instructions correspondant à votre système sur https://www.postgres
 2. création de la base de données pour UpSignOn PRO
    La procédure qui suis a été écrite pour Debian 10.
 
-Créez un utilisateur système upsignonpro : `adduser upsignonpro`
+Créez un utilisateur système upsignonpro
 
-Connectez-vous en tant qu'utilisateur postgres : `su - postgres`
-Ouvrez la base de données `psql`
-
-```
-postgres=# CREATE ROLE upsignonpro WITH LOGIN;
+```bash
+root@localhost:~# adduser upsignonpro
 ```
 
-Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL
+Connectez-vous en tant qu'utilisateur postgres à la base de données PostgreSQL :
+
+```bash
+root@localhost:~# su - postgres
+postgres@localhost:~$ psql
+```
+
+Configurez le rôle upsignonpro pour la base de données
 
 ```
-postgres=# \password upsignonpro;
-postgres=# quit
+postgres=# CREATE ROLE upsignonpro WITH LOGIN;
 ```
 
-Créons la base de données `createdb upsignonpro -O upsignonpro` (NB: cette base de données sera provisionnée dans l'étape suivante)
+Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL. NB, par la suite ce mot de passe sera associé à la variable d'environnement DB_PASS.
 
-À partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro' (`su - upsignonpro`) en tapant la commande `psql upsignonpro`
+```
+postgres=# \password upsignonpro;
+postgres=# quit
+```
+
+Créez la base de données (NB: cette base de données sera provisionnée dans l'étape suivante)
+
+```bash
+postgres@localhost:~$ createdb upsignonpro -O upsignonpro
+```
+
+À partir de là, vous devriez pouvoir vous connecter à votre base de données en tant qu'utilisateur 'upsignonpro':
+
+```bash
+postgres@localhost:~$ exit
+root@localhost:~# su - upsignonpro
+upsignonpro@localhost:~$ psql upsignonpro
+```
 
 Dans la suite, les variables d'environnement suivantes feront référence à la configuration de la base de données
 
@@ -128,56 +148,58 @@ En tant que **root**,
 
 - installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
 
-  ```
-  curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-  apt-get install -y nodejs
-  ```
-
-- installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-  ```
-  apt install git
+  ```bash
+  root@localhost:~# curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+  root@localhost:~# apt-get install -y nodejs
   ```
 
-  - NB, il n'est pas nécessaire de définir un utilisateur github
+- installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). NB: il n'est pas nécessaire de définir un utilisateur github
 
-- installer Nginx (reverse proxy) `apt install nginx`
+  ```bash
+  root@localhost:~# apt install git
+  ```
+
+- installer Nginx (reverse proxy)
+
+  ```bash
+  root@localhost:~# apt install nginx
+  ```
 
 - ajoutez vos fichiers de certificats SSL, par exemple dans le dossier /etc/nginx/ssl
-  - `mkdir /etc/nginx/ssl/`
+  - `root@localhost:~# mkdir /etc/nginx/ssl/`
   - fichier certificat: /etc/nginx/ssl/upsignonpro.cer
     > ATTENTION, il est primordial que ce fichier contienne toute la chaine de certification. Autrement l'application mobile refusera d'exécuter les requêtes vers votre serveur. Vous pouvez tester que c'est bien le cas grâce au site [https://whatsmychaincert.com](https://whatsmychaincert.com)
   - fichier clé privée: /etc/nginx/ssl/upsignonpro.key
-  - `chmod 400 /etc/nginx/ssl/*`
+  - `root@localhost:~# chmod 400 /etc/nginx/ssl/*`
 
 En tant qu'utilisateur **upsignonpro**
 
-```
-su - upsignonpro
+```bash
+root@localhost:~# su - upsignonpro
 
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
+upsignonpro@localhost:~$ mkdir ~/.npm-global
+upsignonpro@localhost:~$ npm config set prefix '~/.npm-global'
+upsignonpro@localhost:~$ echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+upsignonpro@localhost:~$ source ~/.bashrc
 
-npm install -g pm2
-npm install -g yarn
+upsignonpro@localhost:~$ npm install -g pm2
+upsignonpro@localhost:~$ npm install -g yarn
 
-pm2 install pm2-logrotate
+upsignonpro@localhost:~$ pm2 install pm2-logrotate
 ```
 
 Configurer votre proxy si besoin:
 
-```
-git config --global http.proxy http://username:password@host:port
+```bash
+upsignonpro@localhost:~$ git config --global http.proxy http://username:password@host:port
 
-git config --global http.sslVerify false
+upsignonpro@localhost:~$ git config --global http.sslVerify false
 
-git config --global http.proxyAuthMethod 'basic'
+upsignonpro@localhost:~$ git config --global http.proxyAuthMethod 'basic'
 
-npm config set proxy http://username:password@host:port
+upsignonpro@localhost:~$ npm config set proxy http://username:password@host:port
 
-yarn config set proxy http://username:password@host:port
+upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
 ## Configuration de Nginx
@@ -240,20 +262,20 @@ systemctl restart nginx
 
 ## Installation du serveur UpSignOn PRO et provisioning de la base de données
 
+En tant qu'utilisateur upsignonpro
+
 ```bash
-su - upsignonpro
+upsignonpro@localhost:~$ cd
 
-cd
+upsignonpro@localhost:~$ git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git upsignon-pro-server
 
-git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git upsignon-pro-server
+upsignonpro@localhost:~$ cd upsignon-pro-server
 
-cd upsignon-pro-server
+upsignonpro@localhost:~/upsignon-pro-server$ yarn install
 
-yarn install
+upsignonpro@localhost:~/upsignon-pro-server$ yarn build
 
-yarn build
-
-cp dot-env-example .env
+upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-example .env
 ```
 
 Éditez ensuite le fichier `.env` pour y définir toutes vos variables d'environnement.
@@ -261,38 +283,39 @@ cp dot-env-example .env
 Puis créez la structure de votre base de données
 
 ```bash
-node ./scripts/migrateUp.js
+upsignonpro@localhost:~/upsignon-pro-server$ node ./scripts/migrateUp.js
 ```
 
 Vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide. (Dans le cas d'une base de données distante, utilisez la commande `psql -h 127.0.0.1 -U upsignonpro -p 5432 upsignonpro`, en remplaçant l'IP par celle de votre base de données)
 
 Démarrez ensuite le serveur
 
-```
-yarn start
-pm2 save
+```bash
+upsignonpro@localhost:~/upsignon-pro-server$ yarn start
+upsignonpro@localhost:~/upsignon-pro-server$ pm2 save
 ```
 
 Si le service upsignon-pro-server s'affiche en statut "Errored", consultez les logs
 
 - upsignon-pro-server/logs
 - ~/.pm2/pm2.logs
-- ou via la commande `pm2 logs` qui affiche tous les logs dont pm2 est responsable
+
+ou via la commande `pm2 logs` qui affiche directement tous les logs dont pm2 est responsable
 
 Vous pouvez vérifier que la page https://upsignonpro.votre-domaine.fr affiche bien un message de succès.
 
-Vous pouvez également tester que l'envoi des mails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/test-email?email=votre-email@votre-domaine.fr
+Vous pouvez également tester que l'envoi des emails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/test-email?email=votre-email@votre-domaine.fr
 
 ## Installation du serveur d'administration
 
+En tant qu'utilisateur upsignonpro
+
 ```bash
-su - upsignonpro
+upsignonpro@localhost:~$ cd
 
-cd
+upsignonpro@localhost:~$ git clone --branch production https://github.com/UpSignOn/upsignon-pro-dashboard.git
 
-git clone --branch production https://github.com/UpSignOn/upsignon-pro-dashboard.git
-
-cd upsignon-pro-dashboard
+upsignonpro@localhost:~$ cd upsignon-pro-dashboard
 ```
 
 Vous pouvez voir qu'il y a deux dossiers dans ce projet.
@@ -306,17 +329,17 @@ PUBLIC_URL=https://upsignonpro.votre-domaine.fr/admin
 ```
 
 ```bash
-cd front
-yarn install
-yarn build-front # this takes a while
+upsignonpro@localhost:~/upsignon-pro-dashboard$ cd front
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn install
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn build-front # ceci prend un peu de temps
 ```
 
 DOSSIER BACK
 
-```
-cd back
-cp dot-env-example .env
-openssl rand -hex 30
+```bash
+upsignonpro@localhost:~/upsignon-pro-dashboard$ cd back
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ cp dot-env-example .env
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ openssl rand -hex 30
 ```
 
 Cette dernière commande génère une chaîne de caractères aléatoires que vous devez copier dans la variable SESSION_SECRET du fichier .env
@@ -324,10 +347,10 @@ Cette dernière commande génère une chaîne de caractères aléatoires que vou
 Définissez aussi les autres variables du fichier .env.
 
 ```
-yarn install
-yarn build-server
-pm2 start dashboard.config.js
-pm2 save
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn install
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn build-server
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ pm2 start dashboard.config.js
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ pm2 save
 ```
 
 En ouvrant la page https://upsignonpro.votre-domaine.fr/admin/login.html dans votre navigateur, vous devriez voir la page de connexion.
@@ -336,14 +359,13 @@ En ouvrant la page https://upsignonpro.votre-domaine.fr/admin/login.html dans vo
 
 Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
 
-- `pm2 status` pour vérifier que les processus 'upsignon-pro-server' et 'upsignon-pro-dashboard' sont bien en cours d'exécution (sinon, voir les section ci-dessus)
-- `pm2 save` (pour sauvegarder la liste des processus en cours d'exécution)
-- `pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
+- `upsignonpro@localhost:~$ pm2 status` pour vérifier que les processus 'upsignon-pro-server' et 'upsignon-pro-dashboard' sont bien en cours d'exécution (sinon, voir les section ci-dessus)
+- `upsignonpro@localhost:~$ pm2 save` (pour sauvegarder la liste des processus en cours d'exécution)
+- `upsignonpro@localhost:~$ pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
 - lancez la commande suggérée en tant que root.
-- `su - upsignonpro`
-- puis, afin de tester que tout a bien fonctionné, redémarrez la VM `reboot`
-- puis `su - upsignonpro`
-- puis vérifiez que `pm2 status` affiche bien le serveur upsignon-pro-server comme étant en cours d'exécution
+- puis, afin de tester que tout a bien fonctionné, redémarrez la VM `root@localhost:~# reboot`
+- puis `root@localhost:~# su - upsignonpro`
+- puis vérifiez que `upsignonpro@localhost:~$ pm2 status` affiche bien le serveur upsignon-pro-server (et/ou le serveur upsignon-pro-dashboard) comme étant en cours d'exécution
 
 NB1: pm2 status n'affiche pas les mêmes résultats selon que vous êtes root ou upsignonpro
 
@@ -351,25 +373,25 @@ NB2: Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces com
 
 NB3: pour mettre à jour pm2
 
-```
-su - upsignonpro
-npm install pm2 -g
-pm2 update
+```bash
+root@localhost:~# su - upsignonpro
+upsignonpro@localhost:~$ npm install pm2 -g
+upsignonpro@localhost:~$ pm2 update
 ```
 
 # Dernières configurations
 
 Une fois que tout ce qui précède est en place, et que nous avons autorisé vos urls dans notre système, vous pouvez accéder à votre interface d'administration. Pour cela, positionnez-vous dans le dossier back du serveur d'administration
 
-```
-su - upsignonpro
-cd ~/upsignon-pro-dashboard/back
+```bash
+root@localhost:~# su - upsignonpro
+upsignonpro@localhost:~$ cd ~/upsignon-pro-dashboard/back
 ```
 
 Puis exécutez la commande suivante
 
-```
-node ./scripts/addSuperAdmin.js <votre-email@votre-domaine.fr>
+```bash
+upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js <votre-email@votre-domaine.fr>
 ```
 
 NB: l'adresse email qui est saisie ici n'a pas d'importance, vous pourrez la supprimer plus tard et aucun email ne lui sera envoyé.
