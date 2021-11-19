@@ -33,17 +33,17 @@ Serveur de base de données
 
 ## Tableau des flux
 
-| Origine                  | Destination                                        | PORT       |
-| ------------------------ | -------------------------------------------------- | ---------- |
-| Client lourd             | Serveur UpSignOn PRO                               | 443        |
-| Navigateur               | Serveur d'administration                           | 443        |
-| Serveur UpSignOn PRO     | Base de données                                    | 5432       |
-| Serveur d'administration | Base de données                                    | 5432       |
-| Serveur UpSignOn PRO     | Serveur SMTP                                       | 587 ou 465 |
-| Serveur d'administration | Serveur SMTP                                       | 587 ou 465 |
-| Serveur UpSignOn PRO     | app.upsignon.eu                                    | 443        |
-| Serveur UpSignOn PRO     | internet (pour l'installation et les mises à jour) | 443        |
-| Serveur d'administration | internet (pour l'installation et les mises à jour) | 443        |
+| Origine                  | Destination                                        | PORT             |
+| ------------------------ | -------------------------------------------------- | ---------------- |
+| Client lourd             | Serveur UpSignOn PRO                               | 443              |
+| Navigateur               | Serveur d'administration                           | 443              |
+| Serveur UpSignOn PRO     | Base de données                                    | 5432             |
+| Serveur d'administration | Base de données                                    | 5432             |
+| Serveur UpSignOn PRO     | Serveur SMTP                                       | 25 ou 587 ou 465 |
+| Serveur d'administration | Serveur SMTP                                       | 25 ou 587 ou 465 |
+| Serveur UpSignOn PRO     | app.upsignon.eu                                    | 443              |
+| Serveur UpSignOn PRO     | internet (pour l'installation et les mises à jour) | 443              |
+| Serveur d'administration | internet (pour l'installation et les mises à jour) | 443              |
 
 NB: le serveur SMTP mentionné est le serveur SMTP de votre entreprise et non un serveur qu'il faudrait installer en plus pour UpSignOn.
 
