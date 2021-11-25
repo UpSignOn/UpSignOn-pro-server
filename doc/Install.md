@@ -402,7 +402,7 @@ Une fois connecté à votre interface superadmin,
 
 - configurez l'url de votre serveur UpSignOn PRO. L'indicateur du statut doit passer au vert.
 - ajoutez un groupe
-- en cliquant sur le titre "Super-Admin" orange, vous pourrez voir la liste de vos groupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
+- en cliquant sur le block "Super-Admin" orange, tout en haut à gauche de la page, vous pourrez voir la liste de vos groupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
 - Vous voyez alors un lien de configuration. Ce lien devra être utilisé par tous vos utilisateurs pour configurer leur application.
 - Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour ce groupe
 - installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration / scannez le qr code depuis UpSignOn en cliquant sur "ajouter un espace confidentiel" puis en sélectionnant l'option ESPACE PRO
