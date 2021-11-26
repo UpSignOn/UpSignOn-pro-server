@@ -7,17 +7,17 @@ Voir la page dédiée: [/doc/Install.md](/doc/Install.md)
 Serveur UpSignOn PRO
 
 ```
-su - upsignonpro
-cd ~/upsignon-pro-server
-./update.sh
+root@localhost:~# su - upsignonpro
+upsignonpro@localhost:~$ cd ~/upsignon-pro-server
+upsignonpro@localhost:~/upsignon-pro-server$ ./update.sh
 ```
 
 Serveur d'administration
 
 ```
-su - upsignonpro
-cd ~/upsignon-pro-dashboard
-./update.sh
+root@localhost:~# su - upsignonpro
+upsignonpro@localhost:~$ cd ~/upsignon-pro-dashboard
+upsignonpro@localhost:~/upsignon-pro-dashboard$ ./update.sh
 ```
 
 # Téléchargement de l'application
