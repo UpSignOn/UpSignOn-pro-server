@@ -350,33 +350,97 @@ Définissez aussi les autres variables du fichier .env.
 upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn install
 upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn build-server
 upsignonpro@localhost:~/upsignon-pro-dashboard/back$ pm2 start dashboard.config.js
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ pm2 save
 ```
 
 En ouvrant la page https://upsignonpro.votre-domaine.fr/admin/login.html dans votre navigateur, vous devriez voir la page de connexion.
 
 ## Configuration du redémarrage automatique des serveurs
 
-Pour configurer le redémarrage automatique des processus pm2, procédez ainsi :
+Pour configurer le redémarrage automatique des processus pm2 au reboot de la VM, procédez ainsi :
 
-- `upsignonpro@localhost:~$ pm2 status` pour vérifier que les processus 'upsignon-pro-server' et 'upsignon-pro-dashboard' sont bien en cours d'exécution (sinon, voir les section ci-dessus)
-- `upsignonpro@localhost:~$ pm2 save` (pour sauvegarder la liste des processus en cours d'exécution)
-- `upsignonpro@localhost:~$ pm2 startup -u upsignonpro` (le paramètre -u contient le nom de l'utilisateur système responsable des processus, ici upsignonpro)
-- lancez la commande suggérée en tant que root.
-- puis, afin de tester que tout a bien fonctionné, redémarrez la VM `root@localhost:~# reboot`
-- puis `root@localhost:~# su - upsignonpro`
-- puis vérifiez que `upsignonpro@localhost:~$ pm2 status` affiche bien le serveur upsignon-pro-server (et/ou le serveur upsignon-pro-dashboard) comme étant en cours d'exécution
-
-NB1: pm2 status n'affiche pas les mêmes résultats selon que vous êtes root ou upsignonpro
-
-NB2: Si vous mettez à jour NodeJS ultérieurement, vous devrez relancer ces commandes pour que pm2 utilise la nouvelle version de NodeJS.
-
-NB3: pour mettre à jour pm2
+### Serveur UpSignOn PRO
 
 ```bash
-root@localhost:~# su - upsignonpro
-upsignonpro@localhost:~$ npm install pm2 -g
-upsignonpro@localhost:~$ pm2 update
+root@localhost:~# vi /etc/systemd/system/upsignonpro-server.service
+```
+
+Dans ce fichier, ajoutez ceci (pensez à bien adapter les chemins si besoin)
+
+```
+[Unit]
+Description=UpSignOn PRO server
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+RemainAfterExit=1
+ExecStart=/usr/local/bin/pm2 start /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecReload=/usr/local/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecStop=/usr/local/bin/pm2 stop /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+User=upsignonpro
+WorkingDirectory=/home/upsignonpro/upsignon-pro-server
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Puis modifiez les droits sur ce fichier et activez-le:
+
+```bash
+root@localhost:~# chmod 644 /etc/systemd/system/upsignonpro-server.service
+root@localhost:~# systemctl status upsignonpro-server.service
+root@localhost:~# systemctl daemon-reload
+root@localhost:~# systemctl enable upsignonpro-server.service
+```
+
+### Serveur d'administration
+
+```bash
+root@localhost:~# vi /etc/systemd/system/upsignonpro-dashboard.service
+```
+
+Dans ce fichier, ajoutez ceci (pensez à bien adapter les chemins si besoin)
+
+```
+[Unit]
+Description=UpSignOn PRO Dashboard server
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+RemainAfterExit=1
+ExecStart=/usr/local/bin/pm2 start /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecReload=/usr/local/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecStop=/usr/local/bin/pm2 stop /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+User=upsignonpro
+WorkingDirectory=/home/upsignonpro/upsignon-pro-dashboard/back
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Puis modifiez les droits sur ce fichier et activez-le:
+
+```bash
+root@localhost:~# chmod 644 /etc/systemd/system/upsignonpro-dashboard.service
+root@localhost:~# systemctl status upsignonpro-dashboard.service
+root@localhost:~# systemctl daemon-reload
+root@localhost:~# systemctl enable upsignonpro-dashboard.service
+```
+
+## Configuration des mises-à-jour automatiques des serveurs
+
+Pour configurer les mises-à-jour automatiques des serveurs, procédez ainsi :
+
+```bash
+root@localhost:~# crontab -e
+```
+
+Puis ajoutez ces deux taches cron:
+
+```
+0 5 * * * su - upsignonpro -c "cd /home/upsignonpro/upsignon-pro-server; ./update.sh"
+5 5 * * * su - upsignonpro -c "cd /home/upsignronpro/upsignon-pro-dashboard; ./update.sh"
 ```
 
 # Dernières configurations
