@@ -1,3 +1,7 @@
+# IMPORTANT : AMÉLIORATION CONTINUE
+
+Afin de vous proposer la meilleure documentation possible, nous vous serions très reconnaissant de nous faire part de toutes remarques, erreurs, et ommissions que vous détecteriez dans ce qui suit. contact@upsignon.eu
+
 # Schéma d'architecture
 
 Vous allez devoir installer une base de données PostgreSQL et deux serveurs applicatifs (3 processus). Notez que ces 3 processus n'ont pas besoin de s'exécuter sur la même machine.
