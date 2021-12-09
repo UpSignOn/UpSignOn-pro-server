@@ -35,3 +35,5 @@ Vérifiez les logs dans
 - ~/.pm2/pm2.log
 
 ou directement avec la commande `pm2 logs`
+
+Vérifiez que l'owner des fichiers upsignon-pro-server/ et upsignon-pro-dashboard/ est bien upsignonpro et non root.

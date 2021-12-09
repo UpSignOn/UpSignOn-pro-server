@@ -443,8 +443,15 @@ Puis ajoutez ces deux taches cron:
 5 5 * * * su - upsignonpro -c "cd /home/upsignronpro/upsignon-pro-dashboard; ./update.sh"
 ```
 
+Puis relancer le service cron
+
+```bash
+root@localhost:~# service cron reload
+```
+
 # Dernières configurations
 
+**Toute première connexion à la console d'administration**
 Une fois que tout ce qui précède est en place, et que nous avons autorisé vos urls dans notre système, vous pouvez accéder à votre interface d'administration. Pour cela, positionnez-vous dans le dossier back du serveur d'administration
 
 ```bash
@@ -460,19 +467,27 @@ upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js <votre-email@votre-dom
 
 NB: l'adresse email qui est saisie ici n'a pas d'importance, vous pourrez la supprimer plus tard et aucun email ne lui sera envoyé.
 
-Cette commande génère un mot de passe que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
+Cette commande génère un mot de passe temporaire que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
 
+**Ajout d'un premier groupe**
 Une fois connecté à votre interface superadmin,
 
 - configurez l'url de votre serveur UpSignOn PRO. L'indicateur du statut doit passer au vert.
 - ajoutez un groupe
 - en cliquant sur le block "Super-Admin" orange, tout en haut à gauche de la page, vous pourrez voir la liste de vos groupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
 - Vous voyez alors un lien de configuration. Ce lien devra être utilisé par tous vos utilisateurs pour configurer leur application.
+
+**Création de votre espace UpSignOn PRO**
+
 - Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour ce groupe
 - installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration / scannez le qr code depuis UpSignOn en cliquant sur "ajouter un espace confidentiel" puis en sélectionnant l'option ESPACE PRO
 - si tout est bien configuré, vous devriez pouvoir créer votre espace UpSignOn PRO dans l'application en suivant les instructions
+
+**Configuration de la connexion à la console directement via UpSignOn**
+Le mot de passe que vous avez utilisé précédemment pour vous connecter était temporaire. Grâce à UpSignOn, vous allez pouvoir vous connecter très simplement à votre console d'administration.
+
 - lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour vous ajouter à nouveau (en vous laissant le rôle Super-Admin). Vous pouvez remettre une adresse email qui existe déjà dans la liste.
-- vous devriez alors recevoir un email (vérifiez vos spams) qui vous permettra d'importer votre "compte" super-admin dans UpSignOn
+- vous devriez alors recevoir un email (vérifiez éventuellement vos spams) qui vous permettra d'importer votre "compte" super-admin dans UpSignOn
 - ouvrez le lien que vous aurez reçu par mail puis suivez les instructions dans l'application
 - notez que lors de cette étape, le mot de passe temporaire que vous aviez généré précedemment est remplacé par un nouveau mot de passe, généré cette fois par l'application
 - grâce à UpSignOn, vous pouvez maintenant vous connecter en un clic à votre compte super-admin et renouveler votre mot de passe directement depuis l'application.
