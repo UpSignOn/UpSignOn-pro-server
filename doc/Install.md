@@ -392,9 +392,8 @@ Puis modifiez les droits sur ce fichier et activez-le:
 
 ```bash
 root@localhost:~# chmod 644 /etc/systemd/system/upsignonpro-server.service
-root@localhost:~# systemctl status upsignonpro-server.service
-root@localhost:~# systemctl daemon-reload
 root@localhost:~# systemctl enable upsignonpro-server.service
+root@localhost:~# systemctl daemon-reload
 ```
 
 ### Serveur d'administration
@@ -427,9 +426,8 @@ Puis modifiez les droits sur ce fichier et activez-le:
 
 ```bash
 root@localhost:~# chmod 644 /etc/systemd/system/upsignonpro-dashboard.service
-root@localhost:~# systemctl status upsignonpro-dashboard.service
-root@localhost:~# systemctl daemon-reload
 root@localhost:~# systemctl enable upsignonpro-dashboard.service
+root@localhost:~# systemctl daemon-reload
 ```
 
 ## Configuration des mises-à-jour automatiques des serveurs

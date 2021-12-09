@@ -29,9 +29,7 @@ upsignonpro@localhost:~/upsignon-pro-dashboard$ ./update.sh
   - via Microsoft Store https://www.microsoft.com/fr-fr/p/upsignon/9n811tstg52w
   - via AppInstaller (permet également la mise-à-jour automatique de l'application) https://app.upsignon.eu/windows-sideloading/
     Vous pouvez également distribuer directement le fichier https://app.upsignon.eu/windows-sideloading/UpSignOn.appinstaller par GPO
-  - via un script d'installation (mises-à-jour manuelles)
-    - https://app.upsignon.eu/windows-sideloading/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip)
-    - https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip) Cette version est signée par le Microsoft Store et sera par conséquent plus facile à installer)
+  - via un script d'installation (mises-à-jour manuelles): https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip)
 
 # Déploiement des extensions de navigateur
 
