@@ -31,7 +31,7 @@ upsignonpro@localhost:~/upsignon-pro-dashboard$ ./update.sh
     Vous pouvez également distribuer directement le fichier https://app.upsignon.eu/windows-sideloading/UpSignOn.appinstaller par GPO
   - via un script d'installation (mises-à-jour manuelles): https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest (dossier zip à dézipper en lui rajoutant l'extension .zip)
 
-# Déploiement des extensions de navigateur
+# Déploiement des extensions de navigateur et de UpSignOnHelper
 
 Voir la page dédiée: [/doc/GPO_deployment.md](/doc/GPO_deployment.md)
 

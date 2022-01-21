@@ -1,5 +1,28 @@
 # Déploiements par GPO
 
+# Déploiement du module UpSignOnHelper (pour windows uniquement)
+
+Pour permettre aux extensions de navigateur de communiquer avec l'application sur windows, vous aller devoir:
+
+- télécharger UpSignOnHelper ici : [https://app.upsignon.eu/UpSignOnHelper.zip](https://app.upsignon.eu/UpSignOnHelper.zip)
+- déployer le dossier UpSignOnHelper dézippé sur les postes de vos utilisateurs, à n'importe quel emplacement, par exemple C:\Program Files\UpSignOnHelper
+- exécuter le programme UpSignOnHelper.exe avec les droits administrateurs pour mettre à jour le registre. Vous pouvez également configurer directement le registre avec les clés suivantes selon les navigateurs utilisés et en adpatant les valeurs à l'emplacement que vous avez choisi :
+
+  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Mozilla\NativeMessagingHosts\eu.datasmine.upsignon
+
+    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingMozilla.json
+
+  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\eu.datasmine.upsignon
+
+    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingEdge.json
+
+  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Google\Chrome\NativeMessagingHosts\eu.datasmine.upsignon
+    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingChrome.json
+
+Notez que si vous déplacez le dossier UpSignOnHelper par la suite, vous devrez relancer UpSignOnHelper.exe avec les droits administrateurs, ou mettre manuellement à jour les valeurs du registre.
+
+Vous pouvez ensuite tester que l'extension de navigateur est désormais capable de lister automatiquement les espaces UpSignOn PRO et PERSO de l'application et de les déverrouiller, y compris avec la biométrie si elle a été configurée dans l'application.
+
 # Firefox
 
 Documentation complète: [https://github.com/mozilla/policy-templates/blob/master/README.md](https://github.com/mozilla/policy-templates/blob/master/README.md)
