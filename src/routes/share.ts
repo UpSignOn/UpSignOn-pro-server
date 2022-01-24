@@ -38,7 +38,7 @@ export const share = async (req: any, res: any): Promise<void> => {
       // Security: do not use foreach or map
       const sharing = sharings[i];
 
-      if (sharing.dbId && !sharing.aesEncryptedData) {
+      if (!sharing.dbId && !sharing.aesEncryptedData) {
         errors.push({ name: sharing.name, error: 'no_data_for_new_sharing' });
         continue;
       }
