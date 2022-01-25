@@ -7,6 +7,8 @@ import { logError } from './logger';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const serverVersion = require('../../package.json').version;
     const gitCommit = await new Promise((resolve) => {
       childProcess.exec('git rev-parse HEAD', (error, stdout) => {
         resolve(stdout?.toString().trim() || 'unknown');
@@ -26,6 +28,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const serverStatus = {
       serverUrl: env.API_PUBLIC_HOSTNAME,
       gitCommit,
+      serverVersion,
       lastMigration,
       licenseCount,
       userAppVersions,
