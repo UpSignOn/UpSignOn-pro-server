@@ -53,13 +53,13 @@ app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.status(200).send('UpSignOn PRO server is running');
 });
-app.get('/check-device', checkDevice);
 app.get('/test-email', testEmail);
 
 // GROUP ROUTING with or without groupid (default groupid is 1)
 app.all(['/:groupId/config', '/config'], getConfig);
 app.post(['/:groupId/url-list', '/url-list'], getUrlList);
 app.post(['/:groupId/request-access', '/request-access'], requestAccess);
+app.post(['/:groupId/check-device', '/check-device'], checkDevice);
 app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
 app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);

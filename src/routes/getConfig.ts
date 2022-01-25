@@ -12,6 +12,7 @@ export const getConfig = async (req: any, res: any): Promise<void> => {
     }
     return res.status(200).json({
       displayName: nameRes.rows[0].name,
+      setupV2: true,
     });
   } catch (e) {
     logError('getConfig', e);

@@ -3,7 +3,6 @@ import { db } from '../helpers/connection';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
-import env from '../helpers/env';
 import { logError } from '../helpers/logger';
 
 // TESTS
@@ -87,20 +86,18 @@ export const requestAccess = async (req: any, res: any) => {
         deviceName,
         deviceType,
         deviceOS,
-        env.API_PUBLIC_HOSTNAME,
-        deviceRes.rows[0].id,
         deviceRes.rows[0].authorization_code,
+        deviceRes.rows[0].auth_code_expiration_date,
       );
       return res.status(200).json({ authorizationStatus: 'PENDING' });
     }
 
     const hashedAccessCode = await accessCodeHash.asyncHash(deviceAccessCode);
-    const randomAuthorizationCode = uuidv4();
+    const randomAuthorizationCode = uuidv4().substring(0, 8);
     const expirationDate = getExpirationDate();
-    let requestId;
     if (deviceRes.rowCount === 0) {
-      const insertRes = await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id',
+      await db.query(
+        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
         [
           userId,
           deviceName,
@@ -115,11 +112,10 @@ export const requestAccess = async (req: any, res: any) => {
           groupId,
         ],
       );
-      requestId = insertRes.rows[0].id;
     } else {
       // request is pending and expired, let's update it
-      const updateRes = await db.query(
-        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 AND group_id=$8 RETURNING id',
+      await db.query(
+        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 AND group_id=$8',
         [
           deviceName,
           hashedAccessCode,
@@ -131,7 +127,6 @@ export const requestAccess = async (req: any, res: any) => {
           groupId,
         ],
       );
-      requestId = updateRes.rows[0].id;
     }
 
     sendDeviceRequestEmail(
@@ -139,9 +134,8 @@ export const requestAccess = async (req: any, res: any) => {
       deviceName,
       deviceType,
       deviceOS,
-      env.API_PUBLIC_HOSTNAME,
-      requestId,
       randomAuthorizationCode,
+      new Date(expirationDate),
     );
 
     // Return res

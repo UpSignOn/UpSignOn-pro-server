@@ -1,50 +1,66 @@
+import { accessCodeHash } from '../helpers/accessCodeHash';
 import { db } from '../helpers/connection';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
 
-/**
- * Returns
- * - 200 invalid link
- * - 200 expired link
- * - 200 success
- * - 400
- */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice = async (req: any, res: any) => {
   try {
-    // Extract query parameters
-    const requestId = req.query?.requestId;
-    const requestToken = req.query?.requestToken;
+    const groupId = parseInt(req.params.groupId || 1);
 
-    res.set('Content-Type', 'text/html');
-    if (!requestId || !requestToken)
-      return res.status(200).send("<p>Erreur : ce lien n'est plus valide.</p>");
+    // Get params
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
 
-    // Request db
+    const deviceId = req.body?.deviceId;
+    const deviceAccessCode = req.body?.deviceAccessCode;
+    const deviceValidationCode = req.body?.deviceValidationCode;
+
+    // Check params
+    if (!userEmail) return res.status(401).end();
+    if (!deviceId) return res.status(401).end();
+    if (!deviceAccessCode) return res.status(401).end();
+    if (!deviceValidationCode) return res.status(401).end();
+
+    // Request DB
     const dbRes = await db.query(
-      'SELECT authorization_code, auth_code_expiration_date, authorization_status, device_name FROM user_devices WHERE id=$1',
-      [requestId],
+      'SELECT ' +
+        'ud.id AS id, ' +
+        'users.id AS user_id, ' +
+        'ud.access_code_hash AS access_code_hash, ' +
+        'ud.auth_code_expiration_date AS auth_code_expiration_date ' +
+        'FROM user_devices AS ud ' +
+        'INNER JOIN users ON ud.user_id = users.id ' +
+        'WHERE ' +
+        'users.email=$1 ' +
+        'AND ud.device_unique_id = $2 ' +
+        "AND ud.authorization_status = 'PENDING' " +
+        'AND ud.authorization_code=$3 ' +
+        'AND users.group_id=$4',
+      [userEmail, deviceId, deviceValidationCode, groupId],
     );
-    if (
-      dbRes.rowCount === 0 ||
-      dbRes.rows[0].authorization_code !== requestToken ||
-      dbRes.rows[0].authorization_status !== 'PENDING'
-    )
-      return res.status(200).send("<p>Erreur : ce lien n'est plus valide.</p>");
-    if (isExpired(dbRes.rows[0].auth_code_expiration_date))
-      return res
-        .status(200)
-        .send('<p>Erreur : ce lien a expiré, veuillez renouveller la demande dans UpSignOn.</p>');
+
+    if (!dbRes || dbRes.rowCount === 0) {
+      return res.status(401).end();
+    }
+
+    // Check access code
+    const isAccessGranted = await accessCodeHash.asyncIsOk(
+      deviceAccessCode,
+      dbRes.rows[0].access_code_hash,
+    );
+    if (!isAccessGranted) return res.status(401).end();
+
+    if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {
+      return res.status(401).send({ expired: true });
+    }
 
     await db.query(
       "UPDATE user_devices SET (authorization_status, authorization_code, auth_code_expiration_date) = ('AUTHORIZED', null, null) WHERE id=$1",
-      [requestId],
+      [dbRes.rows[0].id],
     );
-    return res
-      .status(200)
-      .send(
-        `<!DOCTYPE html><html lang="fr"><body style="display:flex; justify-content: center; align-items:center;"><div style="max-width: 500px;"><h1>Votre appareil ${dbRes.rows[0].device_name} est maintenant autorisé !</h1><h3>Retournez dans l'application UpSignOn pour accéder à votre espace confidentiel PRO.</h3></div></body></html>`,
-      );
+    return res.status(200).end();
   } catch (e) {
     logError('checkDevice', e);
     return res.status(400).end();
