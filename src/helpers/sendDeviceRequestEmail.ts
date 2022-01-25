@@ -15,7 +15,7 @@ export const sendDeviceRequestEmail = async (
     const expDate =
       expirationDate.getDate() +
       '/' +
-      expirationDate.getMonth() +
+      (expirationDate.getMonth() + 1) +
       ' à ' +
       expirationDate.getHours() +
       ':' +
