@@ -148,6 +148,8 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 
 ## Installation des outils
 
+> REMARQUE IMPORTANTE : si vous avez déjà un reverse proxy par ailleurs dans votre infrastructure, l'installation de nginx et des certificats SSL n'est peut-être pas nécessaire (contactez-nous pour en discuter en cas de doute)
+
 En tant que **root**,
 
 - installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
@@ -211,28 +213,29 @@ upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:po
 En tant que root, créer le fichier /etc/nginx/sites-enabled/upsignonpro et ajoutez-y le contenu suivant:
 
 ```
-proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_set_header X-Forwarded-Proto https;
-
-add_header X-Frame-Options "DENY";
-add_header X-XSS-Protection "1; mode=block";
-add_header X-DNS-Prefetch-Control "off";
-add_header X-Download-Options "noopen";
-add_header X-Content-Type-Options "nosniff";
-add_header X-Permitted-Cross-Domain-Policies "none";
-
-ssl_certificate /etc/nginx/ssl/upsignonpro.cer;
-ssl_certificate_key /etc/nginx/ssl/upsignonpro.key;
-
-ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
-
 server {
   listen 80;
   listen [::]:80;
   return 301 https://$host$request_uri;
 }
 server {
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto https;
+
+  add_header X-Frame-Options "DENY";
+  add_header X-XSS-Protection "1; mode=block";
+  add_header X-DNS-Prefetch-Control "off";
+  add_header X-Download-Options "noopen";
+  add_header X-Content-Type-Options "nosniff";
+  add_header X-Permitted-Cross-Domain-Policies "none";
+
+  ssl_certificate /etc/nginx/ssl/upsignonpro.cer;
+  ssl_certificate_key /etc/nginx/ssl/upsignonpro.key;
+
+  ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
+
+
   listen 443 ssl http2;
   listen [::]:443 ssl http2;
 
@@ -464,12 +467,10 @@ upsignonpro@localhost:~$ cd ~/upsignon-pro-dashboard/back
 Puis exécutez la commande suivante
 
 ```bash
-upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js <votre-email@votre-domaine.fr>
+upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js temporaryAdmin
 ```
 
-NB: l'adresse email qui est saisie ici n'a pas d'importance, vous pourrez la supprimer plus tard et aucun email ne lui sera envoyé.
-
-Cette commande génère un mot de passe temporaire que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
+Cette commande génère un mot de passe temporaire associé au login "temporaryAdmin" que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
 
 **Ajout d'un premier groupe**
 Une fois connecté à votre interface superadmin,
@@ -488,11 +489,11 @@ Une fois connecté à votre interface superadmin,
 **Configuration de la connexion à la console directement via UpSignOn**
 Le mot de passe que vous avez utilisé précédemment pour vous connecter était temporaire. Grâce à UpSignOn, vous allez pouvoir vous connecter très simplement à votre console d'administration.
 
-- lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour vous ajouter à nouveau (en vous laissant le rôle Super-Admin). Vous pouvez remettre une adresse email qui existe déjà dans la liste.
+- lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour ajouter votre adresse email (en vous laissant le rôle Super-Admin). Vous pouvez remettre une adresse email qui existe déjà dans la liste.
 - vous devriez alors recevoir un email (vérifiez éventuellement vos spams) qui vous permettra d'importer votre "compte" super-admin dans UpSignOn
 - ouvrez le lien que vous aurez reçu par mail puis suivez les instructions dans l'application
-- notez que lors de cette étape, le mot de passe temporaire que vous aviez généré précedemment est remplacé par un nouveau mot de passe, généré cette fois par l'application
-- grâce à UpSignOn, vous pouvez maintenant vous connecter en un clic à votre compte super-admin et renouveler votre mot de passe directement depuis l'application.
+- grâce à UpSignOn, vous pouvez maintenant vous connecter en un clic à votre compte super-admin et renouveler votre mot de passe directement depuis l'application
+- une fois que votre compte superAdmin a été importé dans votre espace UpSignOn PRO, vous pouvez supprimer le "temporaryAdmin" de la liste des super-administrateurs.
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
 
@@ -514,6 +515,6 @@ From the Microsoft documentation: (more details [here](https://docs.microsoft.co
 - Azure B2C authorities are of the form https://\{instance\}/\{tenant\}/\{policy\}. Each policy is considered its own authority. You will have to set the all of the knownAuthorities at the time of the client application construction.
 - ADFS authorities are of the form https://\{instance\}/adfs.
 
-# Troubleshooting
+# Résolution de problèmes
 
 Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md).
