@@ -285,7 +285,7 @@ upsignonpro@localhost:~/upsignon-pro-server$ yarn install
 
 upsignonpro@localhost:~/upsignon-pro-server$ yarn build
 
-upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-example .env
+upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-template .env
 ```
 
 Éditez ensuite le fichier `.env` pour y définir toutes vos variables d'environnement.
@@ -332,14 +332,20 @@ Vous pouvez voir qu'il y a deux dossiers dans ce projet.
 
 DOSSIER FRONT
 
-Créez un fichier .env dans le dossier front et ajoutez-y l'url de votre serveur d'administration, chemin compris, dans la variable PUBLIC_URL
-
-```txt
-PUBLIC_URL=https://upsignonpro.votre-domaine.fr/admin
-```
-
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard$ cd front
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ cp dot-env-template .env
+```
+
+Puis éditez le fichier .env et modifiez la variable PUBLIC_URL avec l'url de votre serveur d'administration, chemin compris.
+
+```bash
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ nano .env
+```
+
+Enfin, lancez les commandes suivantes
+
+```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn install
 upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn build-front # ceci prend un peu de temps
 ```
@@ -348,7 +354,7 @@ DOSSIER BACK
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard$ cd back
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ cp dot-env-example .env
+upsignonpro@localhost:~/upsignon-pro-dashboard/back$ cp dot-env-template .env
 upsignonpro@localhost:~/upsignon-pro-dashboard/back$ openssl rand -hex 30
 ```
 
