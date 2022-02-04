@@ -146,24 +146,11 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 
 # Installation des serveurs
 
-## Installation des outils
+## Configuration d'un reverse proxy
 
-> REMARQUE IMPORTANTE : si vous avez déjà un reverse proxy par ailleurs dans votre infrastructure, l'installation de nginx et des certificats SSL n'est peut-être pas nécessaire (contactez-nous pour en discuter en cas de doute)
+> REMARQUE IMPORTANTE : si vous avez déjà un reverse proxy par ailleurs dans votre infrastructure, l'installation de nginx et des certificats SSL n'est peut-être pas nécessaire. Dans ce cas, vous devrez adapter ce qui suit à votre cas particulier, notamment en dirigeant les requêtes sur l'url du serveur UpSignOn PRO vers le port 3000 de la machine actuelle et les requêts sur l'url du serveur d'administration vers le port 3001. Il est également crucial de passer également les paramètres proxy-set-header. Contactez-nous pour en discuter en cas de doute.
 
 En tant que **root**,
-
-- installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
-
-  ```bash
-  root@localhost:~# curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-  root@localhost:~# apt-get install -y nodejs
-  ```
-
-- installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). NB: il n'est pas nécessaire de définir un utilisateur github
-
-  ```bash
-  root@localhost:~# apt install git
-  ```
 
 - installer Nginx (reverse proxy)
 
@@ -172,45 +159,14 @@ En tant que **root**,
   ```
 
 - ajoutez vos fichiers de certificats SSL, par exemple dans le dossier /etc/nginx/ssl
+
   - `root@localhost:~# mkdir /etc/nginx/ssl/`
   - fichier certificat: /etc/nginx/ssl/upsignonpro.cer
     > ATTENTION, il est primordial que ce fichier contienne toute la chaine de certification. Autrement l'application mobile refusera d'exécuter les requêtes vers votre serveur. Vous pouvez tester que c'est bien le cas grâce au site [https://whatsmychaincert.com](https://whatsmychaincert.com)
   - fichier clé privée: /etc/nginx/ssl/upsignonpro.key
   - `root@localhost:~# chmod 400 /etc/nginx/ssl/*`
 
-En tant qu'utilisateur **upsignonpro**
-
-```bash
-root@localhost:~# su - upsignonpro
-
-upsignonpro@localhost:~$ mkdir ~/.npm-global
-upsignonpro@localhost:~$ npm config set prefix '~/.npm-global'
-upsignonpro@localhost:~$ echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-upsignonpro@localhost:~$ source ~/.bashrc
-
-upsignonpro@localhost:~$ npm install -g pm2
-upsignonpro@localhost:~$ npm install -g yarn
-
-upsignonpro@localhost:~$ pm2 install pm2-logrotate
-```
-
-Configurer votre proxy si besoin:
-
-```bash
-upsignonpro@localhost:~$ git config --global http.proxy http://username:password@host:port
-
-upsignonpro@localhost:~$ git config --global http.sslVerify false
-
-upsignonpro@localhost:~$ git config --global http.proxyAuthMethod 'basic'
-
-upsignonpro@localhost:~$ npm config set proxy http://username:password@host:port
-
-upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
-```
-
-## Configuration de Nginx
-
-En tant que root, créer le fichier /etc/nginx/sites-enabled/upsignonpro et ajoutez-y le contenu suivant:
+- créez le fichier /etc/nginx/sites-enabled/upsignonpro et ajoutez-y le contenu suivant:
 
 ```
 server {
@@ -265,6 +221,53 @@ Une fois ce fichier créé, redémarrez Nginx
 
 ```
 systemctl restart nginx
+```
+
+## Installation des outils
+
+En tant que **root**,
+
+- installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
+
+  ```bash
+  root@localhost:~# curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+  root@localhost:~# apt-get install -y nodejs
+  ```
+
+- installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). NB: il n'est pas nécessaire de définir un utilisateur github
+
+  ```bash
+  root@localhost:~# apt install git
+  ```
+
+En tant qu'utilisateur **upsignonpro**
+
+```bash
+root@localhost:~# su - upsignonpro
+
+upsignonpro@localhost:~$ mkdir ~/.npm-global
+upsignonpro@localhost:~$ npm config set prefix '~/.npm-global'
+upsignonpro@localhost:~$ echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+upsignonpro@localhost:~$ source ~/.bashrc
+
+upsignonpro@localhost:~$ npm install -g pm2
+upsignonpro@localhost:~$ npm install -g yarn
+
+upsignonpro@localhost:~$ pm2 install pm2-logrotate
+```
+
+Configurer votre proxy si besoin:
+
+```bash
+upsignonpro@localhost:~$ git config --global http.proxy http://username:password@host:port
+
+upsignonpro@localhost:~$ git config --global http.sslVerify false
+
+upsignonpro@localhost:~$ git config --global http.proxyAuthMethod 'basic'
+
+upsignonpro@localhost:~$ npm config set proxy http://username:password@host:port
+
+upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
 ## Installation du serveur UpSignOn PRO et provisioning de la base de données
