@@ -378,9 +378,9 @@ After=network.target remote-fs.target nss-lookup.target
 [Service]
 Type=forking
 RemainAfterExit=1
-ExecStart=/usr/local/bin/pm2 start /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
-ExecReload=/usr/local/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
-ExecStop=/usr/local/bin/pm2 stop /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecStart=/home/upsignonpro/.npm-global/bin/pm2 start /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecStop=/home/upsignonpro/.npm-global/bin/pm2 stop /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
 User=upsignonpro
 WorkingDirectory=/home/upsignonpro/upsignon-pro-server
 
@@ -412,9 +412,9 @@ After=network.target remote-fs.target nss-lookup.target
 [Service]
 Type=forking
 RemainAfterExit=1
-ExecStart=/usr/local/bin/pm2 start /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
-ExecReload=/usr/local/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
-ExecStop=/usr/local/bin/pm2 stop /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecStart=/home/upsignonpro/.npm-global/bin/pm2 start /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecStop=/home/upsignonpro/.npm-global/bin/pm2 stop /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
 User=upsignonpro
 WorkingDirectory=/home/upsignonpro/upsignon-pro-dashboard/back
 
