@@ -1,6 +1,16 @@
 # Déploiements par GPO
 
-# Déploiement du module UpSignOnHelper (pour windows uniquement)
+## Déploiement de l'application pour windows
+
+> Attention, cette méthode de déploiement ne permet pas à l'application de se mettre à jour automatiquement. Pour avoir les mises-à-jour automatiques, vous devez passer par le Microsoft Store ou le Microsoft Store pour Entreprises.
+
+- Téléchargez le dossier [https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest](https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest)
+
+- Il s'agit d'un dossier zip. Ajoutez-lui l'extension .zip pour pouvoir extraire son contenu.
+
+- Vous pouvez alors déployer ce dossier par GPO et lancer le script d'installation qui y est inclus par GPO pour installer l'application chez tous vos collaborateurs.
+
+## Déploiement du module UpSignOnHelper (pour windows uniquement)
 
 Pour permettre aux extensions de navigateur de communiquer avec l'application sur windows, vous aller devoir:
 
@@ -23,11 +33,13 @@ Notez que si vous déplacez le dossier UpSignOnHelper par la suite, vous devrez 
 
 Vous pouvez ensuite tester que l'extension de navigateur est désormais capable de lister automatiquement les espaces UpSignOn PRO et PERSO de l'application et de les déverrouiller, y compris avec la biométrie si elle a été configurée dans l'application.
 
-# Firefox
+## Déploiement des extensions de navigateur
+
+### Firefox
 
 Documentation complète: [https://github.com/mozilla/policy-templates/blob/master/README.md](https://github.com/mozilla/policy-templates/blob/master/README.md)
 
-### Règles à configurer
+Règles à configurer:
 
 - ([Extensions](https://github.com/mozilla/policy-templates/blob/master/README.md#extensions))
 
@@ -70,13 +82,13 @@ Documentation complète: [https://github.com/mozilla/policy-templates/blob/maste
   ]
   ```
 
-# Chrome
+### Chrome
 
 Documentation générale: [https://support.google.com/chrome/a/answer/187202?hl=fr](https://support.google.com/chrome/a/answer/187202?hl=fr)
 
 Liste des règles: [https://cloud.google.com/docs/chrome-enterprise/policies](https://cloud.google.com/docs/chrome-enterprise/policies)
 
-### Règles à configurer
+Règles à configurer:
 
 - [ExtensionInstallForceList](https://cloud.google.com/docs/chrome-enterprise/policies/?policy=ExtensionInstallForcelist)
 
@@ -116,13 +128,13 @@ Liste des règles: [https://cloud.google.com/docs/chrome-enterprise/policies](ht
   ]
   ```
 
-# Edge
+### Edge
 
 Documentation Générale : [https://docs.microsoft.com/en-us/deployedge/microsoft-edge-manage-extensions-policies](https://docs.microsoft.com/en-us/deployedge/microsoft-edge-manage-extensions-policies)
 
 Liste des règles : [https://docs.microsoft.com/en-us/deployedge/microsoft-edge-policies](https://docs.microsoft.com/en-us/deployedge/microsoft-edge-policies)
 
-### Règles à configurer
+Règles à configurer:
 
 - [ExtensionInstallForcelist](https://docs.microsoft.com/en-us/DeployEdge/microsoft-edge-policies#extensioninstallforcelist)
 
