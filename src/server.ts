@@ -39,6 +39,7 @@ import { sendStats } from './routes/sendStats';
 import { getContactsSharingItemsWithMeV2 } from './routes/getContactsSharingItemsWithMeV2';
 import { createSharedFolder } from './routes/createSharedFolder';
 import { addSharedItemsToSharedFolder } from './routes/addSharedItemsToSharedFolder';
+import { changeSharedFolderName } from './routes/changeSharedFolderName';
 
 const app = express();
 app.disable('x-powered-by');
@@ -102,6 +103,8 @@ app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUse
 app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
 app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
 app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
+// prettier-ignore
+app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
 
 if (module === require.main) {
   startServer(app, () => {
