@@ -40,6 +40,7 @@ import { getContactsSharingItemsWithMeV2 } from './routes/getContactsSharingItem
 import { createSharedFolder } from './routes/createSharedFolder';
 import { addSharedItemsToSharedFolder } from './routes/addSharedItemsToSharedFolder';
 import { changeSharedFolderName } from './routes/changeSharedFolderName';
+import { getContactsForSharedFolder } from './routes/getContactsForSharedFolder';
 
 const app = express();
 app.disable('x-powered-by');
@@ -105,6 +106,8 @@ app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
 app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
 // prettier-ignore
 app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'], getContactsForSharedFolder);
 
 if (module === require.main) {
   startServer(app, () => {
