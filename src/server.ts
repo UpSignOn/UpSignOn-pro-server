@@ -41,6 +41,9 @@ import { createSharedFolder } from './routes/createSharedFolder';
 import { addSharedItemsToSharedFolder } from './routes/addSharedItemsToSharedFolder';
 import { changeSharedFolderName } from './routes/changeSharedFolderName';
 import { getContactsForSharedFolder } from './routes/getContactsForSharedFolder';
+import { updateContactSharedFolderRights } from './routes/updateContactSharedFolderRights';
+import { stopSharingFolderWithContact } from './routes/stopSharingFolderWithContact';
+import { getContactsForSharedItemV2 } from './routes/getContactsForSharedItemV2';
 
 const app = express();
 app.disable('x-powered-by');
@@ -77,18 +80,14 @@ app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordB
 app.post(['/:groupId/get-matching-email-addresses-for-sharing','/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
-app.post(
-  ['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'],
-  getContactsSharingItemsWithMeV2,
-);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'], getContactsSharingItemsWithMeV2);
 // prettier-ignore
 app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
 app.post(['/:groupId/share', '/share'], share);
 app.post(['/:groupId/create-shared-folder', '/create-shared-folder'], createSharedFolder);
-app.post(
-  ['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'],
-  addSharedItemsToSharedFolder,
-);
+// prettier-ignore
+app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'], addSharedItemsToSharedFolder);
 app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
@@ -100,6 +99,8 @@ app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], dele
 app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-for-shared-item', '/get-contacts-for-shared-item'], getContactsForSharedItem);
+// prettier-ignore
+app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
 app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
 app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
 app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
@@ -108,6 +109,10 @@ app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
 app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'], getContactsForSharedFolder);
+// prettier-ignore
+app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'], updateContactSharedFolderRights);
+// prettier-ignore
+app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'], stopSharingFolderWithContact);
 
 if (module === require.main) {
   startServer(app, () => {

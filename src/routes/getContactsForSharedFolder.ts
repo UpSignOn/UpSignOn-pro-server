@@ -16,9 +16,8 @@ export const getContactsForSharedFolder = async (req: any, res: any) => {
     FROM users AS u
     INNER JOIN shared_account_users AS sau ON sau.user_id=u.id
     INNER JOIN shared_accounts AS sa ON sa.id=sau.shared_account_id
-    INNER JOIN shared_folders AS sf ON sa.shared_folder_id=sf.id
-    WHERE u.group_id=$1 AND sau.group_id=$1 AND sa.group_id=$1 AND sf.group_id=$1
-    AND sf.id=$2
+    WHERE u.group_id=$1 AND sau.group_id=$1 AND sa.group_id=$1
+    AND sa.shared_folder_id=$2
     GROUP BY u.id, u.email
     `,
       [basicAuth.groupId, folderId],
@@ -30,7 +29,7 @@ export const getContactsForSharedFolder = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contacts: contactRes.rows });
   } catch (e) {
-    logError('getContactsForSharedItem', e);
+    logError('getContactsForSharedFolder', e);
     return res.status(400).end();
   }
 };

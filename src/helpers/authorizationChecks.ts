@@ -102,3 +102,21 @@ export const checkBasicAuth = async (
     groupId,
   };
 };
+
+export const checkIsManagerForFolder = async (
+  groupId: number,
+  folderId: number,
+  userId: number,
+): Promise<boolean> => {
+  const folderAuthCheck = await db.query(
+    `SELECT BOOL_AND(sau.is_manager) AS is_folder_manager
+  FROM shared_account_users AS sau
+  INNER JOIN shared_accounts AS sa ON sa.id=sau.shared_account_id
+  WHERE sau.group_id=$1 AND sa.group_id=$1
+  AND sa.shared_folder_id=$2
+  AND sau.user_id=$3
+  GROUP BY sau.user_id`,
+    [groupId, folderId, userId],
+  );
+  return !!folderAuthCheck.rows[0] && folderAuthCheck.rows[0].is_folder_manager;
+};

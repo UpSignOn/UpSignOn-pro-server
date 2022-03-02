@@ -3,8 +3,7 @@ import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const getContactsForSharedItem = async (req: any, res: any) => {
-  // deprecated on 02/03/2022
+export const getContactsForSharedItemV2 = async (req: any, res: any) => {
   try {
     const itemId = req.body?.itemId;
     if (!itemId) return res.status(401).end();
@@ -17,9 +16,7 @@ export const getContactsForSharedItem = async (req: any, res: any) => {
       [itemId, basicAuth.groupId],
     );
     // Return res
-    return res
-      .status(200)
-      .json({ contacts: contactRes.rows.filter((c) => c.email !== basicAuth.userEmail) });
+    return res.status(200).json({ contacts: contactRes.rows });
   } catch (e) {
     logError('getContactsForSharedItem', e);
     return res.status(400).end();
