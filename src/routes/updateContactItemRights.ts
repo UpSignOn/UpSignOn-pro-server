@@ -22,7 +22,7 @@ export const updateContactItemRights = async (req: any, res: any): Promise<void>
     }
 
     const updateRes = await db.query(
-      'UPDATE shared_account_users SET is_manager=$1 WHERE shared_account_id=$2 AND user_id=$3 AND group_id=$4',
+      'UPDATE shared_account_users AS sau SET is_manager=$1 FROM shared_accounts AS sa WHERE sau.shared_account_id=sa.id AND sau.shared_account_id=$2 AND sau.user_id=$3 AND sa.group_id=$4 AND sa.shared_folder_id IS NULL',
       [isManager, itemId, contactId, basicAuth.groupId],
     );
 
