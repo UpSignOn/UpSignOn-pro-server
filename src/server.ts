@@ -20,7 +20,7 @@ import { checkEmailAddressForSharing } from './routes/checkEmailAddressForSharin
 import { share } from './routes/share';
 import { updateSharedItem } from './routes/updateSharedItem';
 import { getContactsPublicKeys } from './routes/getContactsPublicKeys';
-import { updateContactRights } from './routes/updateContactRights';
+import { updateContactItemRights } from './routes/updateContactItemRights';
 import { stopSharingWithContact } from './routes/stopSharingWithContact';
 import { getContactsForSharedItem } from './routes/getContactsForSharedItem';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
@@ -92,7 +92,7 @@ app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-s
 app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
-app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactRights);
+app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactItemRights);
 // prettier-ignore
 app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], stopSharingWithContact);
 app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
