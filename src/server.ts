@@ -44,6 +44,7 @@ import { getContactsForSharedFolder } from './routes/getContactsForSharedFolder'
 import { updateContactSharedFolderRights } from './routes/updateContactSharedFolderRights';
 import { stopSharingFolderWithContact } from './routes/stopSharingFolderWithContact';
 import { getContactsForSharedItemV2 } from './routes/getContactsForSharedItemV2';
+import { makeMyselfSoleManagerOfSharedFolder } from './routes/makeMyselfSoleManagerOfSharedFolder';
 
 const app = express();
 app.disable('x-powered-by');
@@ -113,6 +114,8 @@ app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-
 app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'], updateContactSharedFolderRights);
 // prettier-ignore
 app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'], stopSharingFolderWithContact);
+// prettier-ignore
+app.post(['/:groupId/make-myself-sole-manager-of-shared-folder', '/make-myself-sole-manager-of-shared-folder'], makeMyselfSoleManagerOfSharedFolder);
 
 if (module === require.main) {
   startServer(app, () => {
