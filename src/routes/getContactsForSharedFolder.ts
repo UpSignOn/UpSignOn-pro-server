@@ -11,8 +11,13 @@ export const getContactsForSharedFolder = async (req: any, res: any) => {
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 
+    const returningPublicKeys = !!req.body?.returningPublicKeys;
+    const returningSharedAccountIds = !!req.body?.returningSharedAccountIds;
+
     const contactRes = await db.query(
       `SELECT u.email, u.id, BOOL_AND(sau.is_manager) AS is_folder_manager
+      ${returningPublicKeys ? ', u.sharing_public_key' : ''}
+      ${returningSharedAccountIds ? ', array_agg(sau.shared_account_id) AS shared_account_ids' : ''}
     FROM users AS u
     INNER JOIN shared_account_users AS sau ON sau.user_id=u.id
     INNER JOIN shared_accounts AS sa ON sa.id=sau.shared_account_id

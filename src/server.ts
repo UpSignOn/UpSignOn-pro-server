@@ -45,6 +45,8 @@ import { updateContactSharedFolderRights } from './routes/updateContactSharedFol
 import { stopSharingFolderWithContact } from './routes/stopSharingFolderWithContact';
 import { getContactsForSharedItemV2 } from './routes/getContactsForSharedItemV2';
 import { makeMyselfSoleManagerOfSharedFolder } from './routes/makeMyselfSoleManagerOfSharedFolder';
+import { updateSharedFolderIdForSharedItem } from './routes/updateSharedFolderIdForSharedItem';
+import { unshareItemsThatWereMovedFromSharedFolder } from './routes/unsharedItemsThatWereMovedFromSharedFolder';
 
 const app = express();
 app.disable('x-powered-by');
@@ -116,6 +118,10 @@ app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shar
 app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'], stopSharingFolderWithContact);
 // prettier-ignore
 app.post(['/:groupId/make-myself-sole-manager-of-shared-folder', '/make-myself-sole-manager-of-shared-folder'], makeMyselfSoleManagerOfSharedFolder);
+// prettier-ignore
+app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-id-for-item'], updateSharedFolderIdForSharedItem);
+// prettier-ignore
+app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
 
 if (module === require.main) {
   startServer(app, () => {
