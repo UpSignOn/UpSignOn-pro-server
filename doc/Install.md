@@ -227,6 +227,12 @@ systemctl restart nginx
 
 En tant que **root**,
 
+- installer curl
+
+  ```bash
+  root@localhost:~# apt install curl
+  ```
+
 - installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
 
   ```bash
