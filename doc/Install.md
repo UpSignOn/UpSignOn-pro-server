@@ -166,6 +166,13 @@ En tant que **root**,
   - fichier clé privée: /etc/nginx/ssl/upsignonpro.key
   - `root@localhost:~# chmod 400 /etc/nginx/ssl/*`
 
+- forcez l'utilisation de TLSv1.2 ou TLSv1.3 en éditant le fichier /etc/nginx/nginx.conf et en y modifiant la ligne ssl_protocols
+
+```
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers on;
+```
+
 - créez le fichier /etc/nginx/sites-enabled/upsignonpro et ajoutez-y le contenu suivant:
 
 ```
@@ -186,10 +193,12 @@ server {
   add_header X-Content-Type-Options "nosniff";
   add_header X-Permitted-Cross-Domain-Policies "none";
 
+  add_header Strict-Transport-Security 'max-age=300; includeSubDomains; preload; always;';
+
   ssl_certificate /etc/nginx/ssl/upsignonpro.cer;
   ssl_certificate_key /etc/nginx/ssl/upsignonpro.key;
 
-  ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
+  ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
 
 
   listen 443 ssl http2;
