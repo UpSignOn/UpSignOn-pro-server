@@ -21,7 +21,7 @@ export const addSharedItemsToSharedFolder = async (req: any, res: any): Promise<
 
     for (let i = 0; i < sharedItemIds.length; i++) {
       await db.query(
-        'UPDATE shared_accounts SET shared_folder_id=$1 WHERE (SELECT is_manager FROM shared_account_users WHERE user_id=$4 AND shared_account_users.shared_account_id=shared_accounts.id AND group_id=$3) AND id=$2 AND group_id=$3',
+        'UPDATE shared_accounts SET shared_folder_id=$1 WHERE (SELECT is_manager FROM shared_account_users WHERE user_id=$4 AND shared_account_users.shared_account_id=shared_accounts.id AND shared_account_users.group_id=$3) AND shared_accounts.id=$2 AND shared_accounts.group_id=$3',
         [sharedFolderId, sharedItemIds[i], basicAuth.groupId, basicAuth.userId],
       );
     }
