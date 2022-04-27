@@ -3,13 +3,58 @@ import { db } from '../helpers/db';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../helpers/logger';
-import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { checkDeviceRequestAuthorization } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
   try {
-    const basicAuth = await checkBasicAuth(req);
-    if (!basicAuth.granted) return res.status(401).end();
+    const groupId = parseInt(req.params.groupId || 1);
+
+    // Get params
+    let userEmail = req.body?.userEmail;
+    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
+    userEmail = userEmail.toLowerCase();
+
+    const deviceId = req.body?.deviceId;
+    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
+    const deviceChallengeResponse = req.body?.deviceChallengeResponse;
+
+    // Check params
+    if (!userEmail) return res.status(401).end();
+    if (!deviceId) return res.status(401).end();
+
+    // Request DB
+    const authDbRes = await db.query(
+      `SELECT
+        users.id AS uid,
+        user_devices.id AS did,
+        user_devices.access_code_hash AS access_code_hash,
+        user_devices.device_public_key > 0 AS device_public_key,
+        user_devices.session_auth_challenge AS session_auth_challenge,
+        user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
+      FROM user_devices
+        INNER JOIN users ON user_devices.user_id = users.id
+      WHERE
+        users.email=$1
+        AND user_devices.device_unique_id = $2
+        AND user_devices.authorization_status='AUTHORIZED'
+        AND user_devices.group_id=$3
+      LIMIT 1`,
+      [userEmail, deviceId, groupId],
+    );
+
+    if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
+    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
+      deviceAccessCode,
+      authDbRes.rows[0].access_code_hash,
+      deviceChallengeResponse,
+      authDbRes.rows[0].did,
+      authDbRes.rows[0].session_auth_challenge_exp_time,
+      authDbRes.rows[0].session_auth_challenge,
+      authDbRes.rows[0].device_public_key,
+      res,
+    );
+    if (!isDeviceAuthorized) return;
 
     // Request DB
     const dbRes = await db.query(
@@ -26,14 +71,14 @@ export const requestPasswordReset = async (req: any, res: any) => {
         AND user_devices.device_unique_id = $2
         AND user_devices.group_id=$3
       LIMIT 1`,
-      [basicAuth.userId, basicAuth.deviceUId, basicAuth.groupId],
+      [authDbRes.rows[0].uid, deviceId, groupId],
     );
 
     const resetRequest = dbRes.rows[0];
 
     const settingRes = await db.query(
       `SELECT settings->>'DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN' AS value FROM groups WHERE id=$1`,
-      [basicAuth.groupId],
+      [groupId],
     );
     if (settingRes.rows[0]?.value) {
       // MANUAL VALIDATION IS DISABLED
@@ -45,7 +90,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
               (device_id, status, reset_token, reset_token_expiration_date, group_id)
             VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4)
           `,
-          [resetRequest.device_id, randomAuthorizationCode, expirationDate, basicAuth.groupId],
+          [resetRequest.device_id, randomAuthorizationCode, expirationDate, groupId],
         );
       } else {
         await db.query(
@@ -54,16 +99,11 @@ export const requestPasswordReset = async (req: any, res: any) => {
             reset_token=$1,
             reset_token_expiration_date=$2
           WHERE id=$3 AND group_id=$4`,
-          [
-            randomAuthorizationCode,
-            expirationDate,
-            resetRequest.reset_request_id,
-            basicAuth.groupId,
-          ],
+          [randomAuthorizationCode, expirationDate, resetRequest.reset_request_id, groupId],
         );
       }
       await sendPasswordResetRequestEmail(
-        basicAuth.userEmail,
+        userEmail,
         resetRequest.device_name,
         randomAuthorizationCode,
         expirationDate,
@@ -78,7 +118,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
             VALUES
               ($1, 'PENDING_ADMIN_CHECK', $2)
           `,
-          [resetRequest.device_id, basicAuth.groupId],
+          [resetRequest.device_id, groupId],
         );
         // TODO notify admin
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
@@ -89,7 +129,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
         // Start a new request
         await db.query(
           `UPDATE password_reset_request SET status='PENDING_ADMIN_CHECK', reset_token=null, reset_token_expiration_date=null WHERE id=$1 AND group_id=$2`,
-          [resetRequest.reset_request_id, basicAuth.groupId],
+          [resetRequest.reset_request_id, groupId],
         );
         // TODO notify admin
         return res.status(200).json({ resetStatus: 'pending_admin_check' });

@@ -1,8 +1,7 @@
-import { accessCodeHash } from '../helpers/accessCodeHash';
 import { db } from '../helpers/db';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
-import { checkDeviceChallenge, createDeviceChallenge } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice = async (req: any, res: any) => {
@@ -49,37 +48,17 @@ export const checkDevice = async (req: any, res: any) => {
       return res.status(401).end();
     }
 
-    if (!deviceAccessCode && !deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
-      return res.status(403).json({ deviceChallenge });
-    } else if (!!deviceChallengeResponse) {
-      if (
-        dbRes.rows[0].session_auth_challenge_exp_time &&
-        dbRes.rows[0].session_auth_challenge_exp_time.getTime() < Date.now()
-      ) {
-        return res.status(403).json({ error: 'expired' });
-      }
-      const hasPassedDeviceChallenge = checkDeviceChallenge(
-        dbRes.rows[0].session_auth_challenge,
-        deviceChallengeResponse,
-        dbRes.rows[0].device_public_key,
-      );
-      if (!hasPassedDeviceChallenge) {
-        return res.status(401).end();
-      } else {
-        await db.query(
-          'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
-          [dbRes.rows[0].id],
-        );
-      }
-    } else if (!!deviceAccessCode) {
-      // Check access code
-      const isAccessGranted = await accessCodeHash.asyncIsOk(
-        deviceAccessCode,
-        dbRes.rows[0].access_code_hash,
-      );
-      if (!isAccessGranted) return res.status(401).end();
-    }
+    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
+      deviceAccessCode,
+      dbRes.rows[0].access_code_hash,
+      deviceChallengeResponse,
+      dbRes.rows[0].id,
+      dbRes.rows[0].session_auth_challenge_exp_time,
+      dbRes.rows[0].session_auth_challenge,
+      dbRes.rows[0].device_public_key,
+      res,
+    );
+    if (!isDeviceAuthorized) return;
 
     if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {
       return res.status(401).send({ expired: true });

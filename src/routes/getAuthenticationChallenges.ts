@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { createDeviceChallenge } from '../helpers/deviceChallenge';
+import { getPasswordChallenge } from '../helpers/passwordChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges = async (req: any, res: any) => {
@@ -35,26 +35,13 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     if (dbRes.rows[0].has_access_code_hash || !dbRes.rows[0].has_device_public_key)
       return res.status(401).end();
-    let data = dbRes.rows[0].encrypted_data;
-    if (!data.startsWith('formatP001-')) {
-      return res.status(401).end();
-    }
-    data = data.replace('formatP001-', '');
-    const dataBuffer = Buffer.from(data, 'base64'); // dataBuffer = [challenge(16 bytes) | challengeHash(32 bytes) | cipherSignature(32 bytes) | derivationKeySalt(64 bytes) | iv(16 bytes) | cipher(?)]
 
-    const pwdChallenge = Buffer.alloc(16);
-    dataBuffer.copy(pwdChallenge, 0, 0, 16);
-    const pwdChallengeBase64 = pwdChallenge.toString('base64');
-
-    const keySalt = Buffer.alloc(64);
-    dataBuffer.copy(pwdChallenge, 0, 80, 144);
-    const keySaltBase64 = keySalt.toString('base64');
-
+    const passwordChallenge = getPasswordChallenge(dbRes.rows[0].encrypted_data);
     const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
 
     return res.status(200).json({
-      passwordChallenge: pwdChallengeBase64,
-      keySalt: keySaltBase64,
+      passwordChallenge: passwordChallenge.pwdChallengeBase64,
+      keySalt: passwordChallenge.keySaltBase64,
       deviceChallenge,
     });
   } catch (e) {
