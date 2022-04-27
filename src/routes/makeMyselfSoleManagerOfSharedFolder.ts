@@ -1,4 +1,4 @@
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { isStrictlyLowerVersion } from '../helpers/appVersionChecker';
 import { checkBasicAuth, checkIsManagerForFolder } from '../helpers/authorizationChecks';

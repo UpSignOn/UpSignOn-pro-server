@@ -1,5 +1,5 @@
 import env from './env';
-import { db } from './connection';
+import { db } from './db';
 import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../helpers/logger';

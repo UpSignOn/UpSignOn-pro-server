@@ -1,4 +1,4 @@
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';

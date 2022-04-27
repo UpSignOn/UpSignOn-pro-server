@@ -1,5 +1,5 @@
 import { accessCodeHash } from '../helpers/accessCodeHash';
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
 

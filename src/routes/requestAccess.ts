@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';

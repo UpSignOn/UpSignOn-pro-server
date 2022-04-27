@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { Buffer } from 'buffer';
-import { db } from '../helpers/connection';
+import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { db } from '../helpers/connection';
+import { db } from './db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 
 export const checkBasicAuth = async (

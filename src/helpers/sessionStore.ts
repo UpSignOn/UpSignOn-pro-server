@@ -1,4 +1,4 @@
-import { db } from './connection';
+import { db } from './db';
 import expressSession from 'express-session';
 import { logError } from './logger';
 

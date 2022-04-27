@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import env from '../helpers/env';
+import env from './env';
 // @ts-ignore
 const pool = new Pool({
   host: env.DB_HOST,

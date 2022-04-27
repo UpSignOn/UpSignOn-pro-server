@@ -1,5 +1,5 @@
 import env from './env';
-import { db } from './connection';
+import { db } from './db';
 import childProcess from 'child_process';
 import https from 'https';
 import http from 'http';
