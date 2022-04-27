@@ -1,7 +1,7 @@
-import crypto from 'crypto';
 import { Buffer } from 'buffer';
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
+import { createDeviceChallenge } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges = async (req: any, res: any) => {
@@ -19,7 +19,8 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       `SELECT
         u.encrypted_data AS encrypted_data,
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
-        char_length(ud.device_public_key) > 0 AS has_device_public_key
+        char_length(ud.device_public_key) > 0 AS has_device_public_key,
+        ud.id AS did
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
       WHERE
@@ -49,10 +50,7 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
     dataBuffer.copy(pwdChallenge, 0, 80, 144);
     const keySaltBase64 = keySalt.toString('base64');
 
-    const deviceChallenge = crypto.randomBytes(16).toString('base64');
-    await db.query(
-      "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time= current_timestamp(0)+interval '3 minutes' WHERE device_unique_id=$2 AND group_id=$3",
-    );
+    const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
 
     return res.status(200).json({
       passwordChallenge: pwdChallengeBase64,

@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import crypto from 'crypto';
 import { db } from '../helpers/db';
+import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -31,7 +32,7 @@ export const authenticate = async (req: any, res: any) => {
         ud.password_challenge_error_count AS password_challenge_error_count,
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         ud.device_public_key > 0 AS device_public_key,
-        ud.session_auth_challenge AS session_auth_challenge
+        ud.session_auth_challenge AS session_auth_challenge,
         ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
@@ -71,7 +72,7 @@ export const authenticate = async (req: any, res: any) => {
     }
     // 3 - check that the session auth challenge has not expired
     if (session_auth_challenge_exp_time && session_auth_challenge_exp_time.getTime() < Date.now()) {
-      return res.status(401).json({ error: 'expired' });
+      return res.status(403).json({ error: 'expired' });
     }
 
     // 4 - check Password challenge
@@ -91,17 +92,6 @@ export const authenticate = async (req: any, res: any) => {
       passwordChallengeResponseBuffer,
     );
 
-    // 5 - check Device challenge
-    const publicKey = Buffer.from(device_public_key, 'base64');
-    const deviceChallenge = Buffer.from(session_auth_challenge, 'base64');
-    const deviceChallengeResponseBytes = Buffer.from(deviceChallengeResponse, 'base64');
-    const hasPassedDeviceChallenge = crypto.verify(
-      'RSA_PKCS1_PADDING',
-      deviceChallenge,
-      publicKey,
-      deviceChallengeResponseBytes,
-    );
-
     // Add a time constraint to the number of failed attempts per device
     if (!hasPassedPasswordChallenge) {
       // 3 attempts with no delay, then 1 minute for each additional previous failed attempt
@@ -119,6 +109,13 @@ export const authenticate = async (req: any, res: any) => {
         );
       }
     }
+
+    // 5 - check Device challenge
+    const hasPassedDeviceChallenge = checkDeviceChallenge(
+      session_auth_challenge,
+      deviceChallengeResponse,
+      device_public_key,
+    );
 
     const success = hasPassedPasswordChallenge && hasPassedDeviceChallenge;
     if (success) {

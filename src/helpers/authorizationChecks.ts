@@ -29,13 +29,13 @@ export const checkBasicAuth = async (
 
   let userEmail = req.body?.userEmail;
   const deviceUId = req.body?.deviceId;
-  const deviceAccessCode = req.body?.deviceAccessCode;
+  const deviceAccessCode = req.body?.deviceAccessCode; // deprecated
 
   userEmail = userEmail.toLowerCase();
 
   if (!userEmail || typeof userEmail !== 'string') return { granted: false };
   if (!deviceUId) return { granted: false };
-  if (!deviceAccessCode) return { granted: false };
+  if (!deviceAccessCode && !req.session) return { granted: false };
 
   const publicKeySelect = options?.returningUserPublicKey
     ? 'u.sharing_public_key AS sharing_public_key,'
@@ -67,7 +67,8 @@ export const checkBasicAuth = async (
       ${dataSelect}
       ${deviceIdSelect}
       u.id AS user_id,
-      ud.access_code_hash AS access_code_hash
+      ud.access_code_hash AS access_code_hash,
+      char_length(ud.device_public_key) > 0 AS has_device_public_key
     FROM user_devices AS ud
     INNER JOIN users AS u ON ud.user_id = u.id
     ${accountManagerOrRecipientJoin}
@@ -84,12 +85,36 @@ export const checkBasicAuth = async (
 
   if (!dbRes || dbRes.rowCount === 0) return { granted: false };
 
-  // Check access code
-  const isAccessGranted = await accessCodeHash.asyncIsOk(
-    deviceAccessCode,
-    dbRes.rows[0].access_code_hash,
-  );
-  if (!isAccessGranted) return { granted: false };
+  // Check Session OR access code
+  if (
+    !!dbRes.rows[0].access_code_hash &&
+    !dbRes.rows[0].has_device_public_key &&
+    !!deviceAccessCode
+  ) {
+    // DEPRECATED SYSTEM: Check access code
+    const isAccessGranted = await accessCodeHash.asyncIsOk(
+      deviceAccessCode,
+      dbRes.rows[0].access_code_hash,
+    );
+    if (!isAccessGranted) return { granted: false };
+  } else if (
+    !dbRes.rows[0].access_code_hash &&
+    dbRes.rows[0].has_device_public_key &&
+    !!req.session
+  ) {
+    // NEW SYSTEM: check session
+    // make sure this session matches the request (the session might be linked to another space on the same device)
+    if (
+      req.session.userEmail != req.body?.userEmail ||
+      req.session.deviceUniqueId != req.body?.deviceId ||
+      req.session.groupId != groupId
+    ) {
+      await req.session.destroy();
+      return { granted: false };
+    }
+  } else {
+    return { granted: false };
+  }
 
   return {
     userEmail,

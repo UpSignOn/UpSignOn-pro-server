@@ -32,7 +32,8 @@ export const requestAccess = async (req: any, res: any) => {
     userEmail = userEmail.toLowerCase();
 
     const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
+    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
+    const devicePublicKey = req.body?.devicePublicKey; // NEW SYSTEM
     const deviceName = req.body?.deviceName;
     const deviceType = req.body?.deviceType;
     const deviceOS = req.body?.deviceOS;
@@ -40,7 +41,7 @@ export const requestAccess = async (req: any, res: any) => {
 
     // Check params
     if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode) return res.status(401).end();
+    if (!deviceAccessCode && !devicePublicKey) return res.status(401).end();
 
     // Request DB
     let userRes = await db.query('SELECT id FROM users WHERE email=$1 AND group_id=$2', [
@@ -93,12 +94,15 @@ export const requestAccess = async (req: any, res: any) => {
       return res.status(200).json({ authorizationStatus: 'PENDING' });
     }
 
-    const hashedAccessCode = await accessCodeHash.asyncHash(deviceAccessCode);
+    const hashedAccessCode =
+      !!deviceAccessCode && !devicePublicKey
+        ? await accessCodeHash.asyncHash(deviceAccessCode)
+        : null;
     const randomAuthorizationCode = uuidv4().substring(0, 8);
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
       await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, access_code_hash, device_public_key, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
         [
           userId,
           deviceName,
@@ -107,6 +111,7 @@ export const requestAccess = async (req: any, res: any) => {
           appVersion,
           deviceId,
           hashedAccessCode,
+          devicePublicKey,
           'PENDING',
           randomAuthorizationCode,
           expirationDate,
@@ -116,10 +121,11 @@ export const requestAccess = async (req: any, res: any) => {
     } else {
       // request is pending and expired, let's update it
       await db.query(
-        'UPDATE user_devices SET (device_name, access_code_hash, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5) WHERE user_id=$6 AND device_unique_id=$7 AND group_id=$8',
+        'UPDATE user_devices SET (device_name, access_code_hash, device_public_key, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4,$5,$6) WHERE user_id=$7 AND device_unique_id=$8 AND group_id=$9',
         [
           deviceName,
           hashedAccessCode,
+          devicePublicKey,
           'PENDING',
           randomAuthorizationCode,
           expirationDate,

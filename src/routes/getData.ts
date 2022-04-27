@@ -21,16 +21,28 @@ export const getData = async (req: any, res: any): Promise<void> => {
     userEmail = userEmail.toLowerCase();
 
     const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
+    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
 
     // Check params
     if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode) return res.status(401).end();
+    if (!deviceAccessCode && !req.session) return res.status(401).end();
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT users.id AS user_id, user_devices.authorization_status AS authorization_status, user_devices.access_code_hash AS access_code_hash, users.encrypted_data AS encrypted_data, users.updated_at AS updated_at FROM user_devices INNER JOIN users ON user_devices.user_id = users.id WHERE users.email=$1 AND user_devices.device_unique_id = $2  AND users.group_id=$3',
+      `SELECT
+        users.id AS user_id,
+        user_devices.authorization_status AS authorization_status,
+        user_devices.access_code_hash AS access_code_hash,
+        users.encrypted_data AS encrypted_data,
+        users.updated_at AS updated_at,
+        char_length(user_devices.device_public_key) > 0 AS has_device_public_key
+      FROM user_devices
+      INNER JOIN users ON user_devices.user_id = users.id
+      WHERE
+        users.email=$1 AND
+        user_devices.device_unique_id = $2 AND
+        users.group_id=$3`,
       [userEmail, deviceId, groupId],
     );
 
@@ -55,12 +67,36 @@ export const getData = async (req: any, res: any): Promise<void> => {
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
       return res.status(401).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
-    // Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      dbRes.rows[0].access_code_hash,
-    );
-    if (!isAccessGranted) return res.status(401).end();
+    // Check Session OR access code
+    if (
+      !!dbRes.rows[0].access_code_hash &&
+      !dbRes.rows[0].has_device_public_key &&
+      !!deviceAccessCode
+    ) {
+      // DEPRECATED SYSTEM: Check access code
+      const isAccessGranted = await accessCodeHash.asyncIsOk(
+        deviceAccessCode,
+        dbRes.rows[0].access_code_hash,
+      );
+      if (!isAccessGranted) res.status(401).end();
+    } else if (
+      !dbRes.rows[0].access_code_hash &&
+      dbRes.rows[0].has_device_public_key &&
+      !!req.session
+    ) {
+      // NEW SYSTEM: check session
+      // make sure this session matches the request (the session might be linked to another space on the same device)
+      if (
+        req.session.userEmail != req.body?.userEmail ||
+        req.session.deviceUniqueId != req.body?.deviceId ||
+        req.session.groupId != groupId
+      ) {
+        await req.session.destroy();
+        return res.status(401).end();
+      }
+    } else {
+      return res.status(401).end();
+    }
 
     const sharedItems = await getSharedItems(dbRes.rows[0].user_id, groupId);
 

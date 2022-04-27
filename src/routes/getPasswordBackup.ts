@@ -2,6 +2,7 @@ import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
+import { checkDeviceChallenge, createDeviceChallenge } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup = async (req: any, res: any) => {
@@ -14,24 +15,29 @@ export const getPasswordBackup = async (req: any, res: any) => {
     userEmail = userEmail.toLowerCase();
 
     const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
+    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
+    const deviceChallengeResponse = req.body?.deviceChallengeResponse;
     const resetToken = req.body?.resetToken;
 
     // Check params
+    if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode) return res.status(401).end();
     if (!resetToken) return res.status(401).end();
 
     // Request DB
     const dbRes = await db.query(
       `SELECT
+        user_devices.id AS id,
         users.id AS userid,
         user_devices.access_code_hash AS access_code_hash,
         user_devices.encrypted_password_backup AS encrypted_password_backup,
         password_reset_request.id AS reset_request_id,
         password_reset_request.status AS reset_status,
         password_reset_request.reset_token AS reset_token,
-        password_reset_request.reset_token_expiration_date AS reset_token_expiration_date
+        password_reset_request.reset_token_expiration_date AS reset_token_expiration_date,
+        user_devices.device_public_key > 0 AS device_public_key,
+        user_devices.session_auth_challenge AS session_auth_challenge,
+        user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices
         INNER JOIN users ON user_devices.user_id = users.id
         LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
@@ -47,12 +53,37 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const resetRequest = dbRes.rows[0];
 
-    // Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      resetRequest.access_code_hash,
-    );
-    if (!isAccessGranted) return res.status(401).end();
+    if (!deviceAccessCode && !deviceChallengeResponse) {
+      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+      return res.status(403).json({ deviceChallenge });
+    } else if (!!deviceChallengeResponse) {
+      if (
+        dbRes.rows[0].session_auth_challenge_exp_time &&
+        dbRes.rows[0].session_auth_challenge_exp_time.getTime() < Date.now()
+      ) {
+        return res.status(403).json({ error: 'expired' });
+      }
+      const hasPassedDeviceChallenge = checkDeviceChallenge(
+        dbRes.rows[0].session_auth_challenge,
+        deviceChallengeResponse,
+        dbRes.rows[0].device_public_key,
+      );
+      if (!hasPassedDeviceChallenge) {
+        return res.status(401).end();
+      } else {
+        await db.query(
+          'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
+          [dbRes.rows[0].id],
+        );
+      }
+    } else if (!!deviceAccessCode) {
+      // Check access code
+      const isAccessGranted = await accessCodeHash.asyncIsOk(
+        deviceAccessCode,
+        dbRes.rows[0].access_code_hash,
+      );
+      if (!isAccessGranted) return res.status(401).end();
+    }
 
     if (!resetRequest.reset_request_id) {
       return res.status(401).json({ error: 'no_request' });
