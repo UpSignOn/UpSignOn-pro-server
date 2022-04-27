@@ -3,6 +3,9 @@ import path from 'path';
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 import express from 'express';
+import expressSession from 'express-session';
+import SessionStore from './helpers/sessionStore';
+
 import { startServer } from './helpers/serverProcess';
 import { requestAccess } from './routes/requestAccess';
 import { checkDevice } from './routes/checkDevice';
@@ -47,11 +50,41 @@ import { getContactsForSharedItemV2 } from './routes/getContactsForSharedItemV2'
 import { makeMyselfSoleManagerOfSharedFolder } from './routes/makeMyselfSoleManagerOfSharedFolder';
 import { updateSharedFolderIdForSharedItem } from './routes/updateSharedFolderIdForSharedItem';
 import { unshareItemsThatWereMovedFromSharedFolder } from './routes/unsharedItemsThatWereMovedFromSharedFolder';
+import { migrateToCryptographicAuthentication } from './routes/migrateToCryptographicAuthentication';
+import { getAuthenticationChallenges } from './routes/getAuthenticationChallenges';
+import { authenticate } from './routes/authenticate';
 
 const app = express();
+
+// Set express trust-proxy so that secure sessions cookies can work
+app.set('trust proxy', 1);
+
 app.disable('x-powered-by');
 app.use(express.json({ limit: '3Mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// SESSIONS
+const cookiePath = '/' + env.API_PUBLIC_HOSTNAME.replace(/^[^\/]*\//, '');
+app.use(
+  expressSession({
+    cookie: {
+      path: cookiePath,
+      httpOnly: true,
+      secure: env.IS_PRODUCTION,
+      maxAge: 3600000, // one hour
+      sameSite: env.IS_PRODUCTION ? 'strict' : 'lax',
+    },
+    name: 'upsignon_device_session',
+    // @ts-ignore
+    secret: env.SESSION_SECRET,
+    resave: false,
+    rolling: true,
+    saveUninitialized: false,
+    unset: 'destroy',
+    store: new SessionStore(),
+  }),
+);
+
 app.use((req, res, next) => {
   logInfo(req.url);
   if (!env.IS_PRODUCTION) {
@@ -69,6 +102,15 @@ app.get('/test-email', testEmail);
 // GROUP ROUTING with or without groupid (default groupid is 1)
 app.all(['/:groupId/config', '/config'], getConfig);
 app.post(['/:groupId/url-list', '/url-list'], getUrlList);
+app.post(
+  ['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'],
+  migrateToCryptographicAuthentication,
+);
+app.post(
+  ['/:groupId/get-authentication-challenges', '/get-authentication-challenges'],
+  getAuthenticationChallenges,
+);
+app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
 app.post(['/:groupId/request-access', '/request-access'], requestAccess);
 app.post(['/:groupId/check-device', '/check-device'], checkDevice);
 app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);

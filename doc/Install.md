@@ -301,6 +301,9 @@ upsignonpro@localhost:~/upsignon-pro-server$ yarn install
 upsignonpro@localhost:~/upsignon-pro-server$ yarn build
 
 upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-template .env
+
+upsignonpro@localhost:~/upsignon-pro-server$ openssl rand -hex 30 # ceci génère une chaîne de caractères aléatoires qui peut être copiée dans la variable SESSION_SECRET du fichier .env
+
 ```
 
 Éditez ensuite le fichier `.env` pour y définir toutes vos variables d'environnement.

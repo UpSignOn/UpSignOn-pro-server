@@ -16,6 +16,9 @@ EMAIL_PASS=
 #  - with path if needed
 API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 
+# SESSION SECRET (can be generated with the command: 'openssl rand -hex 30')
+SESSION_SECRET=
+
 # PROXY CONFIGURATION
 HTTP_PROXY=
 
