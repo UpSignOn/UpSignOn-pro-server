@@ -28,6 +28,9 @@ async function exportDb() {
       'SELECT * FROM shared_account_users WHERE group_id=$1',
       [groupId],
     );
+    const shared_folders = await db.query('SELECT * FROM shared_folders WHERE group_id=$1', [
+      groupId,
+    ]);
     const url_list = await db.query('SELECT * FROM url_list WHERE group_id=$1', [groupId]);
     fs.writeFileSync(
       filePath,
@@ -35,6 +38,7 @@ async function exportDb() {
         users: users.rows,
         sharedAccounts: shared_accounts.rows,
         sharedAccountUsers: shared_account_users.rows,
+        sharedFolders: shared_folders.rows,
         urlList: url_list.rows,
       }),
     );

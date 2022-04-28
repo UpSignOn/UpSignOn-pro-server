@@ -41,11 +41,39 @@ async function importFunction() {
     });
   }
 
+  for (var i = 0; i < data.sharedFolders.length; i++) {
+    const sf = data.sharedFolders[i];
+    const insertedSharedFolder = await db.query(
+      'INSERT INTO shared_folders (name, group_id) VALUES ($1,$2) RETURNING id',
+      [sf.name, groupId],
+    );
+    const newId = insertedSharedFolder.rows[0].id;
+    data.sharedAccounts = data.sharedAccounts.map((sa) => {
+      if (sa.shared_folder_id === sf.id) {
+        return {
+          ...sa,
+          newSharedFolderId: newId,
+        };
+      } else {
+        return sa;
+      }
+    });
+  }
+
   for (var i = 0; i < data.sharedAccounts.length; i++) {
     const sa = data.sharedAccounts[i];
     const insertedAcc = await db.query(
-      'INSERT INTO shared_accounts (url, name, login, type, created_at, aes_encrypted_data, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id',
-      [sa.url, sa.name, sa.login, sa.type, sa.created_at, sa.aes_encrypted_data, groupId],
+      'INSERT INTO shared_accounts (url, name, login, type, created_at, aes_encrypted_data, shared_folder_id, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+      [
+        sa.url,
+        sa.name,
+        sa.login,
+        sa.type,
+        sa.created_at,
+        sa.aes_encrypted_data,
+        sa.newSharedFolderId,
+        groupId,
+      ],
     );
     const newId = insertedAcc.rows[0].id;
     data.sharedAccountUsers = data.sharedAccountUsers.map((sau) => {

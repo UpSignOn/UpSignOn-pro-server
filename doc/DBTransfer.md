@@ -16,15 +16,27 @@ psql -d dbname < dump.sql
 
 You can transfer data for one group only.
 
-> Warning 2: all users will have to re-authorize their devices. They will loose ability to use the password reset procedure until they've re-authorized at least one device, which means they will need their password. We recommend you send them a notice about this before continuing and that you do not remove the data from the current database before everyone has migrated.
-
-> Warning: this procedure will break the folder parent of shared items. We recommend all users place all their shared items into the default folder before the change.
+> Warning: all users will have to re-authorize their devices. They will loose ability to use the password reset procedure until they've re-authorized at least one device, which means they will need their password. We recommend you send them a notice about this before continuing and that you do not remove the data from the current database before everyone has migrated.
 
 - First, export these data to a file:
 
   ```
   node ./scripts/groupDataExport.js <groupIdToExport> <path/to/exported/data/file.json>
   ```
+
+- You may want to encrypt the file if you need to send it over the internet. For instance you could use a zip format with a password
+
+```
+zip -e <path/to/exported/data/file.json> <path/to/exported/data/encrypted-archive.zip>
+```
+
+then use
+
+```
+unzip <path/to/exported/data/encrypted-archive.zip>
+```
+
+to uncrypt it.
 
 - Transfer the file to the server of the new database.
   Then import this file to another database / another group:
@@ -38,3 +50,7 @@ You can transfer data for one group only.
   ```
   rm <path/to/exported/data/file.json>
   ```
+
+```
+
+```
