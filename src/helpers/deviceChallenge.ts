@@ -44,7 +44,8 @@ export const checkDeviceRequestAuthorization = async (
     return false;
   } else if (!!deviceChallengeResponse) {
     if (sessionAuthChallengeExpTime && sessionAuthChallengeExpTime.getTime() < Date.now()) {
-      res.status(403).json({ error: 'expired' });
+      const deviceChallenge = await createDeviceChallenge(deviceId);
+      res.status(403).json({ deviceChallenge });
       return false;
     }
     if (!sessionAuthChallenge) {

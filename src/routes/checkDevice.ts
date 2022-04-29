@@ -58,7 +58,7 @@ export const checkDevice = async (req: any, res: any) => {
       dbRes.rows[0].device_public_key,
       res,
     );
-    if (!isDeviceAuthorized) return;
+    if (!isDeviceAuthorized) return; // request has been answered by checkDeviceRequestAuthorization
 
     if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {
       return res.status(401).send({ expired: true });
