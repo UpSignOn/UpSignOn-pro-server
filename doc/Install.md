@@ -193,7 +193,7 @@ server {
   add_header X-Content-Type-Options "nosniff";
   add_header X-Permitted-Cross-Domain-Policies "none";
 
-  add_header Strict-Transport-Security 'max-age=300; includeSubDomains; preload; always;';
+  add_header Strict-Transport-Security 'max-age=15552000; includeSubDomains; preload; always;';
 
   ssl_certificate /etc/nginx/ssl/upsignonpro.cer;
   ssl_certificate_key /etc/nginx/ssl/upsignonpro.key;
