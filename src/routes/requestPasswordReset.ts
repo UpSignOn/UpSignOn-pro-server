@@ -52,9 +52,8 @@ export const requestPasswordReset = async (req: any, res: any) => {
       authDbRes.rows[0].session_auth_challenge_exp_time,
       authDbRes.rows[0].session_auth_challenge,
       authDbRes.rows[0].device_public_key,
-      res,
     );
-    if (!isDeviceAuthorized) return;
+    if (!isDeviceAuthorized) return res.status(401).end();
 
     // Request DB
     const dbRes = await db.query(

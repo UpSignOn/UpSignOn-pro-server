@@ -36,20 +36,16 @@ export const checkDeviceRequestAuthorization = async (
   sessionAuthChallengeExpTime: null | Date,
   sessionAuthChallenge: null | string,
   devicePublicKey: string,
-  res: any,
 ): Promise<boolean> => {
   if (!deviceAccessCode && !deviceChallengeResponse) {
-    const deviceChallenge = await createDeviceChallenge(deviceId);
-    res.status(403).json({ deviceChallenge });
     return false;
-  } else if (!!deviceChallengeResponse) {
+  }
+
+  if (!!deviceChallengeResponse) {
     if (sessionAuthChallengeExpTime && sessionAuthChallengeExpTime.getTime() < Date.now()) {
-      const deviceChallenge = await createDeviceChallenge(deviceId);
-      res.status(403).json({ deviceChallenge });
       return false;
     }
     if (!sessionAuthChallenge) {
-      res.status(401).end();
       return false;
     }
     const hasPassedDeviceChallenge = checkDeviceChallenge(
@@ -58,18 +54,19 @@ export const checkDeviceRequestAuthorization = async (
       devicePublicKey,
     );
     if (!hasPassedDeviceChallenge) {
-      res.status(401).end();
       return false;
-    } else {
-      // if device is authenticated, cleanup db
-      await db.query(
-        'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
-        [deviceId],
-      );
     }
-  } else if (!!deviceAccessCode) {
+
+    // if device is authenticated, cleanup db
+    await db.query(
+      'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
+      [deviceId],
+    );
+    return true;
+  }
+
+  if (!!deviceAccessCode) {
     if (!expectedAccessCodeHash) {
-      res.status(401).end();
       return false;
     }
     // Check access code
@@ -77,10 +74,8 @@ export const checkDeviceRequestAuthorization = async (
       deviceAccessCode,
       expectedAccessCodeHash,
     );
-    if (!isAccessGranted) {
-      res.status(401).end();
-      return false;
-    }
+    return isAccessGranted;
   }
-  return true;
+
+  return false;
 };

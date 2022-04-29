@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { db } from '../helpers/db';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
@@ -28,6 +29,7 @@ export const checkDevice = async (req: any, res: any) => {
       'SELECT ' +
         'ud.id AS id, ' +
         'users.id AS user_id, ' +
+        'ud.authorization_code AS authorization_code, ' +
         'ud.access_code_hash AS access_code_hash, ' +
         'ud.auth_code_expiration_date AS auth_code_expiration_date, ' +
         'ud.device_public_key > 0 AS device_public_key, ' +
@@ -39,13 +41,12 @@ export const checkDevice = async (req: any, res: any) => {
         'users.email=$1 ' +
         'AND ud.device_unique_id = $2 ' +
         "AND ud.authorization_status = 'PENDING' " +
-        'AND ud.authorization_code=$3 ' +
         'AND users.group_id=$4',
-      [userEmail, deviceId, deviceValidationCode, groupId],
+      [userEmail, deviceId, groupId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
-      return res.status(401).end();
+      return res.status(401).json({ revoked: true });
     }
 
     const isDeviceAuthorized = await checkDeviceRequestAuthorization(
@@ -56,12 +57,14 @@ export const checkDevice = async (req: any, res: any) => {
       dbRes.rows[0].session_auth_challenge_exp_time,
       dbRes.rows[0].session_auth_challenge,
       dbRes.rows[0].device_public_key,
-      res,
     );
-    if (!isDeviceAuthorized) return; // request has been answered by checkDeviceRequestAuthorization
+    if (!isDeviceAuthorized) return res.status(401).end();
 
+    if (!crypto.timingSafeEqual(deviceValidationCode, dbRes.rows[0].authorization_code)) {
+      return res.status(401).json({ bad_code: true });
+    }
     if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {
-      return res.status(401).send({ expired: true });
+      return res.status(401).json({ expired: true });
     }
 
     await db.query(

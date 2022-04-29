@@ -60,9 +60,8 @@ export const getPasswordBackup = async (req: any, res: any) => {
       dbRes.rows[0].session_auth_challenge_exp_time,
       dbRes.rows[0].session_auth_challenge,
       dbRes.rows[0].device_public_key,
-      res,
     );
-    if (!isDeviceAuthorized) return;
+    if (!isDeviceAuthorized) return res.status(401).end();
 
     if (!resetRequest.reset_request_id) {
       return res.status(401).json({ error: 'no_request' });
