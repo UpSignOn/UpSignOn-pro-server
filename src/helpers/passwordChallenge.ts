@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import crypto from 'crypto';
 import { db } from './db';
 
-export const getPasswordChallenge = (
+export const createPasswordChallenge = (
   encryptedDataString: string,
 ): { pwdChallengeBase64: string; keySaltBase64: string } => {
   let data = encryptedDataString;

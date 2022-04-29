@@ -1,6 +1,6 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
-import { checkDeviceRequestAuthorization } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -56,6 +56,10 @@ export const removeAuthorization = async (req: any, res: any) => {
         req.session.deviceUniqueId != req.body?.deviceId ||
         req.session.groupId != groupId
       ) {
+        if (!deviceChallengeResponse) {
+          const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+          return res.status(403).json({ deviceChallenge });
+        }
         const isDeviceAuthorized = await checkDeviceRequestAuthorization(
           deviceAccessCode,
           dbRes.rows[0].access_code_hash,

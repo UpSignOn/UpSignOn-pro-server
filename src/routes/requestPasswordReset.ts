@@ -3,7 +3,7 @@ import { db } from '../helpers/db';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../helpers/logger';
-import { checkDeviceRequestAuthorization } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
@@ -44,6 +44,10 @@ export const requestPasswordReset = async (req: any, res: any) => {
     );
 
     if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
+    if (!deviceChallengeResponse) {
+      const deviceChallenge = await createDeviceChallenge(authDbRes.rows[0].id);
+      return res.status(403).json({ deviceChallenge });
+    }
     const isDeviceAuthorized = await checkDeviceRequestAuthorization(
       deviceAccessCode,
       authDbRes.rows[0].access_code_hash,

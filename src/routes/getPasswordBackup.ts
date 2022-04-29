@@ -1,7 +1,7 @@
 import { db } from '../helpers/db';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
-import { checkDeviceRequestAuthorization } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup = async (req: any, res: any) => {
@@ -52,6 +52,10 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const resetRequest = dbRes.rows[0];
 
+    if (!deviceChallengeResponse) {
+      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+      return res.status(403).json({ deviceChallenge });
+    }
     const isDeviceAuthorized = await checkDeviceRequestAuthorization(
       deviceAccessCode,
       dbRes.rows[0].access_code_hash,
