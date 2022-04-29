@@ -21,19 +21,19 @@ You can transfer data for one group only.
 - First, export these data to a file:
 
   ```
-  node ./scripts/groupDataExport.js <groupIdToExport> <path/to/exported/data/file.json>
+  node ./scripts/groupDataExport.js <groupIdToExport> <path_to_exported_data_file.json>
   ```
 
 - You may want to encrypt the file if you need to send it over the internet. For instance you could use a zip format with a password
 
 ```
-zip -e <path/to/exported/data/file.json> <path/to/exported/data/encrypted-archive.zip>
+zip -e <path_to_exported_data_encrypted_archive.zip> <path_to_exported_data_file.json>
 ```
 
 then use
 
 ```
-unzip <path/to/exported/data/encrypted-archive.zip>
+unzip <path_to_exported_data_encrypted-archive.zip>
 ```
 
 to uncrypt it.
@@ -42,15 +42,11 @@ to uncrypt it.
   Then import this file to another database / another group:
 
   ```
-  node ./scripts/groupDataImport.js <groupIdToImportTo> <path/to/exported/data/file.json>
+  node ./scripts/groupDataImport.js <groupIdToImportTo> <path_to_exported_data_file.json>
   ```
 
 - Don't forget to delete the data file after you're done.
 
   ```
-  rm <path/to/exported/data/file.json>
+  rm <path_to_exported_data_file.json>
   ```
-
-```
-
-```
