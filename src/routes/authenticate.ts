@@ -85,7 +85,7 @@ export const authenticate = async (req: any, res: any) => {
     );
 
     // 5 - check Device challenge
-    const hasPassedDeviceChallenge = checkDeviceChallenge(
+    const hasPassedDeviceChallenge = await checkDeviceChallenge(
       session_auth_challenge,
       deviceChallengeResponse,
       device_public_key,

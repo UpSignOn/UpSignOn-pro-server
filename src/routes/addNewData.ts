@@ -65,7 +65,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     }
 
     // 3 - check Device challenge
-    const hasPassedDeviceChallenge = checkDeviceChallenge(
+    const hasPassedDeviceChallenge = await checkDeviceChallenge(
       selectRes.rows[0].session_auth_challenge,
       deviceChallengeResponse,
       selectRes.rows[0].device_public_key,

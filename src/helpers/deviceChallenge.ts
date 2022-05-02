@@ -65,7 +65,7 @@ export const checkDeviceRequestAuthorization = async (
     if (!sessionAuthChallenge) {
       return false;
     }
-    const hasPassedDeviceChallenge = checkDeviceChallenge(
+    const hasPassedDeviceChallenge = await checkDeviceChallenge(
       sessionAuthChallenge,
       deviceChallengeResponse,
       devicePublicKey,
