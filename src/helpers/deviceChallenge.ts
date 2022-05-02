@@ -20,7 +20,7 @@ export const checkDeviceChallenge = (
   const deviceChallenge = Buffer.from(challenge, 'base64');
   const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
   const hasPassedDeviceChallenge = crypto.verify(
-    'RSA_PKCS1_PADDING',
+    'RSA_PKCS1_PSS_PADDING',
     deviceChallenge,
     publicKey,
     deviceChallengeResponseBytes,
