@@ -59,6 +59,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     // 2 - check that the session auth challenge has not expired
     if (
       !selectRes.rows[0].session_auth_challenge_exp_time ||
+      !selectRes.rows[0].session_auth_challenge ||
       selectRes.rows[0].session_auth_challenge_exp_time.getTime() < Date.now()
     ) {
       return res.status(403).json({ error: 'expired' });
