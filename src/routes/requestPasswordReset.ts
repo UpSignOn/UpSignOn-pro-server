@@ -29,7 +29,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
         users.id AS uid,
         user_devices.id AS did,
         user_devices.access_code_hash AS access_code_hash,
-        user_devices.device_public_key > 0 AS device_public_key,
+        user_devices.device_public_key AS device_public_key,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices

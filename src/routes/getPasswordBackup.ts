@@ -34,7 +34,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
         password_reset_request.status AS reset_status,
         password_reset_request.reset_token AS reset_token,
         password_reset_request.reset_token_expiration_date AS reset_token_expiration_date,
-        user_devices.device_public_key > 0 AS device_public_key,
+        user_devices.device_public_key AS device_public_key,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices
