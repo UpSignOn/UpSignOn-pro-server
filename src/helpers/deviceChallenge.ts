@@ -11,18 +11,35 @@ export const createDeviceChallenge = async (deviceId: string): Promise<string> =
   return deviceChallenge;
 };
 
-export const checkDeviceChallenge = (
+export const checkDeviceChallenge = async (
   challenge: string,
   challengeResponse: string,
   devicePublicKey: string,
-): boolean => {
+): Promise<boolean> => {
   const publicKey = Buffer.from(devicePublicKey, 'base64');
   const deviceChallenge = Buffer.from(challenge, 'base64');
   const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
-  const hasPassedDeviceChallenge = crypto.verify(
-    'RSA_PKCS1_PSS_PADDING',
-    deviceChallenge,
+
+  // @ts-ignore
+  const key = await crypto.webcrypto.subtle.importKey(
+    'spki',
     publicKey,
+    {
+      hash: 'SHA-256',
+      name: 'RSA-PSS',
+      modulusLength: 4096,
+    },
+    false,
+    ['verify'],
+  );
+  const hasPassedDeviceChallenge = crypto.verify(
+    'RSA-SHA256',
+    deviceChallenge,
+    {
+      key,
+      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+      saltLength: crypto.constants.RSA_PSS_SALTLEN_AUTO,
+    },
     deviceChallengeResponseBytes,
   );
   return hasPassedDeviceChallenge;
