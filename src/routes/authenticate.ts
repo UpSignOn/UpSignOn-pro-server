@@ -100,6 +100,7 @@ export const authenticate = async (req: any, res: any) => {
         'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null, password_challenge_error_count=0, password_challenge_blocked_until=null WHERE id=$1',
         [did],
       );
+
       req.session = {
         groupId,
         deviceId: did,

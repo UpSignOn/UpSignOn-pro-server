@@ -65,6 +65,10 @@ app.use(express.json({ limit: '3Mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // SESSIONS
+if (!env.SESSION_SECRET) {
+  console.error('Missing SESSION_SECRET in .env file.');
+  process.exit(1);
+}
 const cookiePath = '/' + env.API_PUBLIC_HOSTNAME.replace(/^[^\/]*\//, '');
 app.use(
   expressSession({
@@ -79,7 +83,7 @@ app.use(
     // @ts-ignore
     secret: env.SESSION_SECRET,
     resave: false,
-    rolling: true,
+    rolling: false,
     saveUninitialized: false,
     unset: 'destroy',
     store: new SessionStore(),
