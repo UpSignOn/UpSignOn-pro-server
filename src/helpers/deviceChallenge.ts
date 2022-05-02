@@ -4,10 +4,13 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 
 export const createDeviceChallenge = async (deviceId: string): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');
-  await db.query(
-    "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time= current_timestamp(0)+interval '3 minutes' WHERE id=$2",
+  const updateRes = await db.query(
+    "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time=current_timestamp(0)+interval '3 minutes' WHERE id=$2",
     [deviceChallenge, deviceId],
   );
+  if (updateRes.rowCount !== 1) {
+    throw new Error('Create device challenge db update error.');
+  }
   return deviceChallenge;
 };
 
@@ -59,10 +62,10 @@ export const checkDeviceRequestAuthorization = async (
   }
 
   if (!!deviceChallengeResponse) {
-    if (sessionAuthChallengeExpTime && sessionAuthChallengeExpTime.getTime() < Date.now()) {
+    if (!sessionAuthChallenge) {
       return false;
     }
-    if (!sessionAuthChallenge) {
+    if (!sessionAuthChallengeExpTime || sessionAuthChallengeExpTime.getTime() < Date.now()) {
       return false;
     }
     const hasPassedDeviceChallenge = await checkDeviceChallenge(
