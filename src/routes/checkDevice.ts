@@ -32,7 +32,7 @@ export const checkDevice = async (req: any, res: any) => {
         'ud.authorization_code AS authorization_code, ' +
         'ud.access_code_hash AS access_code_hash, ' +
         'ud.auth_code_expiration_date AS auth_code_expiration_date, ' +
-        'ud.device_public_key > 0 AS device_public_key, ' +
+        'ud.device_public_key AS device_public_key, ' +
         'ud.session_auth_challenge AS session_auth_challenge, ' +
         'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
         'FROM user_devices AS ud ' +
