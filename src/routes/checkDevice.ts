@@ -67,7 +67,11 @@ export const checkDevice = async (req: any, res: any) => {
 
     const deviceValidationCodeBuffer = Buffer.from(deviceValidationCode, 'utf-8');
     const expectedAuthCodeBuffer = Buffer.from(dbRes.rows[0].authorization_code, 'utf-8');
-    if (!crypto.timingSafeEqual(deviceValidationCodeBuffer, expectedAuthCodeBuffer)) {
+    let codeMatch = false;
+    try {
+      codeMatch = crypto.timingSafeEqual(deviceValidationCodeBuffer, expectedAuthCodeBuffer);
+    } catch (e) {}
+    if (!codeMatch) {
       return res.status(401).json({ bad_code: true });
     }
     if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {

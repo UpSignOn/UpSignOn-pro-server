@@ -37,14 +37,18 @@ export const checkPasswordChallenge = async (
   data = data.replace('formatP001-', '');
   const dataBuffer = Buffer.from(data, 'base64'); // dataBuffer = [challenge(16 bytes) | challengeHash(32 bytes) | cipherSignature(32 bytes) | derivationKeySalt(64 bytes) | iv(16 bytes) | cipher(?)]
 
-  const expectedPwdChallengeResult = Buffer.alloc(16);
+  const expectedPwdChallengeResult = Buffer.alloc(32);
   dataBuffer.copy(expectedPwdChallengeResult, 0, 16, 48);
   const passwordChallengeResponseBuffer = Buffer.from(passwordChallengeResponse, 'base64');
 
-  const hasPassedPasswordChallenge = crypto.timingSafeEqual(
-    expectedPwdChallengeResult,
-    passwordChallengeResponseBuffer,
-  );
+  let hasPassedPasswordChallenge = false;
+
+  try {
+    hasPassedPasswordChallenge = crypto.timingSafeEqual(
+      expectedPwdChallengeResult,
+      passwordChallengeResponseBuffer,
+    );
+  } catch (e) {}
 
   // Add a time constraint to the number of failed attempts per device
   if (!hasPassedPasswordChallenge) {
