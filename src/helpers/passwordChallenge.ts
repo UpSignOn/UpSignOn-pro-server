@@ -17,7 +17,7 @@ export const createPasswordChallenge = (
   const pwdChallengeBase64 = pwdChallenge.toString('base64');
 
   const keySalt = Buffer.alloc(64);
-  dataBuffer.copy(pwdChallenge, 0, 80, 144);
+  dataBuffer.copy(keySalt, 0, 80, 144);
   const keySaltBase64 = keySalt.toString('base64');
 
   return { pwdChallengeBase64, keySaltBase64 };
