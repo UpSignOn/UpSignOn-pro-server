@@ -29,6 +29,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       `SELECT
         char_length(u.encrypted_data) > 0 AS has_existing_data,
         u.id AS uid,
+        ud.id AS did,
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         ud.device_public_key > 0 AS device_public_key,
         ud.session_auth_challenge AS session_auth_challenge,
@@ -83,6 +84,12 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       // CONFLICT
       return res.status(409).end();
     }
+
+    // Set Session
+    req.session.groupId = groupId;
+    req.session.deviceId = selectRes.rows[0].did;
+    req.session.deviceUniqueId = deviceUId;
+    req.session.userEmail = userEmail;
 
     return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
   } catch (e) {
