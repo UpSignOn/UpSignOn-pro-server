@@ -53,6 +53,7 @@ import { unshareItemsThatWereMovedFromSharedFolder } from './routes/unsharedItem
 import { migrateToCryptographicAuthentication } from './routes/migrateToCryptographicAuthentication';
 import { getAuthenticationChallenges } from './routes/getAuthenticationChallenges';
 import { authenticate } from './routes/authenticate';
+import { addNewData } from './routes/addNewData';
 
 const app = express();
 
@@ -118,6 +119,7 @@ app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuth
 app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
 app.post(['/:groupId/get-data', '/get-data'], getData);
 app.post(['/:groupId/update-data', '/update-data'], updateData);
+app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
 app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
 app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
 app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);

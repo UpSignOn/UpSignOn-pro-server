@@ -69,11 +69,10 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       });
     } else {
       if (!dbRes.rows[0].encrypted_data) {
-        return res.status(404).json({ error: 'empty_data' });
+        return res.status(404).json({ error: 'empty_data', deviceChallenge });
       }
 
       const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);
-      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
 
       return res.status(200).json({
         passwordChallenge: passwordChallenge.pwdChallengeBase64,

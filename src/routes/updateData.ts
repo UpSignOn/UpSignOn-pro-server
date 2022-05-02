@@ -8,8 +8,8 @@ export const updateData = async (req: any, res: any): Promise<void> => {
   try {
     const newEncryptedData = req.body?.newEncryptedData;
     const lastUpdateDate = req.body?.lastUpdateDate;
-    const isNewData = req.body?.isNewData;
-    const sharingPublicKey = req.body?.sharingPublicKey;
+    const isNewData = req.body?.isNewData; // DEPRECATED => this route is no longer used to add an empty space
+    const sharingPublicKey = req.body?.sharingPublicKey; // DEPRECATED => this route is no longer used to add an empty space
     const returningSharedItems = req.body?.returningSharedItems;
 
     // Check params

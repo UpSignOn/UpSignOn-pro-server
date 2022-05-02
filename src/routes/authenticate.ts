@@ -71,6 +71,7 @@ export const authenticate = async (req: any, res: any) => {
     }
     // 3 - check that the session auth challenge has not expired
     if (session_auth_challenge_exp_time && session_auth_challenge_exp_time.getTime() < Date.now()) {
+      // TODO change this to !() || () after removing the deprecated mechanism
       return res.status(403).json({ error: 'expired' });
     }
 
