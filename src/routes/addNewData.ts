@@ -48,7 +48,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     if (
       !selectRes ||
       selectRes.rowCount === 0 ||
-      !selectRes.rows[0].has_existing_data ||
+      selectRes.rows[0].has_existing_data ||
       selectRes.rows[0].has_access_code_hash ||
       !selectRes.rows[0].device_public_key ||
       !selectRes.rows[0].session_auth_challenge
