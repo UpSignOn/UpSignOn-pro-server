@@ -87,12 +87,10 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     }
 
     // Set Session
-    req.session = {
-      groupId,
-      deviceId: selectRes.rows[0].did,
-      deviceUniqueId: deviceUId,
-      userEmail,
-    };
+    req.session.groupId = groupId;
+    req.session.deviceId = selectRes.rows[0].did;
+    req.session.deviceUniqueId = deviceUId;
+    req.session.userEmail = userEmail;
 
     return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
   } catch (e) {

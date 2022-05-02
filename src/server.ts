@@ -69,11 +69,10 @@ if (!env.SESSION_SECRET) {
   console.error('Missing SESSION_SECRET in .env file.');
   process.exit(1);
 }
-const cookiePath = '/' + env.API_PUBLIC_HOSTNAME.replace(/^[^\/]*\//, '');
 app.use(
   expressSession({
     cookie: {
-      path: cookiePath,
+      path: '/',
       httpOnly: true,
       secure: env.IS_PRODUCTION,
       maxAge: 3600000, // one hour
