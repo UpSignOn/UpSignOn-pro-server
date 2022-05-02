@@ -32,7 +32,7 @@ export const removeAuthorization = async (req: any, res: any) => {
           'ud.id AS id, ' +
           'users.id AS uid, ' +
           'ud.access_code_hash AS access_code_hash, ' +
-          'ud.device_public_key > 0 AS device_public_key, ' +
+          'ud.device_public_key AS device_public_key, ' +
           'ud.session_auth_challenge AS session_auth_challenge, ' +
           'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
           'FROM user_devices AS ud ' +
