@@ -49,7 +49,7 @@ export const checkDevice = async (req: any, res: any) => {
       return res.status(401).json({ revoked: true });
     }
 
-    if (!deviceChallengeResponse) {
+    if (!deviceAccessCode && !deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }

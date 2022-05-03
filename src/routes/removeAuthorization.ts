@@ -56,7 +56,7 @@ export const removeAuthorization = async (req: any, res: any) => {
         req.session.deviceUniqueId != req.body?.deviceId ||
         req.session.groupId != groupId
       ) {
-        if (!deviceChallengeResponse) {
+        if (!deviceAccessCode && !deviceChallengeResponse) {
           const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
           return res.status(403).json({ deviceChallenge });
         }

@@ -52,7 +52,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const resetRequest = dbRes.rows[0];
 
-    if (!deviceChallengeResponse) {
+    if (!deviceAccessCode && !deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }

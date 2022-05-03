@@ -44,7 +44,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
     );
 
     if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
-    if (!deviceChallengeResponse) {
+    if (!deviceAccessCode && !deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallenge(authDbRes.rows[0].did);
       return res.status(403).json({ deviceChallenge });
     }
