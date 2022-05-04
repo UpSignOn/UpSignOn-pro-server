@@ -30,12 +30,11 @@ export const checkDeviceChallenge = async (
     {
       hash: 'SHA-256',
       name: 'RSA-PSS',
-      modulusLength: 4096,
     },
     false,
     ['verify'],
   );
-  const hasPassedDeviceChallenge = crypto.verify(
+  let hasPassedDeviceChallenge = crypto.verify(
     'RSA-SHA256',
     deviceChallenge,
     {
@@ -45,6 +44,30 @@ export const checkDeviceChallenge = async (
     },
     deviceChallengeResponseBytes,
   );
+
+  if (!hasPassedDeviceChallenge) {
+    // try ios 10 fallback with pkcs1.5 SHA256
+    // @ts-ignore
+    const fallbackKey = await crypto.webcrypto.subtle.importKey(
+      'spki',
+      publicKey,
+      {
+        hash: 'SHA-256',
+        name: 'RSASSA-PKCS1-v1_5',
+      },
+      false,
+      ['verify'],
+    );
+    hasPassedDeviceChallenge = crypto.verify(
+      'RSA-SHA256',
+      deviceChallenge,
+      {
+        key: fallbackKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+      },
+      deviceChallengeResponseBytes,
+    );
+  }
   return hasPassedDeviceChallenge;
 };
 
