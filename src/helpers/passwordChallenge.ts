@@ -1,24 +1,15 @@
-import { Buffer } from 'buffer';
 import crypto from 'crypto';
 import { db } from './db';
 
 export const createPasswordChallenge = (
   encryptedDataString: string,
 ): { pwdChallengeBase64: string; keySaltBase64: string } => {
-  let data = encryptedDataString;
-  if (!data.startsWith('formatP001-')) {
+  if (!encryptedDataString.startsWith('formatP001-')) {
     throw new Error('Cannot get password challenge from old data format');
   }
-  data = data.replace('formatP001-', '');
-  const dataBuffer = Buffer.from(data, 'base64'); // dataBuffer = [challenge(16 bytes) | challengeHash(32 bytes) | cipherSignature(32 bytes) | derivationKeySalt(64 bytes) | iv(16 bytes) | cipher(?)]
-
-  const pwdChallenge = Buffer.alloc(16);
-  dataBuffer.copy(pwdChallenge, 0, 0, 16);
-  const pwdChallengeBase64 = pwdChallenge.toString('base64');
-
-  const keySalt = Buffer.alloc(64);
-  dataBuffer.copy(keySalt, 0, 80, 144);
-  const keySaltBase64 = keySalt.toString('base64');
+  // data = [challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | derivationKeySaltBase64(88 chars) | ivBase64(24 chars) | cipherBase64(?)]
+  const pwdChallengeBase64 = encryptedDataString.substring(11, 35);
+  const keySaltBase64 = encryptedDataString.substring(123, 211);
 
   return { pwdChallengeBase64, keySaltBase64 };
 };
@@ -30,15 +21,11 @@ export const checkPasswordChallenge = async (
   deviceId: string,
   groupId: number,
 ): Promise<boolean> => {
-  let data = encryptedData;
-  if (!data.startsWith('formatP001-')) {
+  if (!encryptedData.startsWith('formatP001-')) {
     return false;
   }
-  data = data.replace('formatP001-', '');
-  const dataBuffer = Buffer.from(data, 'base64'); // dataBuffer = [challenge(16 bytes) | challengeHash(32 bytes) | cipherSignature(32 bytes) | derivationKeySalt(64 bytes) | iv(16 bytes) | cipher(?)]
-
-  const expectedPwdChallengeResult = Buffer.alloc(32);
-  dataBuffer.copy(expectedPwdChallengeResult, 0, 16, 48);
+  // data = [challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | derivationKeySaltBase64(88 chars) | ivBase64(24 chars) | cipherBase64(?)]
+  const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(35, 79), 'base64');
   const passwordChallengeResponseBuffer = Buffer.from(passwordChallengeResponse, 'base64');
 
   let hasPassedPasswordChallenge = false;
