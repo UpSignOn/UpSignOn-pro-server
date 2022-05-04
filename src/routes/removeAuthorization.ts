@@ -41,7 +41,7 @@ export const removeAuthorization = async (req: any, res: any) => {
           'users.email=$1 ' +
           'AND ud.device_unique_id = $2 ' +
           "AND ud.authorization_status = 'AUTHORIZED' " +
-          'AND users.group_id=$4',
+          'AND users.group_id=$3',
         [userEmail, deviceId, groupId],
       );
 
