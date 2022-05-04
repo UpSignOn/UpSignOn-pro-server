@@ -19,56 +19,61 @@ export const checkDeviceChallenge = async (
   challengeResponse: string,
   devicePublicKey: string,
 ): Promise<boolean> => {
-  const publicKey = Buffer.from(devicePublicKey, 'base64');
-  const deviceChallenge = Buffer.from(challenge, 'base64');
-  const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
+  try {
+    const publicKey = Buffer.from(devicePublicKey, 'base64');
+    const deviceChallenge = Buffer.from(challenge, 'base64');
+    const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
 
-  // @ts-ignore
-  const key = await crypto.webcrypto.subtle.importKey(
-    'spki',
-    publicKey,
-    {
-      hash: 'SHA-256',
-      name: 'RSA-PSS',
-    },
-    false,
-    ['verify'],
-  );
-  let hasPassedDeviceChallenge = crypto.verify(
-    'RSA-SHA256',
-    deviceChallenge,
-    {
-      key,
-      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
-      saltLength: crypto.constants.RSA_PSS_SALTLEN_AUTO,
-    },
-    deviceChallengeResponseBytes,
-  );
-
-  if (!hasPassedDeviceChallenge) {
-    // try ios 10 fallback with pkcs1.5 SHA256
     // @ts-ignore
-    const fallbackKey = await crypto.webcrypto.subtle.importKey(
+    const key = await crypto.webcrypto.subtle.importKey(
       'spki',
       publicKey,
       {
         hash: 'SHA-256',
-        name: 'RSASSA-PKCS1-v1_5',
+        name: 'RSA-PSS',
       },
       false,
       ['verify'],
     );
-    hasPassedDeviceChallenge = crypto.verify(
+    let hasPassedDeviceChallenge = crypto.verify(
       'RSA-SHA256',
       deviceChallenge,
       {
-        key: fallbackKey,
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        key,
+        padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+        saltLength: crypto.constants.RSA_PSS_SALTLEN_AUTO,
       },
       deviceChallengeResponseBytes,
     );
+
+    if (!hasPassedDeviceChallenge) {
+      // try ios 10 fallback with pkcs1.5 SHA256
+      // @ts-ignore
+      const fallbackKey = await crypto.webcrypto.subtle.importKey(
+        'spki',
+        publicKey,
+        {
+          hash: 'SHA-256',
+          name: 'RSASSA-PKCS1-v1_5',
+        },
+        false,
+        ['verify'],
+      );
+
+      hasPassedDeviceChallenge = crypto.verify(
+        'RSA-SHA256',
+        deviceChallenge,
+        {
+          key: fallbackKey,
+          padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        },
+        deviceChallengeResponseBytes,
+      );
+    }
+    return hasPassedDeviceChallenge;
+  } catch (e) {
+    return false;
   }
-  return hasPassedDeviceChallenge;
 };
 
 export const checkDeviceRequestAuthorization = async (
