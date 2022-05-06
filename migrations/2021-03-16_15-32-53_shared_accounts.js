@@ -8,7 +8,7 @@ exports.up = function (db) {
       'name varchar(64),' +
       'login varchar(64),' +
       'type varchar(25),' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0)' +
+      'created_at timestamp with time zone DEFAULT current_timestamp(0)' +
       ')',
   );
 };

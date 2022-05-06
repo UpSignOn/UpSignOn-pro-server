@@ -5,7 +5,7 @@ exports.up = function (db) {
     'CREATE TABLE IF NOT EXISTS data_stats (' +
       'id SERIAL PRIMARY KEY,' +
       'user_id INTEGER,' +
-      'date timestamp without time zone DEFAULT current_timestamp(0),' +
+      'date timestamp with time zone DEFAULT current_timestamp(0),' +
       'nb_accounts INTEGER,' +
       'nb_codes INTEGER,' +
       'nb_accounts_strong INTEGER,' +

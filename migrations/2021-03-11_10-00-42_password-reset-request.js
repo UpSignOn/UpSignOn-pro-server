@@ -8,7 +8,7 @@ exports.up = function (db) {
       'status varchar(32),' +
       'reset_token varchar(8),' +
       'reset_token_expiration_date timestamptz,' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0)' +
+      'created_at timestamp with time zone DEFAULT current_timestamp(0)' +
       ')',
   );
 };

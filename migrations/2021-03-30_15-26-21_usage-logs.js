@@ -5,7 +5,7 @@ exports.up = function (db) {
     'CREATE TABLE IF NOT EXISTS usage_logs (' +
       'id SERIAL PRIMARY KEY,' +
       'device_id INTEGER,' +
-      'date timestamp without time zone DEFAULT current_timestamp(0),' +
+      'date timestamp with time zone DEFAULT current_timestamp(0),' +
       'log_type VARCHAR(50)' +
       ')',
   );

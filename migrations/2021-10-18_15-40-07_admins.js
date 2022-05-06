@@ -8,8 +8,8 @@ exports.up = function (db) {
     email VARCHAR(64) UNIQUE,
     password_hash VARCHAR(60),
     token UUID,
-    token_expires_at timestamp(0) WITHOUT TIME ZONE,
-    created_at timestamp(0) WITHOUT TIME ZONE DEFAULT current_timestamp(0)
+    token_expires_at timestamp(0) WITH TIME ZONE,
+    created_at timestamp(0) WITH TIME ZONE DEFAULT current_timestamp(0)
   )`);
 };
 

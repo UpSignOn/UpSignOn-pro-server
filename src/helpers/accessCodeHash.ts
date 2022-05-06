@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 
+// This is deprecated
 const asyncHash = async (accessCode: string): Promise<string> => {
   return await bcrypt.hash(accessCode, 10);
 };

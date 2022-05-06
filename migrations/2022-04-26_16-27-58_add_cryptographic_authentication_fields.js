@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'ALTER TABLE user_devices ADD COLUMN device_public_key TEXT, ADD COLUMN session_auth_challenge TEXT, ADD COLUMN session_auth_challenge_exp_time timestamp, ADD COLUMN password_challenge_error_count SMALLINT DEFAULT 0, ADD COLUMN password_challenge_blocked_until timestamp',
+    'ALTER TABLE user_devices ADD COLUMN device_public_key TEXT, ADD COLUMN session_auth_challenge TEXT, ADD COLUMN session_auth_challenge_exp_time timestamp with time zone, ADD COLUMN password_challenge_error_count INT DEFAULT 0, ADD COLUMN password_challenge_blocked_until timestamp  with time zone',
   );
 };
 

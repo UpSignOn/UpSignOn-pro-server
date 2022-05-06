@@ -7,7 +7,7 @@ exports.up = function (db) {
       'user_id integer,' +
       'is_manager boolean,' +
       'encrypted_password TEXT,' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0),' +
+      'created_at timestamp with time zone DEFAULT current_timestamp(0),' +
       'PRIMARY KEY (shared_account_id, user_id),' +
       'CONSTRAINT fk_shared_account_users_foreign_user FOREIGN KEY(user_id) REFERENCES users(id),' +
       'CONSTRAINT fk_shared_account_users_foreign_account FOREIGN KEY(shared_account_id) REFERENCES shared_accounts(id)' +

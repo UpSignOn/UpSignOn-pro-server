@@ -7,7 +7,7 @@ exports.up = function (db) {
       'new_email varchar(64),' +
       'user_id integer,' +
       "aware_devices JSON DEFAULT '[]'," +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0),' +
+      'created_at timestamp with time zone DEFAULT current_timestamp(0),' +
       'CONSTRAINT fk_user_id FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE' +
       ')',
   );

@@ -6,8 +6,8 @@ exports.up = function (db) {
       'id SERIAL PRIMARY KEY,' +
       'email varchar(64) UNIQUE,' +
       'encrypted_data TEXT,' +
-      'created_at timestamp without time zone DEFAULT current_timestamp(0),' +
-      'updated_at timestamp without time zone DEFAULT current_timestamp(0)' +
+      'created_at timestamp with time zone DEFAULT current_timestamp(0),' +
+      'updated_at timestamp with time zone DEFAULT current_timestamp(0)' +
       ')',
   );
 };
