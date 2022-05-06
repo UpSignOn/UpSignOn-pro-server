@@ -38,16 +38,17 @@ export const checkPasswordChallenge = async (
   } catch (e) {}
 
   // Add a time constraint to the number of failed attempts per device
+  const udpatedNumberOfFailedAttemtps = passwordErrorCount + 1;
   if (!hasPassedPasswordChallenge) {
     // 3 attempts with no delay, then 1 minute for each additional previous failed attempt
-    if (passwordErrorCount <= 2) {
+    if (udpatedNumberOfFailedAttemtps < 3) {
       await db.query(
         'UPDATE user_devices SET password_challenge_error_count=password_challenge_error_count+1, password_challenge_blocked_until=null WHERE id=$1 AND group_id=$2',
         [deviceId, groupId],
       );
     } else {
       const minRetryDate = new Date();
-      minRetryDate.setTime(Date.now() + 60 * (passwordErrorCount - 2) * 1000);
+      minRetryDate.setTime(Date.now() + 60 * (passwordErrorCount - 1) * 1000);
       await db.query(
         'UPDATE user_devices SET password_challenge_error_count=password_challenge_error_count+1, password_challenge_blocked_until=$1 WHERE id=$2 AND group_id=$3',
         [minRetryDate.toISOString(), deviceId, groupId],
