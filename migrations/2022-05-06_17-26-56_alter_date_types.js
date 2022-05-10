@@ -13,6 +13,9 @@ exports.up = async function (db) {
   await db.query(
     'ALTER TABLE shared_accounts ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE',
   );
+  await db.query(
+    'ALTER TABLE shared_account_users ALTER COLUMN created_at TYPE TIMESTAMP WITH TIME ZONE',
+  );
   await db.query('ALTER TABLE data_stats ALTER COLUMN date TYPE TIMESTAMP WITH TIME ZONE');
   await db.query('ALTER TABLE usage_logs ALTER COLUMN date TYPE TIMESTAMP WITH TIME ZONE');
   await db.query(

@@ -5,6 +5,7 @@ import { createPasswordChallenge } from '../helpers/passwordChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges = async (req: any, res: any) => {
+  // TODO do not send challenges if device is blocked ?
   try {
     const deviceId = req.body?.deviceId;
     const needsDeviceChallengeOnly = !!req.body?.deviceChallengeOnly;
