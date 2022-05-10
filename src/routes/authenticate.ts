@@ -79,7 +79,7 @@ export const authenticate = async (req: any, res: any) => {
     }
 
     // 4 - check Password challenge
-    const hasPassedPasswordChallenge = await checkPasswordChallenge(
+    const { hasPassedPasswordChallenge, blockedUntil } = await checkPasswordChallenge(
       encrypted_data,
       passwordChallengeResponse,
       password_challenge_error_count,
@@ -108,7 +108,14 @@ export const authenticate = async (req: any, res: any) => {
         success,
       });
     } else {
-      return res.status(401).end();
+      if (blockedUntil) {
+        return res.status(401).json({
+          error: 'blocked',
+          nextRetryDate: blockedUntil.toISOString(),
+        });
+      } else {
+        return res.status(401).end();
+      }
     }
   } catch (e) {
     logError('authenticate', e);
