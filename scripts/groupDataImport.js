@@ -91,12 +91,11 @@ async function importFunction() {
   for (var i = 0; i < data.sharedAccountUsers.length; i++) {
     const sau = data.sharedAccountUsers[i];
     await db.query(
-      'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, encrypted_password, created_at, encrypted_aes_key, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, created_at, encrypted_aes_key, group_id) VALUES ($1,$2,$3,$4,$5,$6)',
       [
         sau.newSharedAccountId,
         sau.newUserId,
         sau.is_manager,
-        sau.encrypted_password,
         sau.created_at,
         sau.encrypted_aes_key,
         groupId,

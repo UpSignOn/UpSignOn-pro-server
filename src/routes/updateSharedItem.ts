@@ -12,7 +12,6 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
     }
 
     const sharedItem = req.body?.sharedItem;
-    const contactPasswords = req.body?.contactPasswords;
     const aesKeyUpdates = req.body?.aesKeyUpdates;
     if (!sharedItem) return res.status(401).end();
 
@@ -30,18 +29,6 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
         basicAuth.groupId,
       ],
     );
-
-    if (contactPasswords && Array.isArray(contactPasswords)) {
-      for (let i = 0; i < contactPasswords.length; i++) {
-        // Security: do not use foreach or map
-        const userId = contactPasswords[i].id;
-        const encPwd = contactPasswords[i].encryptedPassword;
-        await db.query(
-          'UPDATE shared_account_users SET encrypted_password=$1  WHERE shared_account_id = $2 AND user_id = $3 AND group_id=$4',
-          [encPwd, sharedItem.id, userId, basicAuth.groupId],
-        );
-      }
-    }
 
     if (aesKeyUpdates && Array.isArray(aesKeyUpdates)) {
       for (let i = 0; i < aesKeyUpdates.length; i++) {

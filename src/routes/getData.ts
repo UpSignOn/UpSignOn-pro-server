@@ -126,7 +126,6 @@ export const getSharedItems = async (
     name: null | string;
     login: null | string;
     isManager: boolean;
-    encryptedPassword: string;
     aesEncryptedData: string;
     encryptedAesKey: string;
     sharedFolderId: null | number;
@@ -142,7 +141,6 @@ export const getSharedItems = async (
       sa.login AS login,
       sa.aes_encrypted_data AS aes_encrypted_data,
       sau.is_manager AS is_manager,
-      sau.encrypted_password AS encrypted_password,
       sau.encrypted_aes_key AS encrypted_aes_key,
       (SELECT COUNT(user_id) FROM shared_account_users WHERE shared_account_id=sau.shared_account_id) < 2 AS has_single_user,
       sf.id as shared_folder_id,
@@ -164,7 +162,6 @@ export const getSharedItems = async (
     aesEncryptedData: s.aes_encrypted_data,
     encryptedAesKey: s.encrypted_aes_key,
     isManager: s.is_manager,
-    encryptedPassword: s.encrypted_password,
     hasSingleUser: s.has_single_user,
     sharedFolderId: s.shared_folder_id,
     sharedFolderName: s.shared_folder_name,
