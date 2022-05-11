@@ -25,7 +25,6 @@ import { updateSharedItem } from './routes/updateSharedItem';
 import { getContactsPublicKeys } from './routes/getContactsPublicKeys';
 import { updateContactItemRights } from './routes/updateContactItemRights';
 import { stopSharingWithContact } from './routes/stopSharingWithContact';
-import { getContactsForSharedItem } from './routes/getContactsForSharedItem';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 import { logUsage } from './routes/logUsage';
@@ -147,8 +146,6 @@ app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], 
 app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
 app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], deleteSingledSharings);
 app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
-// prettier-ignore
-app.post(['/:groupId/get-contacts-for-shared-item', '/get-contacts-for-shared-item'], getContactsForSharedItem);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
 app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
