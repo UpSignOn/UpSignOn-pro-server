@@ -77,7 +77,8 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
 
       return res.status(200).json({
         passwordChallenge: passwordChallenge.pwdChallengeBase64,
-        keySalt: passwordChallenge.keySaltBase64,
+        passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+        signingKeySalt: passwordChallenge.signingKeySaltBase64,
         deviceChallenge,
       });
     }

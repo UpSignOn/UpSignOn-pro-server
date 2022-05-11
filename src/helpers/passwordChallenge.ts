@@ -3,15 +3,20 @@ import { db } from './db';
 
 export const createPasswordChallenge = (
   encryptedDataString: string,
-): { pwdChallengeBase64: string; keySaltBase64: string } => {
+): {
+  pwdChallengeBase64: string;
+  pwdDerivationSaltBase64: string;
+  signingKeySaltBase64: string;
+} => {
   if (!encryptedDataString.startsWith('formatP001-')) {
     throw new Error('Cannot get password challenge from old data format');
   }
-  // data = [challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | derivationKeySaltBase64(88 chars) | ivBase64(24 chars) | cipherBase64(?)]
-  const pwdChallengeBase64 = encryptedDataString.substring(11, 35);
-  const keySaltBase64 = encryptedDataString.substring(123, 211);
+  // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | 'formatK001-' | cipherSignatureBase64(44 chars) | signingKeySalt(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
+  const pwdDerivationSaltBase64 = encryptedDataString.substring(11, 55);
+  const pwdChallengeBase64 = encryptedDataString.substring(55, 79);
+  const signingKeySaltBase64 = encryptedDataString.substring(178, 222);
 
-  return { pwdChallengeBase64, keySaltBase64 };
+  return { pwdChallengeBase64, pwdDerivationSaltBase64, signingKeySaltBase64 };
 };
 
 export const checkPasswordChallenge = async (
@@ -24,8 +29,8 @@ export const checkPasswordChallenge = async (
   if (!encryptedData.startsWith('formatP001-')) {
     return { hasPassedPasswordChallenge: false };
   }
-  // data = [challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | derivationKeySaltBase64(88 chars) | ivBase64(24 chars) | cipherBase64(?)]
-  const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(35, 79), 'base64');
+  // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | 'formatK001-' | cipherSignatureBase64(44 chars) | signingKeySalt(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
+  const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(79, 123), 'base64');
   const passwordChallengeResponseBuffer = Buffer.from(passwordChallengeResponse, 'base64');
 
   let hasPassedPasswordChallenge = false;
