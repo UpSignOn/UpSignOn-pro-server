@@ -78,6 +78,10 @@ export const getPasswordBackup = async (req: any, res: any) => {
     await db.query(
       `DELETE FROM password_reset_request WHERE id='${resetRequest.reset_request_id}'`,
     );
+    await db.query(
+      'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
+      [deviceId, groupId],
+    );
 
     // Return res
     return res
