@@ -8,7 +8,6 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
   // TODO do not send challenges if device is blocked ?
   try {
     const deviceId = req.body?.deviceId;
-    const needsDeviceChallengeOnly = !!req.body?.deviceChallengeOnly;
     let userEmail = req.body?.userEmail;
     const groupId = parseInt(req.params.groupId || 1);
 
@@ -64,24 +63,18 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       return res.status(401).end();
 
     const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
-    if (needsDeviceChallengeOnly) {
-      return res.status(200).json({
-        deviceChallenge,
-      });
-    } else {
-      if (!dbRes.rows[0].encrypted_data) {
-        return res.status(404).json({ error: 'empty_data', deviceChallenge });
-      }
-
-      const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);
-
-      return res.status(200).json({
-        passwordChallenge: passwordChallenge.pwdChallengeBase64,
-        passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
-        signingKeySalt: passwordChallenge.signingKeySaltBase64,
-        deviceChallenge,
-      });
+    if (!dbRes.rows[0].encrypted_data) {
+      return res.status(404).json({ error: 'empty_data', deviceChallenge });
     }
+
+    const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);
+
+    return res.status(200).json({
+      passwordChallenge: passwordChallenge.pwdChallengeBase64,
+      passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+      signingKeySalt: passwordChallenge.signingKeySaltBase64,
+      deviceChallenge,
+    });
   } catch (e) {
     logError('getAuthenticationChallenges', e);
     return res.status(400).end();
