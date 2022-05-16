@@ -75,7 +75,7 @@ app.use(
       httpOnly: true,
       secure: env.IS_PRODUCTION,
       maxAge: 3600000, // one hour
-      sameSite: env.IS_PRODUCTION ? 'strict' : 'lax',
+      sameSite: 'none', // used to be "env.IS_PRODUCTION ? 'strict' : 'lax'", but this cause the safari extension not to work for pro spaces => TODO change it back when the app becomes available as a true macos app and the requests
     },
     name: 'upsignon_device_session',
     // @ts-ignore
