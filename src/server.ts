@@ -53,6 +53,7 @@ import { migrateToCryptographicAuthentication } from './routes/migrateToCryptogr
 import { getAuthenticationChallenges } from './routes/getAuthenticationChallenges';
 import { authenticate } from './routes/authenticate';
 import { addNewData } from './routes/addNewData';
+import { disconnect } from './routes/disconnect';
 
 const app = express();
 
@@ -114,6 +115,7 @@ app.post(
   getAuthenticationChallenges,
 );
 app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
+app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
 app.post(['/:groupId/request-access', '/request-access'], requestAccess);
 app.post(['/:groupId/check-device', '/check-device'], checkDevice);
 app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
