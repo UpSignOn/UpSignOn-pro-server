@@ -465,14 +465,14 @@ root@localhost:~# systemctl daemon-reload
 Pour configurer les mises-à-jour automatiques des serveurs, procédez ainsi :
 
 ```bash
-root@localhost:~# crontab -e
+upsignonpro@localhost:~$ crontab -e
 ```
 
 Puis ajoutez ces deux taches cron:
 
 ```
-0 5 * * * su - upsignonpro -c "cd /home/upsignonpro/upsignon-pro-server; ./update.sh"
-5 5 * * * su - upsignonpro -c "cd /home/upsignonpro/upsignon-pro-dashboard; ./update.sh"
+0 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-server; ./update.sh"
+5 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-dashboard; ./update.sh"
 ```
 
 Puis relancer le service cron
