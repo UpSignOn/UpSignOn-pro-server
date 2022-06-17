@@ -4,6 +4,7 @@ import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';
 import { sendStatusUpdate } from './serverStatus';
+import { cleanOldRevokedDevices } from './dbCleaner';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -11,6 +12,11 @@ if (env.HTTP_PROXY) {
   globalAgent.bootstrap();
   // @ts-ignore
   global.GLOBAL_AGENT.HTTP_PROXY = env.HTTP_PROXY;
+}
+
+async function cronjob() {
+  await cleanOldRevokedDevices();
+  await sendStatusUpdate();
 }
 
 export const startServer = (app: any, then: any): void => {
@@ -37,8 +43,8 @@ export const startServer = (app: any, then: any): void => {
     });
     listenForGracefulShutdown(server);
   }
-  sendStatusUpdate();
-  setInterval(sendStatusUpdate, 24 * 3600 * 1000);
+  cronjob();
+  setInterval(cronjob, 24 * 3600 * 1000);
 };
 
 const listenForGracefulShutdown = (server: any) => {
