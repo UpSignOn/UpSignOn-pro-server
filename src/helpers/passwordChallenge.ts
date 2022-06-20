@@ -9,7 +9,15 @@ export const createPasswordChallenge = (
   signingKeySaltBase64: string;
 } => {
   if (!encryptedDataString.startsWith('formatP001-')) {
-    throw new Error('Cannot get password challenge from old data format');
+    // The password challenge will not exist when the data has not yet been reencrypted by a v5+ app
+    // However, in order for the v5+ app to continue working or being able to enroll a new device for a data that is still in the old format (where the password challenge does not exist)
+    // the server should fallback to the letting the app receive the encrypted data if the device alone can be authenticated (as in the previous system)
+    // To make it easy, we return a default challenge that will not be checked.
+    return {
+      pwdChallengeBase64: 'NONE',
+      pwdDerivationSaltBase64: 'NONE',
+      signingKeySaltBase64: 'NONE',
+    };
   }
   // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | 'formatK001-' | cipherSignatureBase64(44 chars) | signingKeySalt(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
   const pwdDerivationSaltBase64 = encryptedDataString.substring(11, 55);
@@ -27,7 +35,7 @@ export const checkPasswordChallenge = async (
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
   if (!encryptedData.startsWith('formatP001-')) {
-    return { hasPassedPasswordChallenge: false };
+    return { hasPassedPasswordChallenge: true }; // This would be the case when the NONE fallback were sent as the password challenge
   }
   // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | 'formatK001-' | cipherSignatureBase64(44 chars) | signingKeySalt(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
   const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(79, 123), 'base64');
