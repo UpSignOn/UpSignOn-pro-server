@@ -333,6 +333,7 @@ ou via la commande `pm2 logs` qui affiche directement tous les logs dont pm2 est
 Vous pouvez vérifier que la page https://upsignonpro.votre-domaine.fr affiche bien un message de succès.
 
 Vous pouvez également tester que l'envoi des emails fonctionne bien en ouvrant la page https://upsignonpro.votre-domaine.fr/test-email?email=votre-email@votre-domaine.fr
+En cas de problème sur l'envoie de mails, vérifiez que les certificats intérmédiaires sont bien inclus dans le certificat du serveur de mail.
 
 ## Installation du serveur d'administration
 

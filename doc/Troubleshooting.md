@@ -22,6 +22,7 @@ Si tout ce qui précède semble bon, essayez d'ajouter un espace personnel vide.
 
 ## L'envoi des mails ne fonctionne pas
 
+- vérifiez que le certificat SSL de votre serveur de mails contient bien toute la chaîne de certification
 - vérifiez que le port que vous avez défini dans votre fichier .env est bien ouvert sur le serveur smtp ciblé
   `nmap -p 587 upsignon.eu`
 - vérifiez que le compte que vous avez défini dans votre fichier .env pour envoyer vos emails n'est pas configuré pour exiger des authentifications multi-facteurs.
