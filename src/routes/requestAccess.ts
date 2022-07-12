@@ -26,7 +26,8 @@ export const requestAccess = async (req: any, res: any) => {
 
     // Get params
     let userEmail = req.body?.userEmail;
-    if (!userEmail || typeof userEmail !== 'string' || userEmail.indexOf('@') === -1)
+    const emailRegex = RegExp('^([a-zA-Z0-9_-.]+)@([a-zA-Z0-9_-.]+).([a-zA-Z]{2,5})$', 'g');
+    if (!userEmail || typeof userEmail !== 'string' || !emailRegex.test(userEmail))
       return res.status(401).end();
     userEmail = userEmail.toLowerCase();
 
