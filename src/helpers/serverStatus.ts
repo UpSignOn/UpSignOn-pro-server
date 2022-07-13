@@ -129,7 +129,7 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
       chartDataObjet[d].dp += lastKnownStats?.nb_accounts_with_duplicate_password || 0;
       chartDataObjet[d].gr += lastKnownStats?.nb_accounts_green || 0;
       chartDataObjet[d].or += lastKnownStats?.nb_accounts_orange || 0;
-      chartDataObjet[d].rd += lastKnownStats?.nb_accounts_green || 0;
+      chartDataObjet[d].rd += lastKnownStats?.nb_accounts_red || 0;
     });
   });
 
