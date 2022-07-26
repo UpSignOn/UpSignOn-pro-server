@@ -500,17 +500,17 @@ upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js temporaryAdmin
 
 Cette commande génère un mot de passe temporaire associé au login "temporaryAdmin" que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
 
-**Ajout d'un premier groupe**
+**Ajout d'une première banqued de coffres-forts**
 Une fois connecté à votre interface superadmin,
 
 - configurez l'url de votre serveur UpSignOn PRO. L'indicateur du statut doit passer au vert.
-- ajoutez un groupe
-- en cliquant sur le block "Super-Admin" orange, tout en haut à gauche de la page, vous pourrez voir la liste de vos groupes. Ouvrez le groupe que vous venez de créer, puis naviguez vers la page "Paramètres" de ce groupe.
+- ajoutez une banque
+- en cliquant sur le block "Super-Admin" orange, tout en haut à gauche de la page, vous pourrez voir la liste de vos banques. Ouvrez la banque que vous venez de créer, puis naviguez vers la page "Paramètres" de cette banque.
 - Vous voyez alors un lien de configuration. Ce lien devra être utilisé par tous vos utilisateurs pour configurer leur application.
 
 **Création de votre espace UpSignOn PRO**
 
-- Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour ce groupe
+- Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour cette banque
 - installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration / scannez le qr code depuis UpSignOn en cliquant sur "ajouter un espace confidentiel" puis en sélectionnant l'option ESPACE PRO
 - si tout est bien configuré, vous devriez pouvoir créer votre espace UpSignOn PRO dans l'application en suivant les instructions
 
