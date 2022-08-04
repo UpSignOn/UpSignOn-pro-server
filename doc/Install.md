@@ -320,7 +320,6 @@ Démarrez ensuite le serveur
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-server$ yarn start
-upsignonpro@localhost:~/upsignon-pro-server$ pm2 save
 ```
 
 Si le service upsignon-pro-server s'affiche en statut "Errored", consultez les logs
@@ -396,7 +395,7 @@ Pour configurer le redémarrage automatique des processus pm2 au reboot de la VM
 ### Serveur UpSignOn PRO
 
 ```bash
-root@localhost:~# vi /etc/systemd/system/upsignonpro-server.service
+root@localhost:~# nano /etc/systemd/system/upsignonpro-server.service
 ```
 
 Dans ce fichier, ajoutez ceci (pensez à bien adapter les chemins si besoin)
@@ -430,7 +429,7 @@ root@localhost:~# systemctl daemon-reload
 ### Serveur d'administration
 
 ```bash
-root@localhost:~# vi /etc/systemd/system/upsignonpro-dashboard.service
+root@localhost:~# nano /etc/systemd/system/upsignonpro-dashboard.service
 ```
 
 Dans ce fichier, ajoutez ceci (pensez à bien adapter les chemins si besoin)
