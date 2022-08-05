@@ -29,7 +29,6 @@ import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 import { logUsage } from './routes/logUsage';
 import { testEmail } from './routes/testEmail';
-import { verifyEmail } from './helpers/verifyEmail';
 import env from './helpers/env';
 import { logInfo } from './helpers/logger';
 import { getMatchingEmailAddressesForSharing } from './routes/getMatchingEmailAddressesForSharing';
@@ -54,6 +53,7 @@ import { getAuthenticationChallenges } from './routes/getAuthenticationChallenge
 import { authenticate } from './routes/authenticate';
 import { addNewData } from './routes/addNewData';
 import { disconnect } from './routes/disconnect';
+import { migrateEmailConfig } from './helpers/migrateEmailConfig';
 
 const app = express();
 
@@ -170,14 +170,15 @@ app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-i
 app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
 
 if (module === require.main) {
-  startServer(app, () => {
-    logInfo(
-      `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
-    );
-    logInfo(
-      `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
-    );
-    verifyEmail();
+  migrateEmailConfig().then(() => {
+    startServer(app, () => {
+      logInfo(
+        `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
+      );
+      logInfo(
+        `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
+      );
+    });
   });
 }
 

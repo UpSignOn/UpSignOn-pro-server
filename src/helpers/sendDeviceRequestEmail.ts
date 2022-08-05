@@ -1,6 +1,6 @@
 import { cleanForHTMLInjections } from './cleanForHTMLInjections';
 import env from './env';
-import { getMailTransporter } from './getMailTransporter';
+import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 
 export const sendDeviceRequestEmail = async (
@@ -12,7 +12,8 @@ export const sendDeviceRequestEmail = async (
   expirationDate: Date,
 ): Promise<void> => {
   try {
-    const transporter = getMailTransporter({ debug: false });
+    const emailConfig = await getEmailConfig();
+    const transporter = getMailTransporter(emailConfig, { debug: false });
     const expDate =
       expirationDate.getDate() +
       '/' +
@@ -30,7 +31,7 @@ export const sendDeviceRequestEmail = async (
     const safeRequestToken = cleanForHTMLInjections(requestToken);
 
     await transporter.sendMail({
-      from: env.EMAIL_USER,
+      from: emailConfig.EMAIL_USER,
       to: safeEmailAddress,
       subject: "Nouvelle demande d'accès à votre espace UpSignOn PRO",
       text: `Bonjour,\nPour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeDeviceOS}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :\n\n${safeRequestToken}\n\nCe code est valable jusqu'au ${expDate}.\n\nBonne journée,\nUpSignOn`,

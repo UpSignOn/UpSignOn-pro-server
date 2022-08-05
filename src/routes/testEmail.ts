@@ -1,8 +1,6 @@
-import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 import { logError } from '../helpers/logger';
-import env from '../helpers/env';
 import { cleanForHTMLInjections } from '../helpers/cleanForHTMLInjections';
-import { getMailTransporter } from '../helpers/getMailTransporter';
+import { getEmailConfig, getMailTransporter } from '../helpers/getMailTransporter';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const testEmail = async (req: any, res: any) => {
@@ -10,13 +8,15 @@ export const testEmail = async (req: any, res: any) => {
     const userEmail = req.query.email;
     if (!userEmail) return res.status(400).send('Please provide your email in the url.');
 
-    const transporter = getMailTransporter({ debug: false });
+    const emailConfig = await getEmailConfig();
+
+    const transporter = getMailTransporter(emailConfig, { debug: false });
 
     // prevent HTML injections
     const safeEmailAddress = cleanForHTMLInjections(userEmail);
 
     await transporter.sendMail({
-      from: env.EMAIL_USER,
+      from: emailConfig.EMAIL_USER,
       to: safeEmailAddress,
       subject: 'Test',
       text: `Bonjour,\nL'envoi de mail depuis votre serveur UpSignOn PRO fonctionne correctement :)`,

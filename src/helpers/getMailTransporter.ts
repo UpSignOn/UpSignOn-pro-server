@@ -1,24 +1,44 @@
 import nodemailer from 'nodemailer';
-import env from './env';
+import { db } from './db';
+
+type EmailConfig = {
+  EMAIL_HOST: string;
+  EMAIL_PORT: number;
+  EMAIL_PASS?: null | string;
+  EMAIL_USER: string;
+  EMAIL_ALLOW_INVALID_CERTIFICATE?: boolean;
+};
+
+export const getEmailConfig = async (): Promise<EmailConfig> => {
+  const emailConfReq = await db.query("SELECT value FROM settings WHERE key = 'EMAIL_CONFIG'");
+  if (emailConfReq.rowCount !== 1) {
+    throw new Error('missing email config');
+  }
+  const emailConfig = emailConfReq.rows[0].value;
+  return emailConfig;
+};
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const getMailTransporter = (options: {
-  debug: boolean;
-  logger?: boolean;
-  connectionTimeout?: number;
-}) => {
+export const getMailTransporter = (
+  emailConfig: EmailConfig,
+  options: {
+    debug: boolean;
+    logger?: boolean;
+    connectionTimeout?: number;
+  },
+) => {
   const transportOptions = {
-    host: env.EMAIL_HOST,
-    port: env.EMAIL_PORT,
-    secure: env.EMAIL_PORT === 465,
+    host: emailConfig.EMAIL_HOST,
+    port: emailConfig.EMAIL_PORT,
+    secure: emailConfig.EMAIL_PORT === 465,
     tls: {},
     ...options,
   };
-  if (env.EMAIL_PASS) {
+  if (emailConfig.EMAIL_PASS) {
     // @ts-ignore
     transportOptions.auth = {
-      user: env.EMAIL_USER,
-      pass: env.EMAIL_PASS,
+      user: emailConfig.EMAIL_USER,
+      pass: emailConfig.EMAIL_PASS,
     };
   }
   if (options.debug) {
@@ -27,7 +47,7 @@ export const getMailTransporter = (options: {
       enableTrace: true,
     };
   }
-  if (env.EMAIL_ALLOW_INVALID_CERTIFICATE) {
+  if (emailConfig.EMAIL_ALLOW_INVALID_CERTIFICATE) {
     transportOptions.tls = {
       ...transportOptions.tls,
       rejectUnauthorized: false,

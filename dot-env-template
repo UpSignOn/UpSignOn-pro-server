@@ -5,12 +5,6 @@ DB_NAME=upsignonpro
 DB_HOST=localhost
 DB_PORT=5432
 
-# THIS SERVER WILL NEED TO SEND EMAILS TO YOUR USERS
-EMAIL_HOST=smtp.votre-domaine.fr
-EMAIL_PORT=587
-EMAIL_USER=no-reply@votre-domaine.fr
-EMAIL_PASS=
-
 # UPSIGNON PRO SERVER HOST
 #  - without https://
 #  - with path if needed
