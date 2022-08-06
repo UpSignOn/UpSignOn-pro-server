@@ -31,7 +31,7 @@ export const sendDeviceRequestEmail = async (
     const safeRequestToken = cleanForHTMLInjections(requestToken);
 
     await transporter.sendMail({
-      from: emailConfig.EMAIL_USER,
+      from: emailConfig.EMAIL_SENDING_ADDRESS || emailConfig.EMAIL_USER,
       to: safeEmailAddress,
       subject: "Nouvelle demande d'accès à votre espace UpSignOn PRO",
       text: `Bonjour,\nPour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeDeviceOS}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :\n\n${safeRequestToken}\n\nCe code est valable jusqu'au ${expDate}.\n\nBonne journée,\nUpSignOn`,

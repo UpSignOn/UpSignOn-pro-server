@@ -10,6 +10,7 @@ export async function migrateEmailConfig() {
           EMAIL_PORT: process.env.EMAIL_PORT ? Number.parseInt(process.env.EMAIL_PORT) : 587,
           EMAIL_USER: process.env.EMAIL_USER,
           EMAIL_PASS: process.env.EMAIL_PASS,
+          EMAIL_SENDING_ADDRESS: process.env.EMAIL_USER,
           EMAIL_ALLOW_INVALID_CERTIFICATE: process.env.EMAIL_ALLOW_INVALID_CERTIFICATE,
         },
       ]);

@@ -75,8 +75,10 @@ Assurez-vous de disposer d'une configuration pour l'envoi de mails
 
 - serveur smtp (smtp.votre-domaine.fr)
 - port d'envoi (ex: 25, 587, 465)
-- adresse email (ex: noreply@votre-domaine.fr)
-- mot de passe pour cette adresse email si nécessaire
+- identifiants de connexion
+  - login (souvent l'adresse email d'envoi)
+  - mot de passe (facultatif dans certains cas)
+- adresse email d'envoi (ex: noreply@votre-domaine.fr)
 
 ## Déclarez-nous vos urls
 

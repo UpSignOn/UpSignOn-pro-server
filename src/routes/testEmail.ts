@@ -16,7 +16,7 @@ export const testEmail = async (req: any, res: any) => {
     const safeEmailAddress = cleanForHTMLInjections(userEmail);
 
     await transporter.sendMail({
-      from: emailConfig.EMAIL_USER,
+      from: emailConfig.EMAIL_SENDING_ADDRESS || emailConfig.EMAIL_USER,
       to: safeEmailAddress,
       subject: 'Test',
       text: `Bonjour,\nL'envoi de mail depuis votre serveur UpSignOn PRO fonctionne correctement :)`,

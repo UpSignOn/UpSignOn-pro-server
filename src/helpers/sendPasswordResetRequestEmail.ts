@@ -33,7 +33,7 @@ export const sendPasswordResetRequestEmail = async (
 
     const expirationTime = extractTime(expirationDate);
     transporter.sendMail({
-      from: emailConfig.EMAIL_USER,
+      from: emailConfig.EMAIL_SENDING_ADDRESS || emailConfig.EMAIL_USER,
       to: safeEmailAddress,
       subject: 'Réinitialisation de votre mot de passe UpSignOn PRO',
       text: `Bonjour,\nVous avez effectué une demande de réinitialisation de votre mot de passe depuis votre appareil "${safeDeviceName}".\n\nPour réinitiliaser votre mot de passe UpSignOn PRO, saisissez le code suivant :\n\n${safeRequestToken}\n\nAttention, ce code n'est valide que pour l'appareil "${safeDeviceName}" et expirera à ${expirationTime}.\n\nBonne journée,\nUpSignOn`,

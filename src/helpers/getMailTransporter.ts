@@ -6,6 +6,7 @@ type EmailConfig = {
   EMAIL_PORT: number;
   EMAIL_PASS?: null | string;
   EMAIL_USER: string;
+  EMAIL_SENDING_ADDRESS: string;
   EMAIL_ALLOW_INVALID_CERTIFICATE?: boolean;
 };
 
