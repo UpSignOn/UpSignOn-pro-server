@@ -16,7 +16,12 @@ export const getEmailConfig = async (): Promise<EmailConfig> => {
     throw new Error('missing email config');
   }
   const emailConfig = emailConfReq.rows[0].value;
-  return emailConfig;
+  return {
+    ...emailConfig,
+    EMAIL_SENDING_ADDRESS: emailConfig.EMAIL_SENDING_ADDRESS || emailConfig.EMAIL_USER,
+    EMAIL_PORT: Number.parseInt(emailConfig.EMAIL_PORT),
+    EMAIL_ALLOW_INVALID_CERTIFICATE: emailConfig.EMAIL_ALLOW_INVALID_CERTIFICATE === true,
+  };
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

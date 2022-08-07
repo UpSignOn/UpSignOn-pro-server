@@ -11,7 +11,10 @@ export async function migrateEmailConfig() {
           EMAIL_USER: process.env.EMAIL_USER,
           EMAIL_PASS: process.env.EMAIL_PASS,
           EMAIL_SENDING_ADDRESS: process.env.EMAIL_USER,
-          EMAIL_ALLOW_INVALID_CERTIFICATE: process.env.EMAIL_ALLOW_INVALID_CERTIFICATE,
+          EMAIL_ALLOW_INVALID_CERTIFICATE:
+            // @ts-ignore
+            process.env.EMAIL_ALLOW_INVALID_CERTIFICATE === true ||
+            process.env.EMAIL_ALLOW_INVALID_CERTIFICATE === 'true',
         },
       ]);
     }

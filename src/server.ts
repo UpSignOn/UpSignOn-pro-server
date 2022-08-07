@@ -28,7 +28,6 @@ import { stopSharingWithContact } from './routes/stopSharingWithContact';
 import { checkUserPublicKey } from './routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './routes/updateDeviceMetaData';
 import { logUsage } from './routes/logUsage';
-import { testEmail } from './routes/testEmail';
 import env from './helpers/env';
 import { logInfo } from './helpers/logger';
 import { getMatchingEmailAddressesForSharing } from './routes/getMatchingEmailAddressesForSharing';
@@ -101,7 +100,6 @@ app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.status(200).send('UpSignOn PRO server is running');
 });
-app.get('/test-email', testEmail);
 
 // GROUP ROUTING with or without groupid (default groupid is 1)
 app.all(['/:groupId/config', '/config'], getConfig);
@@ -172,9 +170,7 @@ app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshar
 if (module === require.main) {
   migrateEmailConfig().then(() => {
     startServer(app, () => {
-      logInfo(
-        `You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n  - https://${env.API_PUBLIC_HOSTNAME}/test-email?email=<YOUR_EMAIL>`,
-      );
+      logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
       logInfo(
         `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
       );
