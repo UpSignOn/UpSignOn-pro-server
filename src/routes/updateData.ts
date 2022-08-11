@@ -2,15 +2,16 @@ import { db } from '../helpers/db';
 import { getSharedItems } from './getData';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
   try {
-    const newEncryptedData = req.body?.newEncryptedData;
-    const lastUpdateDate = req.body?.lastUpdateDate;
-    const isNewData = req.body?.isNewData; // DEPRECATED => this route is no longer used to add an empty space
-    const sharingPublicKey = req.body?.sharingPublicKey; // DEPRECATED => this route is no longer used to add an empty space
-    const returningSharedItems = req.body?.returningSharedItems;
+    const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
+    const lastUpdateDate = inputSanitizer.getString(req.body?.lastUpdateDate);
+    const isNewData = inputSanitizer.getBoolean(req.body?.isNewData); // DEPRECATED => this route is no longer used to add an empty space
+    const sharingPublicKey = inputSanitizer.getString(req.body?.sharingPublicKey); // DEPRECATED => this route is no longer used to add an empty space
+    const returningSharedItems = inputSanitizer.getBoolean(req.body?.returningSharedItems);
 
     // Check params
     if (!newEncryptedData) return res.status(401).end();

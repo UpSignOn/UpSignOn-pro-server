@@ -1,16 +1,17 @@
 import { db } from '../helpers/db';
 import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData = async (req: any, res: any): Promise<void> => {
   try {
-    const sharingPublicKey = req.body?.sharingPublicKey;
-    const deviceChallengeResponse = req.body?.deviceChallengeResponse;
-    const newEncryptedData = req.body?.newEncryptedData;
-    const deviceUId = req.body?.deviceId;
-    let userEmail = req.body?.userEmail;
-    const groupId = parseInt(req.params.groupId || 1);
+    const sharingPublicKey = inputSanitizer.getString(req.body?.sharingPublicKey);
+    const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
+    const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
+    const deviceUId = inputSanitizer.getString(req.body?.deviceId);
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // 0 - Check params
     if (
@@ -18,12 +19,9 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       !deviceChallengeResponse ||
       !sharingPublicKey ||
       !userEmail ||
-      typeof userEmail !== 'string' ||
       !deviceUId
     )
       return res.status(401).end();
-
-    userEmail = userEmail.toLowerCase();
 
     const selectRes = await db.query(
       `SELECT

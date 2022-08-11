@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
-import { cleanForHTMLInjections } from './cleanForHTMLInjections';
 import { extractTime } from './dateHelper';
 import { getEmailConfig } from './getMailTransporter';
 import { logError } from './logger';
+import { inputSanitizer } from './sanitizer';
 
 export const sendPasswordResetRequestEmail = async (
   emailAddress: string,
@@ -27,9 +27,9 @@ export const sendPasswordResetRequestEmail = async (
     const transporter = nodemailer.createTransport(transportOptions);
 
     // prevent HTML injections
-    const safeEmailAddress = cleanForHTMLInjections(emailAddress);
-    const safeDeviceName = cleanForHTMLInjections(deviceName);
-    const safeRequestToken = cleanForHTMLInjections(requestToken);
+    const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
+    const safeDeviceName = inputSanitizer.cleanForHTMLInjections(deviceName);
+    const safeRequestToken = inputSanitizer.cleanForHTMLInjections(requestToken);
 
     const expirationTime = extractTime(expirationDate);
     transporter.sendMail({

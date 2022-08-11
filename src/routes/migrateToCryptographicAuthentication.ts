@@ -1,27 +1,21 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const migrateToCryptographicAuthentication = async (req: any, res: any) => {
   // This function must only be called after the data has been updated with the password challenge
   try {
-    let userEmail = req.body?.userEmail;
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode;
-    const devicePublicKey = req.body?.devicePublicKey;
-    const groupId = parseInt(req.params.groupId || 1);
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+    const deviceId = inputSanitizer.getString(req.body?.deviceId);
+    const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode);
+    const devicePublicKey = inputSanitizer.getString(req.body?.devicePublicKey);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
-    if (
-      !userEmail ||
-      typeof userEmail !== 'string' ||
-      !deviceId ||
-      !deviceAccessCode ||
-      !devicePublicKey
-    ) {
+    if (!userEmail || !deviceId || !deviceAccessCode || !devicePublicKey) {
       return res.status(401).end();
     }
-    userEmail = userEmail.toLowerCase();
     const dbRes = await db.query(
       `SELECT
         u.id AS user_id,

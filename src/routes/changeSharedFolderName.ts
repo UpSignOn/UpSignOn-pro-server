@@ -1,16 +1,16 @@
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const changeSharedFolderName = async (req: any, res: any) => {
   try {
-    const sharedFolderId = req.body?.sharedFolderId;
-    const newName = req.body?.newName;
+    const sharedFolderId = inputSanitizer.getNumberOrNull(req.body?.sharedFolderId);
+    const newName = inputSanitizer.getString(req.body?.newName);
 
     // Check params
-    if (!sharedFolderId) return res.status(401).end();
-    if (!newName) return res.status(401).end();
+    if (!sharedFolderId || !newName) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

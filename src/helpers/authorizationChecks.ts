@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from './db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
+import { inputSanitizer } from './sanitizer';
 
 export const checkBasicAuth = async (
   req: any,
@@ -25,15 +26,13 @@ export const checkBasicAuth = async (
     }
   | { granted: false }
 > => {
-  const groupId = parseInt(req.params.groupId || 1);
+  const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
-  let userEmail = req.body?.userEmail;
-  const deviceUId = req.body?.deviceId;
-  const deviceAccessCode = req.body?.deviceAccessCode; // deprecated
+  const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+  const deviceUId = inputSanitizer.getString(req.body?.deviceId);
+  const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // deprecated
 
-  userEmail = userEmail.toLowerCase();
-
-  if (!userEmail || typeof userEmail !== 'string') return { granted: false };
+  if (!userEmail) return { granted: false };
   if (!deviceUId) return { granted: false };
   if (!deviceAccessCode && !req.session) return { granted: false };
 
@@ -105,8 +104,8 @@ export const checkBasicAuth = async (
     // NEW SYSTEM: check session
     // make sure this session matches the request (the session might be linked to another space on the same device)
     if (
-      req.session.userEmail != req.body?.userEmail ||
-      req.session.deviceUniqueId != req.body?.deviceId ||
+      req.session.userEmail != userEmail ||
+      req.session.deviceUniqueId != deviceUId ||
       req.session.groupId != groupId
     ) {
       await req.session.destroy();

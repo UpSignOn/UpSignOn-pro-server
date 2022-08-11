@@ -1,10 +1,11 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getConfig = async (req: any, res: any): Promise<void> => {
   try {
-    const groupId = parseInt(req.params.groupId || 1);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     const nameRes = await db.query('SELECT name FROM groups WHERE id=$1', [groupId]);
     if (nameRes.rowCount === 0) {

@@ -1,12 +1,12 @@
-import { cleanForHTMLInjections } from './cleanForHTMLInjections';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
+import { inputSanitizer } from './sanitizer';
 
 export const sendDeviceRequestEmail = async (
   emailAddress: string,
-  deviceName: string,
-  deviceType: string,
-  deviceOS: string,
+  deviceName: null | string,
+  deviceType: null | string,
+  deviceOS: null | string,
   requestToken: string,
   expirationDate: Date,
 ): Promise<void> => {
@@ -23,11 +23,11 @@ export const sendDeviceRequestEmail = async (
       expirationDate.getMinutes();
 
     // prevent HTML injections
-    const safeEmailAddress = cleanForHTMLInjections(emailAddress);
-    const safeDeviceName = cleanForHTMLInjections(deviceName);
-    const safeDeviceType = cleanForHTMLInjections(deviceType);
-    const safeDeviceOS = cleanForHTMLInjections(deviceOS);
-    const safeRequestToken = cleanForHTMLInjections(requestToken);
+    const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
+    const safeDeviceName = inputSanitizer.cleanForHTMLInjections(deviceName || 'unknown');
+    const safeDeviceType = inputSanitizer.cleanForHTMLInjections(deviceType || 'unknown');
+    const safeDeviceOS = inputSanitizer.cleanForHTMLInjections(deviceOS || 'unknown');
+    const safeRequestToken = inputSanitizer.cleanForHTMLInjections(requestToken);
 
     await transporter.sendMail({
       from: emailConfig.EMAIL_SENDING_ADDRESS,

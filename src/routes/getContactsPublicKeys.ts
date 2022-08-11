@@ -1,11 +1,12 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getContactsPublicKeys = async (req: any, res: any) => {
   try {
-    const itemId = req.body?.itemId;
+    const itemId = inputSanitizer.getNumberOrNull(req.body?.itemId);
     if (!itemId) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req, { checkIsManagerForItemId: itemId });

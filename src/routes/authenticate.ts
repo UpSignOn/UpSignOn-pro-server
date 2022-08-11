@@ -2,26 +2,20 @@ import { db } from '../helpers/db';
 import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
 import { checkPasswordChallenge } from '../helpers/passwordChallenge';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const authenticate = async (req: any, res: any) => {
   try {
-    const deviceUId = req.body?.deviceId;
-    const passwordChallengeResponse = req.body?.passwordChallengeResponse;
-    const deviceChallengeResponse = req.body?.deviceChallengeResponse;
-    let userEmail = req.body?.userEmail;
-    const groupId = parseInt(req.params.groupId || 1);
+    const deviceUId = inputSanitizer.getString(req.body?.deviceId);
+    const passwordChallengeResponse = inputSanitizer.getString(req.body?.passwordChallengeResponse);
+    const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
-    if (
-      !userEmail ||
-      typeof userEmail !== 'string' ||
-      !deviceUId ||
-      !passwordChallengeResponse ||
-      !deviceChallengeResponse
-    ) {
+    if (!userEmail || !deviceUId || !passwordChallengeResponse || !deviceChallengeResponse) {
       return res.status(401).end();
     }
-    userEmail = userEmail.toLowerCase();
 
     const dbRes = await db.query(
       `SELECT

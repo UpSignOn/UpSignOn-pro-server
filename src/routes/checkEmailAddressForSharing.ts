@@ -1,13 +1,13 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkEmailAddressForSharing = async (req: any, res: any) => {
   try {
-    let emailAddress = req.body?.emailAddress;
-    if (!emailAddress || typeof emailAddress !== 'string') return res.status(401).end();
-    emailAddress = emailAddress.toLowerCase();
+    const emailAddress = inputSanitizer.getLowerCaseString(req.body?.emailAddress);
+    if (!emailAddress) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

@@ -4,6 +4,7 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -22,22 +23,20 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestAccess = async (req: any, res: any) => {
   try {
-    const groupId = parseInt(req.params.groupId || 1);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params
-    let userEmail = req.body?.userEmail;
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+).([a-zA-Z]{2,5})$/g;
-    if (!userEmail || typeof userEmail !== 'string' || !emailRegex.test(userEmail))
-      return res.status(401).end();
-    userEmail = userEmail.toLowerCase();
+    if (!userEmail || !emailRegex.test(userEmail)) return res.status(401).end();
 
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
-    const devicePublicKey = req.body?.devicePublicKey; // NEW SYSTEM
-    const deviceName = req.body?.deviceName;
-    const deviceType = req.body?.deviceType;
-    const deviceOS = req.body?.deviceOS;
-    const appVersion = req.body?.appVersion;
+    const deviceId = inputSanitizer.getString(req.body?.deviceId);
+    const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
+    const devicePublicKey = inputSanitizer.getString(req.body?.devicePublicKey); // NEW SYSTEM
+    const deviceName = inputSanitizer.getString(req.body?.deviceName);
+    const deviceType = inputSanitizer.getString(req.body?.deviceType);
+    const deviceOS = inputSanitizer.getString(req.body?.deviceOS);
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
     // Check params
     if (!deviceId) return res.status(401).end();

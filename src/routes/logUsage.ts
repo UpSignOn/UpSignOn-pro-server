@@ -1,11 +1,12 @@
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const logUsage = async (req: any, res: any): Promise<void> => {
   try {
-    const logType = req.body?.logType;
+    const logType = inputSanitizer.getString(req.body?.logType);
     if (!logType) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req, { returningDeviceId: true });

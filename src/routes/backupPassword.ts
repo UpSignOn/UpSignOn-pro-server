@@ -1,12 +1,13 @@
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const backupPassword = async (req: any, res: any) => {
   try {
-    const backups = req.body?.backups;
-    if (!backups || !Array.isArray(backups)) return res.status(401).end();
+    const backups = inputSanitizer.getArrayOfBackups(req.body?.backups);
+    if (!backups) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

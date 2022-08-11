@@ -1,18 +1,21 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getContactsForSharedFolder = async (req: any, res: any) => {
   try {
-    const folderId = req.body?.folderId;
+    const folderId = inputSanitizer.getNumberOrNull(req.body?.folderId);
     if (!folderId) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 
-    const returningPublicKeys = !!req.body?.returningPublicKeys;
-    const returningSharedAccountIds = !!req.body?.returningSharedAccountIds;
+    const returningPublicKeys = inputSanitizer.getBoolean(req.body?.returningPublicKeys);
+    const returningSharedAccountIds = inputSanitizer.getBoolean(
+      req.body?.returningSharedAccountIds,
+    );
 
     const contactRes = await db.query(
       `SELECT u.email, u.id, BOOL_AND(sau.is_manager) AS is_folder_manager

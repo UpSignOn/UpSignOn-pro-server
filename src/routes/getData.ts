@@ -1,6 +1,7 @@
 import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 /**
  * Returns
@@ -13,17 +14,15 @@ import { logError } from '../helpers/logger';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
-    const groupId = parseInt(req.params.groupId || 1);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params
-    let userEmail = req.body?.userEmail;
-    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
-    userEmail = userEmail.toLowerCase();
-
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+    const deviceId = inputSanitizer.getString(req.body?.deviceId);
+    const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
 
     // Check params
+    if (!userEmail) return res.status(401).end();
     if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode && !req.session) return res.status(401).end();
@@ -87,8 +86,8 @@ export const getData = async (req: any, res: any): Promise<void> => {
       // NEW SYSTEM: check session
       // make sure this session matches the request (the session might be linked to another space on the same device)
       if (
-        req.session.userEmail != req.body?.userEmail ||
-        req.session.deviceUniqueId != req.body?.deviceId ||
+        req.session.userEmail != userEmail ||
+        req.session.deviceUniqueId != deviceId ||
         req.session.groupId != groupId
       ) {
         await req.session.destroy();

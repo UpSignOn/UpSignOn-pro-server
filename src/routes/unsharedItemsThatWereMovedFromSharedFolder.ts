@@ -2,6 +2,7 @@ import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { isStrictlyLowerVersion } from '../helpers/appVersionChecker';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const unshareItemsThatWereMovedFromSharedFolder = async (
@@ -9,13 +10,15 @@ export const unshareItemsThatWereMovedFromSharedFolder = async (
   res: any,
 ): Promise<void> => {
   try {
-    const appVersion = req.body?.appVersion;
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
     if (isStrictlyLowerVersion(appVersion, '4.5.0')) {
       return res.status(403).send({ error: 'deprecated_app' });
     }
 
-    const oldSharedAccountUsersToRemove = req.body?.oldSharedAccountUsersToRemove;
-    if (!Array.isArray(oldSharedAccountUsersToRemove)) {
+    const oldSharedAccountUsersToRemove = inputSanitizer.getArrayOfSharedAccountUsersToRemove(
+      req.body?.oldSharedAccountUsersToRemove,
+    );
+    if (!oldSharedAccountUsersToRemove) {
       return res.status(401).end();
     }
 

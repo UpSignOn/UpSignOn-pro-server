@@ -1,13 +1,14 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateDeviceMetaData = async (req: any, res: any): Promise<void> => {
   try {
-    const deviceName = req.body?.deviceName;
-    const osVersion = req.body?.osVersion;
-    const appVersion = req.body?.appVersion;
+    const deviceName = inputSanitizer.getString(req.body?.deviceName);
+    const osVersion = inputSanitizer.getString(req.body?.osVersion);
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
     const basicAuth = await checkBasicAuth(req, { returningDeviceId: true });
     if (!basicAuth.granted) return res.status(401).end();

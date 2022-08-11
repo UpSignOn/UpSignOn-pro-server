@@ -1,11 +1,12 @@
 import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const sendStats = async (req: any, res: any): Promise<void> => {
   try {
-    const dataStats = req.body?.dataStats;
+    const dataStats = inputSanitizer.getStatObject(req.body?.dataStats);
     if (!dataStats) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);

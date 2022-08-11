@@ -2,31 +2,34 @@ import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { isStrictlyLowerVersion } from '../helpers/appVersionChecker';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const share = async (req: any, res: any): Promise<void> => {
   try {
-    const appVersion = req.body?.appVersion;
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
     if (isStrictlyLowerVersion(appVersion, '4.5.0')) {
       return res.status(403).send({ error: 'deprecated_app' });
     }
 
-    const sharings: {
-      type: string;
-      url: null | string;
-      name: null | string;
-      login: null | string;
-      dbId: null | number;
-      idInUserEnv: null | number;
-      contacts: {
-        email: string;
-        isManager: boolean;
-        encryptedAesKey: string;
-      }[];
-      aesEncryptedData: null | string;
-    }[] = req.body?.sharings;
+    const sharings:
+      | null
+      | {
+          type: string;
+          url: null | string;
+          name: null | string;
+          login: null | string;
+          dbId: null | number;
+          idInUserEnv: null | number;
+          contacts: {
+            email: string;
+            isManager: boolean;
+            encryptedAesKey: string;
+          }[];
+          aesEncryptedData: null | string;
+        }[] = inputSanitizer.getSharings(req.body?.sharings);
 
-    if (!sharings || !Array.isArray(sharings)) return res.status(401).end();
+    if (!sharings) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

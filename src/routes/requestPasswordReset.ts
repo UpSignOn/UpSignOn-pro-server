@@ -4,20 +4,18 @@ import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../helpers/logger';
 import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
   try {
-    const groupId = parseInt(req.params.groupId || 1);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params
-    let userEmail = req.body?.userEmail;
-    if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
-    userEmail = userEmail.toLowerCase();
-
-    const deviceId = req.body?.deviceId;
-    const deviceAccessCode = req.body?.deviceAccessCode; // DEPRECATED
-    const deviceChallengeResponse = req.body?.deviceChallengeResponse;
+    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+    const deviceId = inputSanitizer.getString(req.body?.deviceId);
+    const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
+    const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
 
     // Check params
     if (!userEmail) return res.status(401).end();

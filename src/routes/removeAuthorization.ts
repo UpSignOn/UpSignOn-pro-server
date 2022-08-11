@@ -2,25 +2,25 @@ import { db } from '../helpers/db';
 import { logError } from '../helpers/logger';
 import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const removeAuthorization = async (req: any, res: any) => {
   try {
-    const deviceId = req.body?.deviceId;
-    const deviceToDelete = req.body?.deviceToDelete || deviceId;
+    const deviceId = inputSanitizer.getString(req.body?.deviceId);
+    const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;
 
-    const groupId = parseInt(req.params.groupId || 1);
+    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
     let userId = null;
 
     // DEVICE CAN REVOKE ITSELF WITHOUT FULL SESSION
     if (deviceId === deviceToDelete) {
       // Get params
-      let userEmail = req.body?.userEmail;
-      if (!userEmail || typeof userEmail !== 'string') return res.status(401).end();
-      userEmail = userEmail.toLowerCase();
+      const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+      if (!userEmail) return res.status(401).end();
 
-      const deviceAccessCode = req.body?.deviceAccessCode;
-      const deviceChallengeResponse = req.body?.deviceChallengeResponse;
+      const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode);
+      const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
 
       // Check params
       if (!userEmail) return res.status(401).end();
@@ -52,8 +52,8 @@ export const removeAuthorization = async (req: any, res: any) => {
       // you can revoke a device by having an authenticated session or by providing device authentication
       if (
         !req.session ||
-        req.session.userEmail != req.body?.userEmail ||
-        req.session.deviceUniqueId != req.body?.deviceId ||
+        req.session.userEmail != userEmail ||
+        req.session.deviceUniqueId != deviceId ||
         req.session.groupId != groupId
       ) {
         if (!deviceAccessCode && !deviceChallengeResponse) {
