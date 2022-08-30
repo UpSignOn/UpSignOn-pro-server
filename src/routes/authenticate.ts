@@ -3,6 +3,7 @@ import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
 import { checkPasswordChallenge } from '../helpers/passwordChallenge';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { SessionStore } from '../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const authenticate = async (req: any, res: any) => {
@@ -94,12 +95,14 @@ export const authenticate = async (req: any, res: any) => {
         'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null, password_challenge_error_count=0, password_challenge_blocked_until=null WHERE id=$1',
         [did],
       );
-      req.session.groupId = groupId;
-      req.session.deviceId = did;
-      req.session.deviceUniqueId = deviceUId;
-      req.session.userEmail = userEmail;
+      const deviceSession = await SessionStore.createSession({
+        groupId,
+        deviceUniqueId: deviceUId,
+        userEmail,
+      });
       return res.status(200).json({
         success,
+        deviceSession,
       });
     } else {
       if (blockedUntil) {

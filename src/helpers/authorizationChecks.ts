@@ -3,6 +3,7 @@
 import { db } from './db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { inputSanitizer } from './sanitizer';
+import { SessionStore } from './sessionStore';
 
 export const checkBasicAuth = async (
   req: any,
@@ -28,13 +29,23 @@ export const checkBasicAuth = async (
 > => {
   const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
+  const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
   const deviceUId = inputSanitizer.getString(req.body?.deviceId);
   const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // deprecated
 
   if (!userEmail) return { granted: false };
   if (!deviceUId) return { granted: false };
-  if (!deviceAccessCode && !req.session) return { granted: false };
+  if (!deviceAccessCode && !deviceSession) return { granted: false };
+
+  if (deviceSession) {
+    const isSessionOK = await SessionStore.checkSession(deviceSession, {
+      userEmail,
+      deviceUniqueId: deviceUId,
+      groupId,
+    });
+    if (!isSessionOK) return { granted: false };
+  }
 
   const publicKeySelect = options?.returningUserPublicKey
     ? 'u.sharing_public_key AS sharing_public_key,'
@@ -84,7 +95,7 @@ export const checkBasicAuth = async (
 
   if (!dbRes || dbRes.rowCount === 0) return { granted: false };
 
-  // Check Session OR access code
+  // Check DEPRECATED access code
   if (
     !!dbRes.rows[0].access_code_hash &&
     !dbRes.rows[0].has_device_public_key &&
@@ -96,23 +107,6 @@ export const checkBasicAuth = async (
       dbRes.rows[0].access_code_hash,
     );
     if (!isAccessGranted) return { granted: false };
-  } else if (
-    !dbRes.rows[0].access_code_hash &&
-    dbRes.rows[0].has_device_public_key &&
-    !!req.session
-  ) {
-    // NEW SYSTEM: check session
-    // make sure this session matches the request (the session might be linked to another space on the same device)
-    if (
-      req.session.userEmail != userEmail ||
-      req.session.deviceUniqueId != deviceUId ||
-      req.session.groupId != groupId
-    ) {
-      await req.session.destroy();
-      return { granted: false };
-    }
-  } else {
-    return { granted: false };
   }
 
   return {

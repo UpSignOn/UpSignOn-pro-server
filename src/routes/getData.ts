@@ -2,6 +2,7 @@ import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../helpers/logger';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { SessionStore } from '../helpers/sessionStore';
 
 /**
  * Returns
@@ -17,6 +18,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params
+    const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
@@ -25,7 +27,16 @@ export const getData = async (req: any, res: any): Promise<void> => {
     if (!userEmail) return res.status(401).end();
     if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
-    if (!deviceAccessCode && !req.session) return res.status(401).end();
+    if (!deviceAccessCode && !deviceSession) return res.status(401).end();
+
+    if (deviceSession) {
+      const isSessionOK = await SessionStore.checkSession(deviceSession, {
+        userEmail,
+        deviceUniqueId: deviceId,
+        groupId,
+      });
+      if (!isSessionOK) return res.status(401).end();
+    }
 
     // Request DB
     const dbRes = await db.query(
@@ -66,7 +77,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
       return res.status(401).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
-    // Check Session OR access code
+    // Check DEPRECATED access code if applicable
     if (
       !!dbRes.rows[0].access_code_hash &&
       !dbRes.rows[0].has_device_public_key &&
@@ -78,23 +89,6 @@ export const getData = async (req: any, res: any): Promise<void> => {
         dbRes.rows[0].access_code_hash,
       );
       if (!isAccessGranted) res.status(401).end();
-    } else if (
-      !dbRes.rows[0].access_code_hash &&
-      dbRes.rows[0].has_device_public_key &&
-      !!req.session
-    ) {
-      // NEW SYSTEM: check session
-      // make sure this session matches the request (the session might be linked to another space on the same device)
-      if (
-        req.session.userEmail != userEmail ||
-        req.session.deviceUniqueId != deviceId ||
-        req.session.groupId != groupId
-      ) {
-        await req.session.destroy();
-        return res.status(401).end();
-      }
-    } else {
-      return res.status(401).end();
     }
 
     const sharedItems = await getSharedItems(dbRes.rows[0].user_id, groupId);

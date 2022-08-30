@@ -13,7 +13,7 @@ export const getMatchingEmailAddressesForSharing = async (req: any, res: any) =>
     if (!emailAddressSearch || emailAddressSearch.length < 3) return res.status(401).end();
 
     // session mechanism for performance (this route will necessarily be called multiple times in a row, let's avoid unecessary db queries)
-    // TODO USE req.session directly when access_code_hash will be removed
+    // TODO USE req.body.session directly when access_code_hash will be removed
     let session = req.body?.session;
     contactSearchSessions = contactSearchSessions.filter((s) => s.expirationTimestamp < Date.now());
     const sessionDict = !!session ? contactSearchSessions.find((s) => s.session === session) : null;

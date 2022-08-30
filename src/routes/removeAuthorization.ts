@@ -3,10 +3,12 @@ import { logError } from '../helpers/logger';
 import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { SessionStore } from '../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const removeAuthorization = async (req: any, res: any) => {
   try {
+    const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;
 
@@ -49,13 +51,16 @@ export const removeAuthorization = async (req: any, res: any) => {
         return res.status(401).end();
       }
 
-      // you can revoke a device by having an authenticated session or by providing device authentication
-      if (
-        !req.session ||
-        req.session.userEmail != userEmail ||
-        req.session.deviceUniqueId != deviceId ||
-        req.session.groupId != groupId
-      ) {
+      // you can revoke a device by having an authenticated deviceSession or by providing device authentication
+      let isSessionAuthenticated = false;
+      if (deviceSession) {
+        isSessionAuthenticated = await SessionStore.checkSession(deviceSession, {
+          userEmail,
+          deviceUniqueId: deviceId,
+          groupId,
+        });
+      }
+      if (!deviceSession || !isSessionAuthenticated) {
         if (!deviceAccessCode && !deviceChallengeResponse) {
           const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
           return res.status(403).json({ deviceChallenge });

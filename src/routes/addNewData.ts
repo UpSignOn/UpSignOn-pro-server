@@ -2,6 +2,7 @@ import { db } from '../helpers/db';
 import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { SessionStore } from '../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData = async (req: any, res: any): Promise<void> => {
@@ -85,12 +86,13 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     }
 
     // Set Session
-    req.session.groupId = groupId;
-    req.session.deviceId = selectRes.rows[0].did;
-    req.session.deviceUniqueId = deviceUId;
-    req.session.userEmail = userEmail;
+    const deviceSession = await SessionStore.createSession({
+      groupId,
+      deviceUniqueId: deviceUId,
+      userEmail,
+    });
 
-    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
+    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, deviceSession });
   } catch (e) {
     logError('addNewData', e);
     return res.status(400).end();

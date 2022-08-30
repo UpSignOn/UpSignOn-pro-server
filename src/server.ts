@@ -3,8 +3,7 @@ import path from 'path';
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 import express from 'express';
-import expressSession from 'express-session';
-import SessionStore from './helpers/sessionStore';
+import { SessionStore } from './helpers/sessionStore';
 
 import { startServer } from './helpers/serverProcess';
 import { requestAccess } from './routes/requestAccess';
@@ -68,25 +67,7 @@ if (!env.SESSION_SECRET) {
   console.error('Missing SESSION_SECRET in .env file.');
   process.exit(1);
 }
-app.use(
-  expressSession({
-    cookie: {
-      path: '/',
-      httpOnly: true,
-      secure: env.IS_PRODUCTION,
-      maxAge: 3600000, // one hour
-      sameSite: 'none', // used to be "env.IS_PRODUCTION ? 'strict' : 'lax'", but this cause the safari extension not to work for pro spaces => TODO change it back when the app becomes available as a true macos app and the requests
-    },
-    name: 'upsignon_device_session',
-    // @ts-ignore
-    secret: env.SESSION_SECRET,
-    resave: false,
-    rolling: false,
-    saveUninitialized: false,
-    unset: 'destroy',
-    store: new SessionStore(),
-  }),
-);
+SessionStore.init();
 
 app.use((req, res, next) => {
   logInfo(req.url);
