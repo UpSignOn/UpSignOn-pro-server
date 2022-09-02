@@ -126,43 +126,31 @@ function getSharings(untrustedInput: unknown):
     for (let i = 0; i < untrustedInput.length; i++) {
       const untrustedSharing = untrustedInput[i];
       if (typeof untrustedSharing.type !== 'string') throw new Error('Bad type for sharing type');
-      if (typeof untrustedSharing.url !== 'undefined' && typeof untrustedSharing.url !== 'string')
+      if (untrustedSharing.url != null && typeof untrustedSharing.url !== 'string')
         throw new Error('Bad type for sharing url');
-      if (typeof untrustedSharing.name !== 'undefined' && typeof untrustedSharing.name !== 'string')
+      if (untrustedSharing.name != null && typeof untrustedSharing.name !== 'string')
         throw new Error('Bad type for sharing name');
-      if (
-        typeof untrustedSharing.login !== 'undefined' &&
-        typeof untrustedSharing.login !== 'string'
-      )
+      if (untrustedSharing.login != null && typeof untrustedSharing.login !== 'string')
         throw new Error('Bad type for sharing login');
-      if (typeof untrustedSharing.dbId !== 'undefined' && typeof untrustedSharing.dbId !== 'number')
+      if (untrustedSharing.dbId != null && typeof untrustedSharing.dbId !== 'number')
         throw new Error('Bad type for sharing dbId');
-      if (
-        typeof untrustedSharing.idInUserEnv !== 'undefined' &&
-        typeof untrustedSharing.idInUserEnv !== 'string'
-      )
+      if (untrustedSharing.idInUserEnv != null && typeof untrustedSharing.idInUserEnv !== 'string')
         throw new Error('Bad type for sharing idInUserEnv');
       if (
-        typeof untrustedSharing.aesEncryptedData !== 'undefined' &&
+        untrustedSharing.aesEncryptedData == null ||
         typeof untrustedSharing.aesEncryptedData !== 'string'
       )
         throw new Error('Bad type for sharing aesEncryptedData');
-      if (
-        typeof untrustedSharing.contacts !== 'undefined' &&
-        !Array.isArray(untrustedSharing.contacts)
-      )
+      if (untrustedSharing.contacts == null || !Array.isArray(untrustedSharing.contacts))
         throw new Error('Bad type for sharing contacts');
       const trustedContacts = [];
       for (let j = 0; j < untrustedSharing.contacts.length; j++) {
         const contact = untrustedSharing.contacts[j];
         if (typeof contact.email !== 'string')
           throw new Error('Bad type for sharing contact email');
-        if (
-          typeof contact.encryptedAesKey !== 'undefined' &&
-          typeof contact.encryptedAesKey !== 'string'
-        )
+        if (contact.encryptedAesKey == null || typeof contact.encryptedAesKey !== 'string')
           throw new Error('Bad type for sharing contact encryptedAesKey');
-        if (typeof contact.isManager !== 'undefined' && typeof contact.isManager !== 'boolean')
+        if (contact.isManager != null && typeof contact.isManager !== 'boolean')
           throw new Error('Bad type for sharing contact isManager');
         trustedContacts.push({
           email: contact.email,
@@ -183,6 +171,7 @@ function getSharings(untrustedInput: unknown):
     }
     return trustedSharings;
   } catch (e) {
+    console.error(e);
     return null;
   }
 }
