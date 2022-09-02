@@ -206,7 +206,7 @@ function getAesKeyUpdates(untrustedInput: any):
       id: number;
       encryptedAesKey: string;
     }[] {
-  if (!untrustedInput || Array.isArray(untrustedInput)) return null;
+  if (!untrustedInput || !Array.isArray(untrustedInput)) return null;
   const trustedAesKeyUpdates = [];
   for (let i = 0; i < untrustedInput.length; i++) {
     if (
