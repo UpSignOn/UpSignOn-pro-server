@@ -125,44 +125,45 @@ function getSharings(untrustedInput: unknown):
     const trustedSharings = [];
     for (let i = 0; i < untrustedInput.length; i++) {
       const untrustedSharing = untrustedInput[i];
-      if (typeof untrustedSharing.type !== 'string') throw new Error();
+      if (typeof untrustedSharing.type !== 'string') throw new Error('Bad type for sharing type');
       if (typeof untrustedSharing.url !== 'undefined' && typeof untrustedSharing.url !== 'string')
-        throw new Error();
+        throw new Error('Bad type for sharing url');
       if (typeof untrustedSharing.name !== 'undefined' && typeof untrustedSharing.name !== 'string')
-        throw new Error();
+        throw new Error('Bad type for sharing name');
       if (
         typeof untrustedSharing.login !== 'undefined' &&
         typeof untrustedSharing.login !== 'string'
       )
-        throw new Error();
+        throw new Error('Bad type for sharing login');
       if (typeof untrustedSharing.dbId !== 'undefined' && typeof untrustedSharing.dbId !== 'number')
-        throw new Error();
+        throw new Error('Bad type for sharing dbId');
       if (
         typeof untrustedSharing.idInUserEnv !== 'undefined' &&
         typeof untrustedSharing.idInUserEnv !== 'string'
       )
-        throw new Error();
+        throw new Error('Bad type for sharing idInUserEnv');
       if (
         typeof untrustedSharing.aesEncryptedData !== 'undefined' &&
         typeof untrustedSharing.aesEncryptedData !== 'string'
       )
-        throw new Error();
+        throw new Error('Bad type for sharing aesEncryptedData');
       if (
         typeof untrustedSharing.contacts !== 'undefined' &&
         !Array.isArray(untrustedSharing.contacts)
       )
-        throw new Error();
+        throw new Error('Bad type for sharing contacts');
       const trustedContacts = [];
       for (let j = 0; j < untrustedSharing.contacts.length; j++) {
         const contact = untrustedSharing.contacts[j];
-        if (typeof contact.email !== 'string') throw new Error();
+        if (typeof contact.email !== 'string')
+          throw new Error('Bad type for sharing contact email');
         if (
           typeof contact.encryptedAesKey !== 'undefined' &&
           typeof contact.encryptedAesKey !== 'string'
         )
-          throw new Error();
+          throw new Error('Bad type for sharing contact encryptedAesKey');
         if (typeof contact.isManager !== 'undefined' && typeof contact.isManager !== 'boolean')
-          throw new Error();
+          throw new Error('Bad type for sharing contact isManager');
         trustedContacts.push({
           email: contact.email,
           isManager: contact.isManager,
