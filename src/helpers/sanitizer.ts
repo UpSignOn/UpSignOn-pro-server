@@ -139,12 +139,12 @@ function getSharings(untrustedInput: unknown):
         throw new Error();
       if (
         typeof untrustedSharing.idInUserEnv !== 'undefined' &&
-        typeof untrustedSharing.idInUserEnv !== 'number'
+        typeof untrustedSharing.idInUserEnv !== 'string'
       )
         throw new Error();
       if (
         typeof untrustedSharing.aesEncryptedData !== 'undefined' &&
-        typeof untrustedSharing.aesEncryptedData !== 'number'
+        typeof untrustedSharing.aesEncryptedData !== 'string'
       )
         throw new Error();
       if (
