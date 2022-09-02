@@ -186,9 +186,9 @@ function getSharedItem(untrustedInput: any): null | {
   if (
     typeof untrustedInput.id !== 'number' ||
     typeof untrustedInput.aesEncryptedData !== 'string' ||
-    (!!untrustedInput.url && typeof untrustedInput.url !== 'string') ||
-    (!!untrustedInput.name && typeof untrustedInput.name !== 'string') ||
-    (!!untrustedInput.login && typeof untrustedInput.login !== 'string')
+    (untrustedInput.url != null && typeof untrustedInput.url !== 'string') ||
+    (untrustedInput.name != null && typeof untrustedInput.name !== 'string') ||
+    (untrustedInput.login != null && typeof untrustedInput.login !== 'string')
   )
     return null;
   return {
