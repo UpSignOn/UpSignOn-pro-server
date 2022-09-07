@@ -1,6 +1,5 @@
-import nodemailer from 'nodemailer';
 import { extractTime } from './dateHelper';
-import { getEmailConfig } from './getMailTransporter';
+import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
 
@@ -12,19 +11,7 @@ export const sendPasswordResetRequestEmail = async (
 ): Promise<void> => {
   try {
     const emailConfig = await getEmailConfig();
-    const transportOptions = {
-      host: emailConfig.EMAIL_HOST,
-      port: emailConfig.EMAIL_PORT,
-      secure: emailConfig.EMAIL_PORT === 465,
-    };
-    if (emailConfig.EMAIL_PASS) {
-      // @ts-ignore
-      transportOptions.auth = {
-        user: emailConfig.EMAIL_USER,
-        pass: emailConfig.EMAIL_PASS,
-      };
-    }
-    const transporter = nodemailer.createTransport(transportOptions);
+    const transporter = getMailTransporter(emailConfig, { debug: false });
 
     // prevent HTML injections
     const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
@@ -40,6 +27,6 @@ export const sendPasswordResetRequestEmail = async (
       html: `<body><p>Bonjour,</p><p>Vous avez effectué une demande de réinitialisation de votre mot de passe depuis votre appareil "${safeDeviceName}".</p><p>Pour réinitiliaser votre mot de passe UpSignOn PRO, saisissez le code suivant :</p><p style="font-family:monospace;font-size: 20px; font-weight: bold; margin: 20px 0;">${safeRequestToken}</p><p>Attention, ce code n'est valide que pour l'appareil "${safeDeviceName}" et expirera à ${expirationTime}.</p><p>Bonne journée,<br/>UpSignOn</p></body>`,
     });
   } catch (e) {
-    logError('ERROR sending email:', e);
+    logError('ERROR sending password reset email:', e);
   }
 };
