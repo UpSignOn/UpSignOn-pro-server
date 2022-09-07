@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
 import { db } from '../helpers/db';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../helpers/logger';
 import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { getRandomString } from '../helpers/randomString';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
@@ -84,7 +84,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
     if (settingRes.rows[0]?.value) {
       // MANUAL VALIDATION IS DISABLED
       const expirationDate = getExpirationDate();
-      const randomAuthorizationCode = uuidv4().substring(0, 8);
+      const randomAuthorizationCode = getRandomString(8);
       if (!resetRequest.reset_request_id) {
         await db.query(
           `INSERT INTO password_reset_request

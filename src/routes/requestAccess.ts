@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
 import { db } from '../helpers/db';
 import { accessCodeHash } from '../helpers/accessCodeHash';
 import { getExpirationDate, isExpired } from '../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../helpers/sendDeviceRequestEmail';
 import { logError } from '../helpers/logger';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { getRandomString } from '../helpers/randomString';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -95,7 +95,7 @@ export const requestAccess = async (req: any, res: any) => {
     const hashedAccessCode = !!deviceAccessCode
       ? await accessCodeHash.asyncHash(deviceAccessCode)
       : null;
-    const randomAuthorizationCode = uuidv4().substring(0, 8);
+    const randomAuthorizationCode = getRandomString(8);
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
       if (!hashedAccessCode && !devicePublicKey) return res.status(401).end();

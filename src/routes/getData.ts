@@ -25,7 +25,6 @@ export const getData = async (req: any, res: any): Promise<void> => {
 
     // Check params
     if (!userEmail) return res.status(401).end();
-    if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceAccessCode && !deviceSession) return res.status(401).end();
 
