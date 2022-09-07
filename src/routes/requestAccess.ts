@@ -81,7 +81,7 @@ export const requestAccess = async (req: any, res: any) => {
       !isExpired(deviceRes.rows[0].auth_code_expiration_date)
     ) {
       // resend email
-      sendDeviceRequestEmail(
+      await sendDeviceRequestEmail(
         userEmail,
         deviceName,
         deviceType,
@@ -133,7 +133,7 @@ export const requestAccess = async (req: any, res: any) => {
       );
     }
 
-    sendDeviceRequestEmail(
+    await sendDeviceRequestEmail(
       userEmail,
       deviceName,
       deviceType,
