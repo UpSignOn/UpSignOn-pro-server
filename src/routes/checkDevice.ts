@@ -19,7 +19,6 @@ export const checkDevice = async (req: any, res: any) => {
 
     // Check params
     if (!userEmail) return res.status(401).end();
-    if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();
     if (!deviceValidationCode) return res.status(401).end();
 
