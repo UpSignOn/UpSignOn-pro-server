@@ -31,7 +31,7 @@ export const migrateToCryptographicAuthentication = async (req: any, res: any) =
       [userEmail, deviceId, groupId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
+    if (!dbRes || dbRes.rowCount === 0) return res.status(204).end();
 
     // Check access code
     const isAccessGranted = await accessCodeHash.asyncIsOk(
