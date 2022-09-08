@@ -36,7 +36,10 @@ export const checkPasswordChallenge = async (
   }
   // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
   const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(79, 123), 'base64');
-  const passwordChallengeResponseBuffer = Buffer.from(passwordChallengeResponse, 'base64');
+  const passwordChallengeResponseBuffer = crypto
+    .createHash('sha256')
+    .update(passwordChallengeResponse, 'base64')
+    .digest();
 
   let hasPassedPasswordChallenge = false;
 
@@ -70,4 +73,19 @@ export const checkPasswordChallenge = async (
     );
     return { hasPassedPasswordChallenge: false, blockedUntil: minRetryDate };
   }
+};
+
+export const hashPasswordChallengeResultForSecureStorage = (
+  encryptedDataString: string,
+): string => {
+  const expectedPasswordChallengeResult = encryptedDataString.substring(79, 123);
+  const hashedBase64PasswordChallengeResult = crypto
+    .createHash('sha256')
+    .update(expectedPasswordChallengeResult, 'base64')
+    .digest('base64');
+  return (
+    encryptedDataString.substring(0, 79) +
+    hashedBase64PasswordChallengeResult +
+    encryptedDataString.substring(123)
+  );
 };

@@ -1,6 +1,7 @@
 import { db } from '../helpers/db';
 import { checkDeviceChallenge } from '../helpers/deviceChallenge';
 import { logError } from '../helpers/logger';
+import { hashPasswordChallengeResultForSecureStorage } from '../helpers/passwordChallenge';
 import { inputSanitizer } from '../helpers/sanitizer';
 import { SessionStore } from '../helpers/sessionStore';
 
@@ -75,10 +76,12 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       return res.status(401).end();
     }
 
+    const newEncryptedDataWithPasswordChallengeSecured =
+      hashPasswordChallengeResultForSecureStorage(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
       'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
-      [newEncryptedData, sharingPublicKey, userEmail, groupId],
+      [newEncryptedDataWithPasswordChallengeSecured, sharingPublicKey, userEmail, groupId],
     );
     if (updateRes.rowCount === 0) {
       // CONFLICT

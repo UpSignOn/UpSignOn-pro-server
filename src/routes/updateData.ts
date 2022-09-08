@@ -3,6 +3,7 @@ import { getSharedItems } from './getData';
 import { logError } from '../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../helpers/sanitizer';
+import { hashPasswordChallengeResultForSecureStorage } from '../helpers/passwordChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
@@ -28,15 +29,27 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       return res.status(400).end();
     }
     let updateRes;
+    const newEncryptedDataWithPasswordChallengeSecured =
+      hashPasswordChallengeResultForSecureStorage(newEncryptedData);
     if (isNewData) {
       updateRes = await db.query(
         'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
-        [newEncryptedData, sharingPublicKey, basicAuth.userEmail, basicAuth.groupId],
+        [
+          newEncryptedDataWithPasswordChallengeSecured,
+          sharingPublicKey,
+          basicAuth.userEmail,
+          basicAuth.groupId,
+        ],
       );
     } else {
       updateRes = await db.query(
         'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) AND users.group_id=$4 RETURNING updated_at',
-        [newEncryptedData, basicAuth.userEmail, lastUpdateDate, basicAuth.groupId],
+        [
+          newEncryptedDataWithPasswordChallengeSecured,
+          basicAuth.userEmail,
+          lastUpdateDate,
+          basicAuth.groupId,
+        ],
       );
     }
     if (updateRes.rowCount === 0) {
