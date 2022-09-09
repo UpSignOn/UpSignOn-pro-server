@@ -78,6 +78,9 @@ export const checkPasswordChallenge = async (
 export const hashPasswordChallengeResultForSecureStorage = (
   encryptedDataString: string,
 ): string => {
+  if (!encryptedDataString.startsWith('formatP001-')) {
+    return encryptedDataString;
+  }
   const expectedPasswordChallengeResult = encryptedDataString.substring(79, 123);
   const hashedBase64PasswordChallengeResult = crypto
     .createHash('sha256')
