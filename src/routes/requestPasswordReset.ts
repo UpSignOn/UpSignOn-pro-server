@@ -81,7 +81,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
       `SELECT settings->>'DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN' AS value FROM groups WHERE id=$1`,
       [groupId],
     );
-    if (settingRes.rows[0]?.value) {
+    if (settingRes.rows[0]?.value === 'true' || settingRes.rows[0]?.value === true) {
       // MANUAL VALIDATION IS DISABLED
       const expirationDate = getExpirationDate();
       const randomAuthorizationCode = getRandomString(8);
