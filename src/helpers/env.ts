@@ -22,7 +22,8 @@ export default {
   DB_PASS,
   SERVER_PORT: SERVER_PORT ? Number.parseInt(SERVER_PORT) : 3000,
   API_PUBLIC_HOSTNAME: API_PUBLIC_HOSTNAME || '',
-  SESSION_SECRET: SESSION_SECRET || null,
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  SESSION_SECRET: SESSION_SECRET || require('crypto').randomBytes(64).toString('hex'),
   SSL_CERTIFICATE_KEY_PATH: SSL_CERTIFICATE_KEY_PATH || '',
   SSL_CERTIFICATE_CRT_PATH: SSL_CERTIFICATE_CRT_PATH || '',
   HTTP_PROXY,
