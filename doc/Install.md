@@ -146,6 +146,10 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
 
+## NB: backup des bases de données
+
+Il est de votre responsabilité de créer des sauvegardes régulières de votre base de données pour pouvoir les restaurer en cas de problème.
+
 # Installation des serveurs
 
 ## Configuration d'un reverse proxy
@@ -467,6 +471,7 @@ root@localhost:~# systemctl daemon-reload
 Pour configurer les mises-à-jour automatiques des serveurs, procédez ainsi :
 
 ```bash
+# Attention à bien configurer le cron de l'utilisateur upsignonpro et non le cron d'un autre utilisateur !
 upsignonpro@localhost:~$ crontab -e
 ```
 
@@ -525,6 +530,12 @@ Le mot de passe que vous avez utilisé précédemment pour vous connecter était
 - une fois que votre compte superAdmin a été importé dans votre espace UpSignOn PRO, vous pouvez supprimer le "temporaryAdmin" de la liste des super-administrateurs.
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
+
+# ATTENTION !!! Gardez l'accès root à votre serveur UpSignOn !
+
+Ne conservez pas votre mot de passe d'accès au serveur UpSignOn PRO dans votre coffre-fort UpSignOn car en cas de problème sur votre serveur, vous ne pourrez plus accéder à votre coffre-fort et vous serez coincés.
+
+Vous pouvez en revanche utiliser un coffre-fort Perso pour stocker certains mots de passe auxquels vous devez pouvoir accéder en mode offline (le coffre-fort perso stocke vos données de façon chiffrée directement sur votre appareil). L'option mode offline pour les coffres-forts PRO sera disponible dans quelques temps.
 
 # Note sur les paramètres OpenId
 
