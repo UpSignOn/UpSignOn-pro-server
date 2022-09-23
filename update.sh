@@ -1,3 +1,9 @@
+#!/bin/bash
+if [[ "$USER" != "upsignonpro" && "$USER" != "upsignon" ]]; then
+  echo "You need to run the update script as upsignonpro."
+  exit 1
+fi
+
 git pull origin production --ff-only
 yarn install
 yarn build
