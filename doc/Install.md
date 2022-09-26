@@ -478,8 +478,8 @@ upsignonpro@localhost:~$ crontab -e
 Puis ajoutez ces deux taches cron:
 
 ```
-0 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-server; ./update.sh"
-5 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-dashboard; ./update.sh"
+0 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-server && ./update.sh"
+5 5 * * * /bin/bash -c "cd /home/upsignonpro/upsignon-pro-dashboard && ./update.sh"
 ```
 
 Puis relancer le service cron
