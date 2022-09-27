@@ -1,6 +1,6 @@
 {
   "name": "upsignon-pro-server",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
   "scripts": {
     "build": "rm -rf compiled && tsc -p .",
