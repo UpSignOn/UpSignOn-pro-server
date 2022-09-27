@@ -137,8 +137,8 @@ function getSharings(untrustedInput: unknown):
       if (untrustedSharing.idInUserEnv != null && typeof untrustedSharing.idInUserEnv !== 'string')
         throw new Error('Bad type for sharing idInUserEnv');
       if (
-        untrustedSharing.dbId == null &&
-        (untrustedSharing.aesEncryptedData == null ||
+        (untrustedSharing.dbId == null && untrustedSharing.aesEncryptedData == null) ||
+        (untrustedSharing.aesEncryptedData != null &&
           typeof untrustedSharing.aesEncryptedData !== 'string')
       )
         throw new Error('Bad type for sharing aesEncryptedData');
