@@ -2,6 +2,7 @@
   "name": "upsignon-pro-server",
   "version": "1.4.1",
   "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
+  "licence": "none",
   "scripts": {
     "build": "rm -rf compiled && tsc -p .",
     "start": "pm2 startOrReload ecosystem.config.js --only upsignon-pro-server",
