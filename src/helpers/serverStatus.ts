@@ -19,6 +19,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     );
     const lastMigration = lastMigrationResult.rows[0].name;
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
+    const statsByGroup = await getStatsByGroup();
     const licenseCount = licenseCountResult.rows[0].count;
     const userAppVersionsResult = await db.query(
       `SELECT DISTINCT(app_version) FROM user_devices WHERE authorization_status='AUTHORIZED' ORDER BY app_version DESC`,
@@ -33,6 +34,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       licenseCount,
       userAppVersions,
       securityGraph: JSON.stringify(stats),
+      statsByGroup,
     };
 
     sendToUpSignOn(serverStatus);
@@ -189,4 +191,11 @@ const sendToUpSignOn = (status: any) => {
 
   req.write(dataString);
   req.end();
+};
+
+const getStatsByGroup = async () => {
+  const res = await db.query(
+    'SELECT groups.name, groups.created_at, groups.nb_licences_sold, COUNT(users.id) AS nb_users FROM groups LEFT JOIN users ON groups.id=users.id',
+  );
+  return JSON.stringify(res.rows);
 };
