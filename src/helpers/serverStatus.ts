@@ -195,7 +195,7 @@ const sendToUpSignOn = (status: any) => {
 
 const getStatsByGroup = async () => {
   const res = await db.query(
-    'SELECT groups.name, groups.created_at, groups.nb_licences_sold, COUNT(users.id) AS nb_users FROM groups LEFT JOIN users ON groups.id=users.id',
+    'SELECT groups.name, groups.created_at, groups.nb_licences_sold, (SELECT COUNT(users.id) FROM users WHERE users.group_id=groups.id) AS nb_users FROM groups',
   );
   return JSON.stringify(res.rows);
 };
