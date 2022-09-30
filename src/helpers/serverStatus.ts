@@ -191,6 +191,7 @@ const sendToUpSignOn = (status: any) => {
 
   req.write(dataString);
   req.end();
+  console.log('Sent status');
 };
 
 const getStatsByGroup = async () => {
