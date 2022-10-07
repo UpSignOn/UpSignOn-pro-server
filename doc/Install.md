@@ -498,10 +498,10 @@ upsignonpro@localhost:~$ cd ~/upsignon-pro-dashboard/back
 Puis exécutez la commande suivante
 
 ```bash
-upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js temporaryAdmin
+upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js
 ```
 
-Cette commande génère un mot de passe temporaire associé au login "temporaryAdmin" que vous pourrez utiliser pour la première session (voir l'url affichée également en résultat du script).
+Cette commande génère un lien de connexion temporaire en tant que superadmin à votre console d'administration.
 
 **Configuration de l'envoi de mails**
 Configurez l'envoi des mails dans la page paramètres superadmin.
@@ -529,7 +529,6 @@ Le mot de passe que vous avez utilisé précédemment pour vous connecter était
 - vous devriez alors recevoir un email (vérifiez éventuellement vos spams) qui vous permettra d'importer votre "compte" super-admin dans UpSignOn
 - ouvrez le lien que vous aurez reçu par mail puis suivez les instructions dans l'application
 - grâce à UpSignOn, vous pouvez maintenant vous connecter en un clic à votre compte super-admin et renouveler votre mot de passe directement depuis l'application
-- une fois que votre compte superAdmin a été importé dans votre espace UpSignOn PRO, vous pouvez supprimer le "temporaryAdmin" de la liste des super-administrateurs.
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
 
