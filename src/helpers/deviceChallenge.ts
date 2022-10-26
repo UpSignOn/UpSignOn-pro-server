@@ -39,6 +39,7 @@ export const checkDeviceChallenge = async (
       'RSA-SHA256',
       deviceChallenge,
       {
+        // @ts-ignore
         key,
         padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
         saltLength: crypto.constants.RSA_PSS_SALTLEN_AUTO,
@@ -64,6 +65,7 @@ export const checkDeviceChallenge = async (
         'RSA-SHA256',
         deviceChallenge,
         {
+          // @ts-ignore
           key: fallbackKey,
           padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
         },
