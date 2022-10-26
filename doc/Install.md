@@ -146,10 +146,6 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
 
-## NB: backup des bases de données
-
-Il est de votre responsabilité de créer des sauvegardes régulières de votre base de données pour pouvoir les restaurer en cas de problème.
-
 # Installation des serveurs
 
 ## Configuration d'un reverse proxy
@@ -485,6 +481,20 @@ Puis relancer le service cron
 root@localhost:~# service cron reload
 ```
 
+## NB: backup des bases de données
+
+Il est de votre responsabilité de créer des sauvegardes régulières de votre base de données pour pouvoir les restaurer en cas de problème. La méthode de sauvegarde dépendra de vos pratiques internes.
+
+Vous pouvez exporter votre base de données dans un fichier grâce à la commande suivante :
+```
+pg_dump -a -T admin_sessions upsignonpro > dump.sql
+```
+
+Vous pouvez ensuite importer vos données dans une base de données vierge en exécutant la commande suivante :
+```
+psql -d dbname < dump.sql
+```
+
 # Dernières configurations
 
 **Toute première connexion à la console d'administration**
@@ -506,7 +516,7 @@ Cette commande génère un lien de connexion temporaire en tant que superadmin �
 **Configuration de l'envoi de mails**
 Configurez l'envoi des mails dans la page paramètres superadmin.
 
-En cas de problème sur l'envoie de mails, vérifiez que les certificats intérmédiaires sont bien inclus dans le certificat du serveur de mail.
+En cas de problème sur l'envoi de mails, vérifiez que les certificats intérmédiaires sont bien inclus dans le certificat du serveur de mail.
 
 **Ajout d'une première banque de coffres-forts**
 Une fois connecté à votre interface superadmin,
@@ -538,6 +548,12 @@ Ne conservez pas votre mot de passe d'accès au serveur UpSignOn PRO dans votre 
 
 Vous pouvez en revanche utiliser un coffre-fort Perso pour stocker certains mots de passe auxquels vous devez pouvoir accéder en mode offline (le coffre-fort perso stocke vos données de façon chiffrée directement sur votre appareil). L'option mode offline pour les coffres-forts PRO sera disponible dans quelques temps.
 
+
+# Résolution de problèmes
+
+Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md).
+
+
 # Note sur les paramètres OpenId
 
 Les paramètres de configuration d'OpenId Connect sont optionnels. S'ils sont présents, l'application exigera une pré-authentification sur le service OpenId Connect désigné avant d'envoyer des requêtes au serveur UpSignOn PRO. Vous pouvez ainsi placer le serveur UpSignOn PRO derrière un NetScaler qui pourra refuser toutes les requêtes envoyées sans token OpenId.
@@ -555,7 +571,3 @@ From the Microsoft documentation: (more details [here](https://docs.microsoft.co
 - To restrict support to Personal Microsoft accounts only, replace "Enter_the_Tenant_Info_Here" value with consumers.
 - Azure B2C authorities are of the form https://\{instance\}/\{tenant\}/\{policy\}. Each policy is considered its own authority. You will have to set the all of the knownAuthorities at the time of the client application construction.
 - ADFS authorities are of the form https://\{instance\}/adfs.
-
-# Résolution de problèmes
-
-Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md).

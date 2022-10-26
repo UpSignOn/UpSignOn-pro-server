@@ -20,10 +20,10 @@ async function cronjob() {
 }
 
 export const startServer = (app: any, then: any): void => {
-  if (env.SSL_CERTIFICATE_KEY_PATH && env.SSL_CERTIFICATE_CRT_PATH) {
+  if (env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH && env.LOCALHOST_SSL_CERTIFICATE_CRT_PATH) {
     const options = {
-      key: fs.readFileSync(env.SSL_CERTIFICATE_KEY_PATH),
-      cert: fs.readFileSync(env.SSL_CERTIFICATE_CRT_PATH),
+      key: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH),
+      cert: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_CRT_PATH),
     };
     const server = https.createServer(options, app).listen(env.SERVER_PORT, () => {
       logInfo(

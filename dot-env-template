@@ -13,7 +13,7 @@ API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 # SESSION SECRET (can be generated with the command: 'openssl rand -hex 30')
 SESSION_SECRET=
 
-# PROXY CONFIGURATION
+# OPTIONAL PROXY CONFIGURATION ex: http://proxy.domain.com:1234
 HTTP_PROXY=
 
 # OPTIONAL LOCAL SSL CONFIGURATION
@@ -22,8 +22,8 @@ HTTP_PROXY=
 #  - Use absolute paths
 #  - File extensions don't matter, .key and .cer or .pem will do
 #  - Do not forget to chmod 400 these files
-SSL_CERTIFICATE_KEY_PATH=
-SSL_CERTIFICATE_CRT_PATH=
+LOCALHOST_SSL_CERTIFICATE_KEY_PATH=
+LOCALHOST_SSL_CERTIFICATE_CRT_PATH=
 
 # DO NOT CHANGE
 NODE_ENV=production
