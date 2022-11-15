@@ -1,7 +1,9 @@
 function getNumber(untrustedInput: any, defaultValue: number): number {
+  if(untrustedInput == NaN) return defaultValue;
   return untrustedInput ? Number.parseInt(untrustedInput) : defaultValue;
 }
 function getNumberOrNull(untrustedInput: any): null | number {
+  if(untrustedInput == NaN) return null;
   return untrustedInput ? Number.parseInt(untrustedInput) : null;
 }
 
