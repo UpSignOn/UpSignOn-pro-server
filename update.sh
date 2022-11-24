@@ -1,7 +1,10 @@
 #!/bin/bash
 git pull origin production --ff-only
-yarn install
-yarn build
-node ./scripts/migrateUp.js
-pm2 stop upsignon-pro-server
-pm2 start ecosystem.config.js
+
+# Use a separate script so the update immediatly benefits from the new update script
+if [ $? -eq 0 ];
+then
+  ./post-update.sh
+else
+  echo "The update failed."
+fi
