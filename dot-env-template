@@ -13,6 +13,13 @@ API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 # SESSION SECRET (can be generated with the command: 'openssl rand -hex 30')
 SESSION_SECRET=
 
+# EMAILS
+USE_POSTFIX=true
+# this hostname, selector and private key path must match a DKIM record in your DNS configuration
+DKIM_HOSTNAME=upsignonpro.votre-domaine.fr
+DKIM_KEY_SELECTOR=k1
+DKIM_PRIVATE_KEY_PATH=/home/upsignonpro/DKIM/private.key
+
 # OPTIONAL PROXY CONFIGURATION ex: http://proxy.domain.com:1234
 HTTP_PROXY=
 

@@ -1,34 +1,38 @@
-# IMPORTANT : AMÉLIORATION CONTINUE
+> IMPORTANT : AMÉLIORATION CONTINUE\
+> Afin de vous proposer la meilleure documentation possible, nous vous serions très reconnaissant de nous faire part de toutes remarques, erreurs, et ommissions que vous détecteriez dans ce qui suit. contact@upsignon.eu
 
-Afin de vous proposer la meilleure documentation possible, nous vous serions très reconnaissant de nous faire part de toutes remarques, erreurs, et ommissions que vous détecteriez dans ce qui suit. contact@upsignon.eu
+> Note sur le vocabulaire :\
+> Dans cette documentation, un serveur désigne un processus qui écoute sur un port. Nous parlons de machine ou de VM pour désigner le conteneur hardware + système d'exploitation sur lequel s'exécutent ces processus.
 
 # Schéma d'architecture
 
-Vous allez devoir installer une base de données PostgreSQL et deux serveurs applicatifs (3 processus). Notez que ces 3 processus n'ont pas besoin de s'exécuter sur la même machine.
+Vous allez devoir installer une base de données PostgreSQL et deux "serveurs" applicatifs (comprendre programmes nodeJS qui écoutent sur des ports localhost), soit 3 processus. Notez que ces 3 processus peuvent être éxecutés sur des machines différentes si vous le souhaitez.
 
 ![](/doc/integrationSchemeGeneral.png)
 
-## Architecture type 1 (Architecture standard, la plus simple)
+## Architecture type 1 (Architecture standard, la plus simple, recommandée)
 
 Nous recommandons cette architecture pour simplifier l'installation et la maintenance.
 
 ![](/doc/integrationScheme1.png)
 
-## Architecture type 2
+## Architecture type 2 également possible
 
 Ce type d'architecture sera notamment adapté pour les cas où vous voulez ajouter une couche de protection supplémentaire sur le serveur d'administration en le rendant accessible uniquement depuis votre réseau d'entreprise interne afin de limiter la surface d'attaque possible.
 
 Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'importe où pour que le client lourd puisse s'y connecter.
 ![](/doc/integrationScheme2.png)
 
-## Ressources nécessaires estimées par serveur
+## Ressources nécessaires estimées par machine
+
+Machine pour les serveurs NodeJS
 
 - OS : Debian 10
 - CPU : 2vcore
 - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (compter peut-être 4Go si windows server, plus gourmand qu'un linux)
-- HD ou SSD : compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par serveur maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
+- HD ou SSD 15Go :compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par machine maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
 
-Serveur de base de données
+Machine pour le serveur de base de données (si architecture type 2)
 
 - votre OS de prédilection
 - CPU: 2vcore
@@ -37,66 +41,72 @@ Serveur de base de données
 
 ## Tableau des flux
 
-| Origine                  | Destination                                        | PORT             |
-| ------------------------ | -------------------------------------------------- | ---------------- |
-| Client lourd             | Serveur UpSignOn PRO                               | 443              |
-| Let's Encrypt (optionnel)| Serveur UpSignOn PRO                               | 80               |
-| Navigateur               | Serveur d'administration                           | 443              |
-| Let's Encrypt (optionnel)| Serveur d'administration                           | 80               |
-| Serveur UpSignOn PRO     | Base de données                                    | 5432             |
-| Serveur d'administration | Base de données                                    | 5432             |
-| Serveur UpSignOn PRO     | Serveur SMTP de votre entreprise                   | 25 ou 587 ou 465 |
-| Serveur d'administration | Serveur SMTP de votre entreprise                   | 25 ou 587 ou 465 |
-| Serveur UpSignOn PRO     | app.upsignon.eu                                    | 443              |
-| Serveur UpSignOn PRO     | internet (pour l'installation et les mises à jour) | 443              |
-| Serveur d'administration | internet (pour l'installation et les mises à jour) | 443              |
-
-NB: le serveur SMTP mentionné est le serveur SMTP de votre entreprise et non un serveur qu'il faudrait installer en plus pour UpSignOn.
+| Origine                              | Destination                                        | PORT             |
+| ------------------------------------ | -------------------------------------------------- | ---------------- |
+| Client lourd (application UpSignOn)  | Serveur UpSignOn PRO                               | 443              |
+| Let's Encrypt (optionnel)            | Machine du serveur UpSignOn PRO                    | 80               |
+| Navigateur                           | Serveur d'administration                           | 443              |
+| Let's Encrypt (optionnel)            | Machine du serveur d'administration                | 80               |
+| Serveur UpSignOn PRO                 | Base de données                                    | 5432             |
+| Serveur d'administration             | Base de données                                    | 5432             |
+| Serveur UpSignOn PRO via Postfix     | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
+| Serveur d'administration via Postfix | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
+| Serveur UpSignOn PRO                 | app.upsignon.eu                                    | 443              |
+| Serveur UpSignOn PRO                 | internet (pour l'installation et les mises à jour) | 443              |
+| Serveur d'administration             | internet (pour l'installation et les mises à jour) | 443              |
 
 # Avant de commencer l'installation
 
+## Choisissez et déclarez-nous vos urls
+
+Choisissez les urls sur lequelles seront accessibles les deux serveurs. Nous vous recommandons de choisir le sous-domaine 'upsignonpro' afin d'éviter les erreurs d'installation et pour rester exactement conforme à cette documenation.
+
+Dans le cas de l'architecture type 1, vos urls seront:
+
+- https://upsignonpro.votre-domaine.fr
+- https://upsignonpro.votre-domaine.fr/admin
+
+Dans le cas de l'architecture type 2, vous aurez probablement 2 sous-domaines, donc vos urls seront par exemple
+
+- https://upsignonpro.votre-domaine.fr
+- https://upsignonpro-admin.votre-domaine.fr
+
+Nous devons déclarer vos urls dans notre base de données pour qu'elles soit autorisées. Envoyez-nous les deux urls que vous aurez choisies, chemin compris, par email (giregk@upsignon.eu) **avant** de commencer l'installation pour ne pas perdre de temps.
+
+## Machine virtuelle dédiée
+
+Nous recommandons l'utilisation d'une machine virtuelle dédiée à UpSigOn PRO. Ne réutilisez pas une machine sur laquelle vous faites déjà tourner d'autres services. La réutilisation d'une VM augmente les risques de compromission et les risques de conflits d'installation et de configuration.
+
+## Reverse DNS
+
+Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous avez choisi (normalement `upsignonpro.votre-domaine.fr`). Cela se paramètre normalement au niveau de votre fournisseur d'hébergement. Ceci est nécessaire au bon fonctionnement de Postfix pour l'envoi de mails aux utilisateurs (mail d'enrollement d'appareil, mail de mot de passe oublié, etc.).
+
 ## Configuration DNS
 
-Choisissez les urls sur lequelles seront accessibles les deux serveurs, typiquement via un sous-domaine.
+- Ajouter un enregistrement A ou AAAA pour lier votre sous-domaine à l'adresse IP de votre machine.
 
-- l'url du serveur UpSignOn pro, par exemple https://upsignonpro.votre-domaine.fr
-- l'url du serveur d'administration, par exemple https://upsignonpro.votre-domaine.fr/admin
+- Ajouter un enregistrement MX pour autoriser la VM à émettre des emails
 
-Ajoutez l'enregistrement A ou AAAA pour le(s) sous-domaine(s) que vous avez choisi(s).
+  - type MX
+  - nom d'hôte: <upsignonpro.votre-domaine.fr>
+  - valeur: <upsignonpro.votre-domaine.fr>
 
-## Certificat SSL
-Par défaut dans cette documentation, vous serez guidé vers la création d'un certificat gratuit Let's Encrypt qui se renouvelle automatiquement.
+- Ajouter un enregistrement SPF pour améliorer la délivrabilité des emails. (Des enregistrements DKIM et DMARC seront également ajoutés à la fin de l'installation pour compléter cette configuration).
 
-Vous pouvez créer un enregistrement DNS CAA pour que Let's Encrypt soit autorisé à générer un certificat pour votre sous-domaine. Ceci n'est pas obligatoire - sauf s'il existe déjà un enregistrement CAA conflictuel - mais est fortement recommandé pour améliorer la sécurité de votre serveur. L'enregistrement prend les valeurs suivantes:
-- type: CAA
-- nom d'hôte: <upsignonpro.votre-domaine.fr>
-- value: 128 issue "letsencrypt.org"
+  - type: TXT
+  - nom d'hôte: <upsignonpro.votre-domaine.fr>
+  - valeur (en y mettant l'adresse IP de la machine): v=spf1 a mx ip4:XXX.XXX.XXX.XXX ~all
 
-Si vous le souhaitez, vous pouvez également utiliser un certificat SSL géré manuellement.
-- les certificats wildcard sont autorisés mais non recommandés
-- **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
+- Ajouter un enregistremenent CAA pour n'autoriser que Let's Encrypt à émettre un certificat pour votre sous-domaine (non obligatoire, mais recommandé):
 
-## Serveur de mail
+  - type: CAA
+  - nom d'hôte: <upsignonpro.votre-domaine.fr>
+  - valeur: 128 issue "letsencrypt.org"
 
-Assurez-vous de disposer d'une configuration pour l'envoi de mails
+  NB: Let's Encrypt permet d'obtenir un certificat gratuit renouvellé automatiquement. C'est l'option proposée par défaut dans cette documentation. Vous pouvez également si vous le souhaitez utiliser une autre autorité de certification et gérer les certificats manuellement.
 
-- serveur smtp (smtp.votre-domaine.fr)
-- port d'envoi (ex: 25, 587, 465)
-- identifiants de connexion
-  - login (souvent l'adresse email d'envoi)
-  - mot de passe (facultatif dans certains cas)
-- adresse email d'envoi (ex: noreply@votre-domaine.fr)
-
-Attention, le smtp de **gmail** n'est pas supporté pour l'instant car il requiert la mise en place de clés d'API et un système de connexion spécial qui n'a pas encore été implémenté.
-
-## Déclarez-nous vos urls
-
-Nous devons déclarer vos urls dans notre base de données pour qu'elles soit autorisées.
-
-- l'URL de votre serveur UpSignOn PRO, https://upsignonpro.votre-domaine.fr, chemin y compris le cas échéant
-- l'URL de votre serveur d'administration, https://upsignonpro.votre-domaine.fr/admin, chemin y compris le cas échéant
-
-Envoyez-nous ces deux urls par email (giregk@upsignon.eu) **avant** de commencer l'installation pour ne pas perdre de temps.
+      - les certificats wildcard sont autorisés mais non recommandés car vous devrez partager la clé privée entre plusieurs serveurs ce qui peut augmenter votre risque en cas de compromission de l'une des machines.
+      - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
 
 # Installation de la base de données
 
@@ -105,9 +115,9 @@ Envoyez-nous ces deux urls par email (giregk@upsignon.eu) **avant** de commencer
 Suivez les instructions correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner, prenez la dernière version LTS).
 
 2. création de la base de données pour UpSignOn PRO
-   La procédure qui suis a été écrite pour Debian 10.
+   La procédure qui suit a été écrite pour Debian 10.
 
-Créez un utilisateur système upsignonpro
+Créez un utilisateur système upsignonpro (nommez le bien upsignonpro pour éviter les erreurs d'installation).
 
 ```bash
 root@localhost:~# adduser upsignonpro
@@ -126,7 +136,7 @@ Configurez le rôle upsignonpro pour la base de données
 postgres=# CREATE ROLE upsignonpro WITH LOGIN;
 ```
 
-Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL. NB, par la suite ce mot de passe sera associé à la variable d'environnement DB_PASS.
+Ajoutez ensuite un mot de passe au role upsignonpro, puis sortez de l'invite de commande PSQL. NB, par la suite ce mot de passe sera associé à la variable d'environnement DB_PASS. (NB, vous pouvez utiliser la commande `openssl rand -hex 20` pour générer un mot de passe fort aléatoire).
 
 ```
 postgres=# \password upsignonpro;
@@ -152,14 +162,16 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - DB_USER: nom de l'utilisateur propriétaire de la base de données soit 'upsignonpro'
 - DB_PASS: mot de passe d'accès à la base de données (celui du role 'upsignonpro')
 - DB_NAME: nom de la base de données, soit 'upsignonpro'
-- DB_HOST: nom d'hôte du serveur sur lequel est servi la base de données ('localhost')
+- DB_HOST: nom d'hôte de la machine sur laquelle est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
 
 # Configuration d'un reverse proxy
 
 ## Installation de nginx
 
-> REMARQUE IMPORTANTE : si vous avez déjà un reverse proxy par ailleurs dans votre infrastructure, l'installation de nginx et des certificats SSL n'est peut-être pas nécessaire. Dans ce cas, vous devrez adapter ce qui suit à votre cas particulier, notamment en dirigeant les requêtes sur l'url du serveur UpSignOn PRO vers le port 3000 de la machine actuelle et les requêts sur l'url du serveur d'administration vers le port 3001. Il est également crucial de passer également les paramètres proxy-set-header. Contactez-nous pour en discuter en cas de doute.
+> REMARQUE IMPORTANTE : si vous avez déjà un reverse proxy par ailleurs dans votre infrastructure, l'installation de nginx et des certificats SSL n'est peut-être pas nécessaire. Dans ce cas, vous devrez adapter ce qui suit à votre cas particulier, notamment en dirigeant les requêtes sur l'url du serveur UpSignOn PRO vers le port 3000 de la machine actuelle et les requêtes sur l'url du serveur d'administration vers le port 3001. Il est également crucial de passer également les paramètres proxy-set-header. Contactez-nous pour en discuter en cas de doute.
+
+> Vous pouvez également utiliser un reverse proxy Apache si vous le souhaitez (cf [utiliser apache](/doc/ApacheConfig.md)).
 
 En tant que **root**,
 
@@ -170,7 +182,9 @@ En tant que **root**,
   ```
 
 ## Installation d'un certificat Let's Encrypt
+
 - éditez le fichier /etc/nginx/sites-available/default en remplaçant "-" par votre nom de domaine à la directive server_name. Par exemple
+
 ```
 server {
   // other configs
@@ -180,12 +194,14 @@ server {
   // other configs
 }
 ```
+
 - redémarrez nginx : `systemctl restart nginx`
 - suivez la procédure d'installation de Let's Encrypt: https://certbot.eff.org/instructions?ws=nginx&os=debianbuster (ou https://certbot.eff.org/ si vous êtes sur un autre type de machine)
 
-NB: Let's Encrypt produit ses certificats dans le dossier `/etc/letsencrypt/live/<votre-domaine>/`
+NB: Let's Encrypt produit ses certificats dans le dossier `/etc/letsencrypt/live/<upsignonpro.votre-domaine.fr>/`
 
 ## (Alternative) Installation d'un certificat géré manuellement
+
 - ajoutez vos fichiers de certificats SSL, par exemple dans le dossier /etc/nginx/ssl
 
   - `root@localhost:~# mkdir /etc/nginx/ssl/`
@@ -194,9 +210,8 @@ NB: Let's Encrypt produit ses certificats dans le dossier `/etc/letsencrypt/live
   - fichier clé privée: /etc/nginx/ssl/upsignonpro.key
   - `root@localhost:~# chmod 400 /etc/nginx/ssl/*`
 
-
-
 ## Configuration de nginx
+
 - forcez l'utilisation de TLSv1.2 ou TLSv1.3 en éditant le fichier /etc/nginx/nginx.conf et en y modifiant la ligne ssl_protocols
 
 ```
@@ -312,11 +327,93 @@ upsignonpro@localhost:~$ npm config set proxy http://username:password@host:por
 upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
+## Installation de Postfix
+
+<!---
+Tutorials that helped creating this doc:
+- https://netcorecloud.com/tutorials/install-postfix-as-send-only-smtp-server/
+- https://scribbble.io/wardpoel/install-and-configure-postfix/
+--->
+
+### Configurez le hostname de votre machine
+
+- Modifiez le fichier **/etc/hosts** et ajoutez `upsignonpro.votre-domaine.fr` à la fin de la ligne '127.0.0.1 localhost' c'est-à-dire '127.0.0.1 localhost upsignonpro.votre-domaine.fr'
+
+- Modifiez le fichier **/etc/hostname** et mettez-y `upsignonpro.votre-domaine.fr`
+
+- Redémarrez la machine (`reboot`)
+
+- Vérifiez que la commande `hostnamectl` renvoie bien `upsignonpro.votre-domaine.fr`
+
+### Installation de Postfix
+
+```
+sudo apt update
+sudo apt install postfix
+```
+
+La dernière commande affiche une invite de commande
+
+- choisissez "Internet Site"
+- puis saisissez `upsignonpro.votre-domaine.fr`
+
+### Configurez Postfix pour l'envoi de mails uniquement
+
+Modifiez le fichier **/etc/postfix/main.cf**:
+
+- Changez `mydestination = $myhostname, example.com, localhost.com, localhost` en `mydestination = $myhostname, localhost.$your_domain, $your_domain`
+- Changez `inet-interfaces = all` en `inet-interfaces = loopback-only`
+- Redémarrez Postfix `sudo systemctl restart postfix`
+
+### Envoyez-vous un email de test
+
+```
+echo "Un email envoyé par Postfix" | mail -s "test Postfix" prenom.nom@votre-domaine.fr
+```
+
+N'oubliez de vérifier votre dossier spams.
+
+Vous pouvez consulter les logs de Postfix dans **/var/log/mail.log**
+Vous pouvez consulter les "mails" machine dans le dossier **/var/mail/**
+
+### Configuration de DKIM
+
+Cette configuration optionnelle augmente la délivrabilité de vos emails et diminue les chances que les mails envoyés par vos serveurs soient considérés comme spam.
+
+- Générez une clé RSA
+
+```
+su - upsignonpro
+mkdir DKIM
+cd DKIM
+openssl genrsa -out private.key 1024
+openssl rsa -in private.key -pubout -out public.key
+```
+
+- Ajoutez l'enregistrement suivant dans votre configuration DNS
+  - type: TXT
+  - nom d'hôte: `k1._domainkey.upsignonpro.votre-domaine.fr`
+  - valeur: v=DKIM1;k=rsa;p=DKIM_PUBLIC_KEY
+
+> DKIM_PUBLIC_KEY est le contenu du fichier public.key généré précédemment sans la première et la dernière ligne, et sans retour à la ligne.
+
+NB: "k1" est une valeur arbitraire qui permet de distinguer plusieurs enregistrement DKIM liés au même (sous-)domaine pour désigner des clés différentes.
+
+- Ajoutez l'enregistrement DMARC suivant dans votre configuration DNS
+
+  - type: TXT
+  - nom d'hôte: `_dmarc.upsignonpro.votre-domaine.fr`
+  - valeur: v=DMARC1; p=reject; aspf=s; adkim=s;
+
+  Cet enregistrement permet de demander aux serveurs de mails destinataires de totalement refuser les emails pour lesquels la vérification SPF ou la vérification DKIM n'est pas valide, ce qui limite les risques de phishing via le domaine upsignonpro.votre-domaine.fr. Vous pouvez demander plutôt une mise en SPAM en utilisant la valeur `v=DMARC1; p=quarantine; aspf=s; adkim=s;` ou déléguer le choix du comportement à adopter au serveur destinataire en utilisant la valeur `v=DMARC1; p=none;`.
+
 # Installation du serveur UpSignOn PRO et provisioning de la base de données
 
 En tant qu'utilisateur upsignonpro
 
 ```bash
+root@localhost:~# su - upsignonpro
+
 upsignonpro@localhost:~$ cd
 
 upsignonpro@localhost:~$ git clone --branch production https://github.com/UpSignOn/UpSignOn-pro-server.git upsignon-pro-server
@@ -511,11 +608,13 @@ root@localhost:~# service cron reload
 Il est de votre responsabilité de créer des sauvegardes régulières de votre base de données pour pouvoir les restaurer en cas de problème. La méthode de sauvegarde dépendra de vos pratiques internes.
 
 Vous pouvez exporter votre base de données dans un fichier grâce à la commande suivante :
+
 ```
 pg_dump -a -T admin_sessions upsignonpro > dump.sql
 ```
 
 Vous pouvez ensuite importer vos données dans une base de données vierge en exécutant la commande suivante :
+
 ```
 psql -d dbname < dump.sql
 ```
@@ -523,6 +622,7 @@ psql -d dbname < dump.sql
 # Dernières configurations
 
 ## Toute première connexion à la console d'administration
+
 Une fois que tout ce qui précède est en place, et que nous avons autorisé vos urls dans notre système, vous pouvez accéder à votre interface d'administration. Pour cela, positionnez-vous dans le dossier back du serveur d'administration
 
 ```bash
@@ -539,11 +639,11 @@ upsignonpro@localhost:~$ node ./scripts/addSuperAdmin.js
 Cette commande génère un lien de connexion temporaire en tant que superadmin à votre console d'administration.
 
 ## Configuration de l'envoi de mails
+
 Configurez l'envoi des mails dans la page paramètres superadmin.
 
-En cas de problème sur l'envoi de mails, vérifiez que les certificats intérmédiaires sont bien inclus dans le certificat du serveur de mail.
-
 ## Ajout d'une première banque de coffres-forts
+
 Une fois connecté à votre interface superadmin,
 
 - configurez l'url de votre serveur UpSignOn PRO. L'indicateur du statut doit passer au vert.
@@ -558,6 +658,7 @@ Une fois connecté à votre interface superadmin,
 - si tout est bien configuré, vous devriez pouvoir créer votre espace UpSignOn PRO dans l'application en suivant les instructions
 
 ## Configuration de la connexion à la console directement via UpSignOn
+
 Le mot de passe que vous avez utilisé précédemment pour vous connecter était temporaire. Grâce à UpSignOn, vous allez pouvoir vous connecter très simplement à votre console d'administration.
 
 - lorsque votre espace aura été correctement créé, revenez dans votre dashboard d'administration, dans la page super-admin, puis utilisez le formulaire d'ajout d'un administrateur pour ajouter votre adresse email (en vous laissant le rôle Super-Admin). Vous pouvez remettre une adresse email qui existe déjà dans la liste.
@@ -567,17 +668,15 @@ Le mot de passe que vous avez utilisé précédemment pour vous connecter était
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
 
-# ATTENTION !!! Gardez l'accès root à votre serveur UpSignOn !
+# ATTENTION !!! Gardez l'accès root à vos machines !
 
-Ne conservez pas votre mot de passe d'accès au serveur UpSignOn PRO dans votre coffre-fort UpSignOn car en cas de problème sur votre serveur, vous ne pourrez plus accéder à votre coffre-fort et vous serez coincés.
+Ne conservez pas votre mot de passe d'accès à vos machine hébergeant votre serveur UpSignOn PRO dans votre coffre-fort UpSignOn car en cas de problème sur votre serveur, vous ne pourrez plus accéder à votre coffre-fort et vous serez coincés.
 
 Vous pouvez en revanche utiliser un coffre-fort Perso pour stocker certains mots de passe auxquels vous devez pouvoir accéder en mode offline (le coffre-fort perso stocke vos données de façon chiffrée directement sur votre appareil). L'option mode offline pour les coffres-forts PRO sera disponible dans quelques temps.
-
 
 # Résolution de problèmes
 
 Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md).
-
 
 # Note sur les paramètres OpenId
 
