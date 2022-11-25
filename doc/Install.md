@@ -611,6 +611,12 @@ Nous avons préparé un script de sauvegarde tournante de la base de données. P
 55 23  * * * /bin/bash -c "/home/upsignonpro/upsignon-pro-server/scripts/db-backup-rotated.sh"
 ```
 
+N'oubliez pas de recharger le service cron
+
+```
+/etc/init.d/cron reload
+```
+
 Si vous souhaitez utilisez une autre méthode, vous pouvez vous inspirer de https://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
 
 Vous pouvez également faire un backup manuel de la base de données ainsi:
