@@ -603,19 +603,23 @@ Puis relancer le service cron
 root@localhost:~# service cron reload
 ```
 
-# NB: backup des bases de données
+# Backup des bases de données
 
-Il est de votre responsabilité de créer des sauvegardes régulières de votre base de données pour pouvoir les restaurer en cas de problème. La méthode de sauvegarde dépendra de vos pratiques internes.
-
-Vous pouvez exporter votre base de données dans un fichier grâce à la commande suivante :
+Nous avons préparé un script de sauvegarde tournante de la base de données. Pour l'utiliser, configurez les variables `DB_BACKUP_*` du fichier .env de upsignon-pro-server puis ajoutez le cron suivant pour l'utilisateur upsignonpro(`crontab -e`)
 
 ```
-pg_dump -a -T admin_sessions upsignonpro > dump.sql
+55 23  * * * /bin/bash -c "/home/upsignonpro/upsignon-pro-server/scripts/db-backup-rotated.sh"
 ```
 
-Vous pouvez ensuite importer vos données dans une base de données vierge en exécutant la commande suivante :
+Si vous souhaitez utilisez une autre méthode, vous pouvez vous inspirer de https://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
+
+Vous pouvez également faire un backup manuel de la base de données ainsi:
 
 ```
+# backup
+pg_dump -T admin_sessions upsignonpro > dump.sql
+
+# restore
 psql -d dbname < dump.sql
 ```
 
