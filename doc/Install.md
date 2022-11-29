@@ -623,7 +623,7 @@ Vous pouvez également faire un backup manuel de la base de données ainsi:
 
 ```
 # backup
-pg_dump -T admin_sessions upsignonpro > dump.sql
+pg_dump -T admin_sessions -T device_sessions -T temporary_admins upsignonpro > dump.sql
 
 # restore
 psql -d dbname < dump.sql

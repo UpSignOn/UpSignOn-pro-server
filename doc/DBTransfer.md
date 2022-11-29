@@ -3,7 +3,7 @@
 You can export your whole database to a file with this command (the file here is dump.sql, which you can change)
 
 ```
-pg_dump -a -T admin_sessions -T admins -T migrations upsignonpro > dump.sql
+pg_dump -a -T admin_sessions -T device_sessions -T temporary_admins -T admins -T migrations upsignonpro > dump.sql
 ```
 
 You can then import this file into a new database (after the provisioning has been run)
