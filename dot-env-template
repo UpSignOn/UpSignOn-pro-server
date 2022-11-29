@@ -23,8 +23,8 @@ SESSION_SECRET=
 
 # EMAILS
 USE_POSTFIX=true
-# this hostname, selector and private key path must match a DKIM record in your DNS configuration
-MAIL_HOSTNAME=upsignonpro.votre-domaine.fr
+# this sending mail hostname must match your DKIM configuration if used
+SENDING_MAIL=ne-pas-repondre@upsignonpro.votre-domaine.fr
 DKIM_KEY_SELECTOR=k1
 # if not set, DKIM will not be used
 DKIM_PRIVATE_KEY_PATH=/home/upsignonpro/DKIM/private.key
