@@ -13,7 +13,7 @@ type EmailConfig = {
 
 export const getEmailConfig = async (): Promise<EmailConfig> => {
   if (!!env.USE_POSTFIX) {
-    return { EMAIL_SENDING_ADDRESS: `ne-pas-repondre@${env.DKIM_HOSTNAME}` };
+    return { EMAIL_SENDING_ADDRESS: `ne-pas-repondre@${env.MAIL_HOSTNAME}` };
   } else {
     const emailConfReq = await db.query("SELECT value FROM settings WHERE key = 'EMAIL_CONFIG'");
     if (emailConfReq.rowCount !== 1) {
@@ -44,13 +44,15 @@ export const getMailTransporter = (
       sendmail: true,
       newline: 'unix',
       path: '/usr/sbin/sendmail',
-      secure: true,
-      dkim: {
-        domainName: env.DKIM_HOSTNAME,
+    };
+    if (env.DKIM_PRIVATE_KEY) {
+      transportOptions.secure = true;
+      transportOptions.dkim = {
+        domainName: env.MAIL_HOSTNAME,
         privateKey: env.DKIM_PRIVATE_KEY,
         keySelector: env.DKIM_KEY_SELECTOR,
-      },
-    };
+      };
+    }
   } else {
     transportOptions = {
       host: emailConfig.EMAIL_HOST,
