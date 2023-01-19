@@ -27,7 +27,7 @@ Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'impo
 
 Machine pour les serveurs NodeJS
 
-- OS : Debian 10
+- OS : Debian 11
 - CPU : 2vcore
 - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (compter peut-être 4Go si windows server, plus gourmand qu'un linux)
 - HD ou SSD 15Go :compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par machine maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
@@ -108,20 +108,19 @@ Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous
       - les certificats wildcard sont autorisés mais non recommandés car vous devrez partager la clé privée entre plusieurs serveurs ce qui peut augmenter votre risque en cas de compromission de l'une des machines.
       - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
 
-# Installation de la base de données
-
-1. installation de postgresql
-
-Suivez les instructions correspondant à votre système sur https://www.postgresql.org/download/ (toutes les versions de postgresql devraient fonctionner, prenez la dernière version LTS).
-
-2. création de la base de données pour UpSignOn PRO
-   La procédure qui suit a été écrite pour Debian 10.
-
-Créez un utilisateur système upsignonpro (nommez le bien upsignonpro pour éviter les erreurs d'installation).
-
-```bash
-root@localhost:~# adduser upsignonpro
+# Installation préalables
+En tant que root
 ```
+apt-get update
+apt-get install -y postgresql
+apt-get install -y curl
+curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+apt-get install -y nodejs
+apt-get install -y git
+adduser upsignonpro
+```
+
+# Installation de la base de données
 
 Connectez-vous en tant qu'utilisateur postgres à la base de données PostgreSQL :
 
@@ -420,10 +419,6 @@ upsignonpro@localhost:~$ git clone --branch production https://github.com/UpSig
 
 upsignonpro@localhost:~$ cd upsignon-pro-server
 
-upsignonpro@localhost:~/upsignon-pro-server$ yarn install
-
-upsignonpro@localhost:~/upsignon-pro-server$ yarn build
-
 upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-template .env
 
 upsignonpro@localhost:~/upsignon-pro-server$ openssl rand -hex 30 # ceci génère une chaîne de caractères aléatoires qui peut être copiée dans la variable SESSION_SECRET du fichier .env
@@ -432,19 +427,13 @@ upsignonpro@localhost:~/upsignon-pro-server$ openssl rand -hex 30 # ceci génè
 
 Éditez ensuite le fichier `.env` pour y définir toutes vos variables d'environnement.
 
-Puis créez la structure de votre base de données
+Puis créez lncez le script update.sh
 
 ```bash
-upsignonpro@localhost:~/upsignon-pro-server$ node ./scripts/migrateUp.js
+upsignonpro@localhost:~/upsignon-pro-server$ ./update.sh
 ```
 
 Vous pouvez vérifier que tout s'est bien passé en vous connectant à votre base de données (`psql upsignonpro`) puis en tapant `\d` pour afficher toutes les tables. Le résultat ne doit pas être vide. (Dans le cas d'une base de données distante, utilisez la commande `psql -h 127.0.0.1 -U upsignonpro -p 5432 upsignonpro`, en remplaçant l'IP par celle de votre base de données)
-
-Démarrez ensuite le serveur
-
-```bash
-upsignonpro@localhost:~/upsignon-pro-server$ yarn start
-```
 
 Si le service upsignon-pro-server s'affiche en statut "Errored", consultez les logs
 
@@ -472,39 +461,29 @@ Vous pouvez voir qu'il y a deux dossiers dans ce projet.
 ## DOSSIER FRONT
 
 ```bash
-upsignonpro@localhost:~/upsignon-pro-dashboard$ cd front
-upsignonpro@localhost:~/upsignon-pro-dashboard/front$ cp dot-env-template .env
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ cp ./front/dot-env-template ./front/.env
 ```
 
-Puis éditez le fichier .env et modifiez la variable PUBLIC_URL avec l'url de votre serveur d'administration, chemin compris.
+Puis éditez le fichier ./front/.env et modifiez la variable PUBLIC_URL avec l'url de votre serveur d'administration, chemin compris.
 
 ```bash
-upsignonpro@localhost:~/upsignon-pro-dashboard/front$ nano .env
-```
-
-Enfin, lancez les commandes suivantes
-
-```bash
-upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn install
-upsignonpro@localhost:~/upsignon-pro-dashboard/front$ yarn build-front # ceci prend un peu de temps
+upsignonpro@localhost:~/upsignon-pro-dashboard/$ nano ./front/.env
 ```
 
 ## DOSSIER BACK
 
 ```bash
-upsignonpro@localhost:~/upsignon-pro-dashboard$ cd back
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ cp dot-env-template .env
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ openssl rand -hex 30
+upsignonpro@localhost:~/upsignon-pro-dashboard/$ cp ./back/dot-env-template ./back/.env
+upsignonpro@localhost:~/upsignon-pro-dashboard/$ openssl rand -hex 30
 ```
 
-Cette dernière commande génère une chaîne de caractères aléatoires que vous devez copier dans la variable SESSION_SECRET du fichier .env
+Cette dernière commande génère une chaîne de caractères aléatoires que vous devez copier dans la variable SESSION_SECRET du fichier ./back/.env
 
-Définissez aussi les autres variables du fichier .env.
+Définissez aussi les autres variables du fichier ./back/.env.
 
+Puis lancez la commande update.sh (cette étape peut prendre plusieurs minutes)
 ```
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn install
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ yarn build-server
-upsignonpro@localhost:~/upsignon-pro-dashboard/back$ pm2 start dashboard.config.js
+upsignonpro@localhost:~/upsignon-pro-dashboard/$ ./update.sh
 ```
 
 En ouvrant la page https://upsignonpro.votre-domaine.fr/admin/login.html dans votre navigateur, vous devriez voir la page de connexion.
