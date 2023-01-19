@@ -538,7 +538,7 @@ Dans ce fichier, ajoutez ceci (pensez à bien adapter les chemins si besoin)
 ```
 [Unit]
 Description=UpSignOn PRO Dashboard server
-After=network.target remote-fs.target nss-lookup.target postfix postgresql
+After=network.target remote-fs.target nss-lookup.target postfix upsignonpro-server.service
 
 [Service]
 Type=forking
