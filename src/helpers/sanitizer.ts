@@ -1,10 +1,12 @@
 function getNumber(untrustedInput: any, defaultValue: number): number {
-  if (Number.isNaN(untrustedInput)) return defaultValue;
-  return untrustedInput ? Number.parseInt(untrustedInput) : defaultValue;
+  let trustedNumber = Number.parseInt(untrustedInput);
+  if (Number.isNaN(trustedNumber)) return defaultValue;
+  return trustedNumber;
 }
 function getNumberOrNull(untrustedInput: any): null | number {
-  if (Number.isNaN(untrustedInput)) return null;
-  return untrustedInput ? Number.parseInt(untrustedInput) : null;
+  let trustedNumber = Number.parseInt(untrustedInput);
+  if (Number.isNaN(trustedNumber)) return null;
+  return trustedNumber;
 }
 
 function getString(untrustedInput: any): null | string {
@@ -109,19 +111,19 @@ function getStatObject(untrustedInput: any): null | {
 function getSharings(untrustedInput: unknown):
   | null
   | {
-      type: string;
-      url: null | string;
-      name: null | string;
-      login: null | string;
-      dbId: null | number;
-      idInUserEnv: null | number;
-      contacts: {
-        email: string;
-        isManager: boolean;
-        encryptedAesKey: string;
-      }[];
-      aesEncryptedData: null | string;
-    }[] {
+    type: string;
+    url: null | string;
+    name: null | string;
+    login: null | string;
+    dbId: null | number;
+    idInUserEnv: null | number;
+    contacts: {
+      email: string;
+      isManager: boolean;
+      encryptedAesKey: string;
+    }[];
+    aesEncryptedData: null | string;
+  }[] {
   if (!untrustedInput || !Array.isArray(untrustedInput)) return null;
   try {
     const trustedSharings = [];
@@ -206,9 +208,9 @@ function getSharedItem(untrustedInput: any): null | {
 function getAesKeyUpdates(untrustedInput: any):
   | null
   | {
-      id: number;
-      encryptedAesKey: string;
-    }[] {
+    id: number;
+    encryptedAesKey: string;
+  }[] {
   if (!untrustedInput || !Array.isArray(untrustedInput)) return null;
   const trustedAesKeyUpdates = [];
   for (let i = 0; i < untrustedInput.length; i++) {
