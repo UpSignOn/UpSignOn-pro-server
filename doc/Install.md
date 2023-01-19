@@ -367,6 +367,7 @@ Modifiez le fichier **/etc/postfix/main.cf**:
 ### Envoyez-vous un email de test
 
 ```
+apt-get install mailutils
 echo "Un email envoyé par Postfix" | mail -s "test Postfix" prenom.nom@votre-domaine.fr
 ```
 
