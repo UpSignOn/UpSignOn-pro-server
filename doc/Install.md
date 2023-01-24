@@ -630,7 +630,7 @@ Cette commande génère un lien de connexion temporaire en tant que superadmin �
 
 ## Configuration de l'envoi de mails
 
-Configurez l'envoi des mails dans la page paramètres superadmin si vous n'avez pas activé Postfix (ancienne version de la documentaton).
+Configurez l'envoi des mails dans la page paramètres superadmin si vous n'avez pas activé Postfix (ancienne version de la documentation).
 
 Vérifier la bonne configuration de vos emails en utilisant l'outil de test en ligne gratuit mail-tester.com (attention, vous êtes limité à 3 tests par jour).
 
