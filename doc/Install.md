@@ -218,7 +218,7 @@ ssl_protocols TLSv1.2 TLSv1.3;
 ssl_prefer_server_ciphers on;
 ```
 
-- créez le fichier /etc/nginx/sites-enabled/upsignonpro et ajoutez-y le contenu suivant:
+- créez le fichier /etc/nginx/sites-available/upsignonpro et ajoutez-y le contenu suivant:
 
 ```
 server {
@@ -267,6 +267,11 @@ server {
 
 > attention le '/' final dans 'http://localhost:3000/' et 'http://localhost:3001/' est important.
 
+Puis créeez un lien symbolique vers ce fichier
+```
+ln -s /etc/nginx/sites-available/upsignonpro upsignonpro
+```
+
 Une fois ce fichier créé, redémarrez Nginx
 
 ```
@@ -274,27 +279,6 @@ systemctl restart nginx
 ```
 
 # Installation des outils
-
-En tant que **root**,
-
-- installer curl
-
-  ```bash
-  root@localhost:~# apt install curl
-  ```
-
-- installer la dernière version de [Node.js](https://nodejs.org/en/download/package-manager/)
-
-  ```bash
-  root@localhost:~# curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-  root@localhost:~# apt-get install -y nodejs
-  ```
-
-- installer [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). NB: il n'est pas nécessaire de définir un utilisateur github
-
-  ```bash
-  root@localhost:~# apt install git
-  ```
 
 En tant qu'utilisateur **upsignonpro**
 
