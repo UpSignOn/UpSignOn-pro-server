@@ -269,7 +269,7 @@ server {
 
 Puis créeez un lien symbolique vers ce fichier
 ```
-ln -s /etc/nginx/sites-available/upsignonpro upsignonpro
+ln -s /etc/nginx/sites-available/upsignonpro /etc/nginx/sites-enabled/upsignonpro
 ```
 
 Une fois ce fichier créé, redémarrez Nginx
