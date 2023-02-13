@@ -85,17 +85,11 @@ Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous
 
 - Ajouter un enregistrement A ou AAAA pour lier votre sous-domaine à l'adresse IP de votre machine.
 
-- Ajouter un enregistrement MX pour autoriser la VM à émettre des emails
-
-  - type MX
-  - nom d'hôte: <upsignonpro.votre-domaine.fr>
-  - valeur: <upsignonpro.votre-domaine.fr>
-
 - Ajouter un enregistrement SPF pour améliorer la délivrabilité des emails. (Des enregistrements DKIM et DMARC seront également ajoutés à la fin de l'installation pour compléter cette configuration).
 
   - type: TXT
   - nom d'hôte: <upsignonpro.votre-domaine.fr>
-  - valeur (en y mettant l'adresse IP de la machine): v=spf1 a mx ip4:XXX.XXX.XXX.XXX ~all
+  - valeur (en y mettant l'adresse IP de la machine): v=spf1 ip4:XXX.XXX.XXX.XXX -all
 
 - Ajouter un enregistremenent CAA pour n'autoriser que Let's Encrypt à émettre un certificat pour votre sous-domaine (non obligatoire, mais recommandé):
 
@@ -235,7 +229,7 @@ server {
 
   add_header Strict-Transport-Security 'max-age=15552000; includeSubDomains; preload; always;';
 
-  // TODO
+  # TODO
   ssl_certificate /etc/letsencrypt/live/<upsignonpro.votre-domaine.fr>/fullchain.pem; // or /etc/nginx/ssl/upsignonpro.cer;
   ssl_certificate_key /etc/letsencrypt/live/<upsignonpro.votre-domaine.fr>/privkey.pem; // or /etc/nginx/ssl/upsignonpro.key;
 
@@ -376,12 +370,12 @@ openssl rsa -in private.key -pubout -out public.key
 
 - Ajoutez l'enregistrement suivant dans votre configuration DNS
   - type: TXT
-  - nom d'hôte: `k1._domainkey.upsignonpro.votre-domaine.fr`
+  - nom d'hôte: `uso1._domainkey.upsignonpro.votre-domaine.fr`
   - valeur: v=DKIM1;k=rsa;p=DKIM_PUBLIC_KEY
 
 > DKIM_PUBLIC_KEY est le contenu du fichier public.key généré précédemment sans la première et la dernière ligne, et sans retour à la ligne.
 
-NB: "k1" est une valeur arbitraire qui permet de distinguer plusieurs enregistrement DKIM liés au même (sous-)domaine pour désigner des clés différentes.
+NB: "uso1" est une valeur arbitraire qui permet de distinguer plusieurs enregistrement DKIM liés au même (sous-)domaine pour désigner des clés différentes.
 
 - Ajoutez l'enregistrement DMARC suivant dans votre configuration DNS
 
