@@ -85,6 +85,12 @@ Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous
 
 - Ajouter un enregistrement A ou AAAA pour lier votre sous-domaine à l'adresse IP de votre machine.
 
+- Ajouter un enregistrement MX pour autoriser la VM à émettre des emails
+
+  - type MX
+  - nom d'hôte: <upsignonpro.votre-domaine.fr>
+  - valeur: <upsignonpro.votre-domaine.fr>
+
 - Ajouter un enregistrement SPF pour améliorer la délivrabilité des emails. (Des enregistrements DKIM et DMARC seront également ajoutés à la fin de l'installation pour compléter cette configuration).
 
   - type: TXT
