@@ -29,7 +29,7 @@ Machine pour les serveurs NodeJS
 
 - OS : Debian 11
 - CPU : 2vcore
-- RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants (compter peut-être 4Go si windows server, plus gourmand qu'un linux)
+- RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants
 - HD ou SSD 15Go :compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par machine maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
 
 Machine pour le serveur de base de données (si architecture type 2)
