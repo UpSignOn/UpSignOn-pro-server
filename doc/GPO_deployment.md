@@ -16,6 +16,7 @@ Pour permettre aux extensions de navigateur de communiquer avec l'application su
 
 - télécharger UpSignOnHelper ici : [https://app.upsignon.eu/UpSignOnHelper.zip](https://app.upsignon.eu/UpSignOnHelper.zip)
 - déployer le dossier UpSignOnHelper dézippé sur les postes de vos utilisateurs, à n'importe quel emplacement, par exemple C:\Program Files\UpSignOnHelper
+- vérifiez dans les propriétés du fichier UpSignOnHelper.exe, dans l'onglet général, que son exécution n'est pas bloquée.
 - exécuter le programme UpSignOnHelper.exe avec les droits administrateurs pour mettre à jour le registre. Vous pouvez également configurer directement le registre avec les clés suivantes selon les navigateurs utilisés et en adpatant les valeurs à l'emplacement que vous avez choisi :
 
   - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Mozilla\NativeMessagingHosts\eu.datasmine.upsignon
