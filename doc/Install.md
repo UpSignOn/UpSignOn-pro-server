@@ -27,14 +27,14 @@ Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'impo
 
 Machine pour les serveurs NodeJS
 
-- OS : Debian 11
+- OS : Debian 11 (sans interface graphique)
 - CPU : 2vcore
 - RAM : 512Mo minimum, 2Go pour un nombre d'utilisateurs plus importants
 - HD ou SSD 15Go :compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par machine maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
 
 Machine pour le serveur de base de données (si architecture type 2)
 
-- votre OS de prédilection
+- votre OS de prédilection (sans interface graphique)
 - CPU: 2vcore
 - RAM 512Mo minimum, 2Go pour avoir un peu plus de marge
 - HD ou SD : compter environ 200ko par utilisateur, soit 100mo pour 500 utilisateurs.
@@ -103,7 +103,9 @@ Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous
       - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
 
 # Installation préalables
+
 En tant que root
+
 ```
 apt-get update
 apt-get install -y postgresql
@@ -262,6 +264,7 @@ server {
 > attention le '/' final dans 'http://localhost:3000/' et 'http://localhost:3001/' est important.
 
 Puis créeez un lien symbolique vers ce fichier
+
 ```
 ln -s /etc/nginx/sites-available/upsignonpro /etc/nginx/sites-enabled/upsignonpro
 ```
@@ -461,6 +464,7 @@ Cette dernière commande génère une chaîne de caractères aléatoires que vou
 Définissez aussi les autres variables du fichier ./back/.env.
 
 Puis lancez la commande update.sh (cette étape peut prendre plusieurs minutes)
+
 ```
 upsignonpro@localhost:~/upsignon-pro-dashboard/$ ./update.sh
 ```
