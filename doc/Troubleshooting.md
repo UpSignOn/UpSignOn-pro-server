@@ -39,11 +39,17 @@ ou directement avec la commande `pm2 logs`
 
 Vérifiez que l'owner des fichiers upsignon-pro-server/ et upsignon-pro-dashboard/ est bien upsignonpro et non root.
 
-
 ## Erreur GoDaddy "unable to load private key"
+
 Les clés privées générées par GoDaddy sont mal encodées. Lancez les commandes suivantes pour corriger le problème.
 
 ```
 iconv -c -f UTF8 -t ASCII generated-private-key.txt > key.pk8
 openssl rsa -in key.pk8 -out key.pem
+```
+
+## Node ne s'installe pas à cause d'une erreur de signature de GPG
+
+```
+chmod 644 "/usr/share/keyrings/nodesource.gpg"
 ```
