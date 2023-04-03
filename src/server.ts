@@ -52,6 +52,9 @@ import { authenticate } from './routes/authenticate';
 import { addNewData } from './routes/addNewData';
 import { disconnect } from './routes/disconnect';
 import { migrateEmailConfig } from './helpers/migrateEmailConfig';
+import { runMigrations } from './helpers/runMigrations';
+
+runMigrations();
 
 const app = express();
 
@@ -107,7 +110,7 @@ app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
 app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
 app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
 // prettier-ignore
-app.post(['/:groupId/get-matching-email-addresses-for-sharing','/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
+app.post(['/:groupId/get-matching-email-addresses-for-sharing', '/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
 // prettier-ignore
 app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
 // prettier-ignore

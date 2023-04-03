@@ -1,0 +1,47 @@
+services:
+  upsignon-pro-db:
+    image: postgres
+    restart: always
+    env_file:
+      - db-pwd.env
+    environment:
+      POSTGRES_USER: upsignonpro
+      POSTGRES_DB: upsignonpro
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - upsignon-pro-volume:/var/lib/postgresql/data
+  
+  upsignon-pro-server:
+    image: giregdekerdanet/upsignon-pro-server
+    restart: always
+    depends_on:
+      - upsignon-pro-db
+    ports:
+      - 3000:3000
+    env_file:
+      - db-pwd.env
+      - server.env
+    environment:
+      DB_USER: upsignonpro
+      DB_NAME: upsignonpro
+      DB_HOST: upsignon-pro-db
+      DB_PORT: 5432
+  
+  upsignon-pro-dashboard:
+    image: giregdekerdanet/upsignon-pro-dashboard
+    restart: always
+    depends_on:
+      - upsignon-pro-db
+    ports:
+      - 3001:3001
+    env_file:
+      - db-pwd.env
+      - dashboard.env
+    environment:
+      DB_USER: upsignonpro
+      DB_NAME: upsignonpro
+      DB_HOST: upsignon-pro-db
+      DB_PORT: 5432
+    
+volumes:
+  upsignon-pro-volume:
