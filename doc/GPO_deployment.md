@@ -10,6 +10,8 @@
 
 - Vous pouvez alors déployer ce dossier par GPO et lancer le script d'installation qui y est inclus par GPO pour installer l'application chez tous vos collaborateurs.
 
+> Attention, la GPO doit être appliquée à l'utilisateur et non à l'ordinateur.
+
 ## Déploiement du module UpSignOnHelper (pour windows uniquement)
 
 Pour permettre aux extensions de navigateur de communiquer avec l'application sur windows, vous aller devoir:
