@@ -54,8 +54,6 @@ import { disconnect } from './routes/disconnect';
 import { migrateEmailConfig } from './helpers/migrateEmailConfig';
 import { runMigrations } from './helpers/runMigrations';
 
-runMigrations();
-
 const app = express();
 
 // Set express trust-proxy so that secure sessions cookies can work
@@ -152,7 +150,7 @@ app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-i
 app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
 
 if (module === require.main) {
-  migrateEmailConfig().then(() => {
+  migrateEmailConfig().then(runMigrations).then(() => {
     startServer(app, () => {
       logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
       logInfo(

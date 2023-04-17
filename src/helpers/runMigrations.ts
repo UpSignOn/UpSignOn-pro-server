@@ -4,20 +4,19 @@ import fs from 'fs';
 import { db } from './db';
 import { logInfo } from './logger'
 
-export const runMigrations = () => {
-    fs.readdir(path.join(__dirname, '../../migrations'), async function (err, files) {
-        try {
-            var requests = files.sort().map(getMigrationPromise);
-            await requests
-                .reduce(function (cur, next) {
-                    return cur.then(next);
-                }, Promise.resolve());
-            console.log("DONE updating database");
-        } catch (e) {
-            console.error(e);
-            process.exit(0);
-        }
-    });
+export const runMigrations = async () => {
+    const files = await fs.promises.readdir(path.join(__dirname, '../../migrations'));
+    try {
+        var requests = files.sort().map(getMigrationPromise);
+        await requests
+            .reduce(function (cur, next) {
+                return cur.then(next);
+            }, Promise.resolve());
+        console.log("DONE updating database");
+    } catch (e) {
+        console.error(e);
+        process.exit(1);
+    }
 }
 
 function getMigrationPromise(file: any) {

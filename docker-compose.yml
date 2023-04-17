@@ -9,8 +9,8 @@ services:
       POSTGRES_DB: upsignonpro
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - upsignon-pro-volume:/var/lib/postgresql/data
-  
+      - upsignon-pro-db:/var/lib/postgresql/data
+
   upsignon-pro-server:
     image: giregdekerdanet/upsignon-pro-server
     restart: always
@@ -21,12 +21,13 @@ services:
     env_file:
       - db-pwd.env
       - server.env
+    init: true
     environment:
       DB_USER: upsignonpro
       DB_NAME: upsignonpro
       DB_HOST: upsignon-pro-db
       DB_PORT: 5432
-  
+
   upsignon-pro-dashboard:
     image: giregdekerdanet/upsignon-pro-dashboard
     restart: always
@@ -37,11 +38,24 @@ services:
     env_file:
       - db-pwd.env
       - dashboard.env
+    init: true
     environment:
       DB_USER: upsignonpro
       DB_NAME: upsignonpro
       DB_HOST: upsignon-pro-db
       DB_PORT: 5432
-    
+
+  upsignon-pro-nginx:
+    image: giregdekerdanet/upsignon-nginx-all-in-one
+    restart: always
+    depends_on:
+      - upsignon-pro-server
+      - upsignon-pro-dashboard
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./certificate:/etc/nginx/ssl/:ro
+
 volumes:
-  upsignon-pro-volume:
+  upsignon-pro-db:
