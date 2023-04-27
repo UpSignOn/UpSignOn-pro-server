@@ -67,7 +67,9 @@ export const getPasswordBackup = async (req: any, res: any) => {
     );
     if (!isDeviceAuthorized) return res.status(401).end();
 
-    if (!resetRequest.reset_request_id) {
+    if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
+      return res.status(401).json({ error: 'not_admin_authorized' });
+    } else if (!resetRequest.reset_request_id) {
       return res.status(401).json({ error: 'no_request' });
     } else if (resetRequest.reset_token !== resetToken) {
       return res.status(401).json({ error: 'bad_token' });
@@ -76,7 +78,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
     }
 
     await db.query(
-      `DELETE FROM password_reset_request WHERE id='${resetRequest.reset_request_id}'`,
+      `UPDATE password_reset_request SET status='COMPLETED' WHERE id='${resetRequest.reset_request_id}'`,
     );
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
