@@ -6,7 +6,6 @@ import { inputSanitizer } from '../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges = async (req: any, res: any) => {
-  // TODO do not send challenges if device is blocked ?
   try {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -23,9 +22,11 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
         ud.id AS did,
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         char_length(ud.device_public_key) > 0 AS has_device_public_key,
-        ud.authorization_status AS authorization_status
+        ud.authorization_status AS authorization_status,
+        g.settings AS group_settings
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
+      INNER JOIN groups AS g ON g.id = u.group_id
       WHERE
         u.email=$1
         AND ud.device_unique_id = $2
@@ -51,6 +52,13 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
     ) {
       return res.status(404).json({ error: 'revoked' });
+    }
+
+    if (
+      dbRes.rows[0].group_settings?.IS_TESTING &&
+      new Date(dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE) < new Date()
+    ) {
+      return res.status(404).json({ error: 'test_expired' });
     }
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
