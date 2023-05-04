@@ -3,8 +3,6 @@
 
 # Adapted from https://wiki.postgresql.org/wiki/Automated_Backup_on_Linux
 
-FILENAME=$1
-
 if [ -z $ENV_FILE_PATH ] ; then
         SCRIPTPATH=$(cd ${0%/*} && pwd -P)
         ENV_FILE_PATH="${SCRIPTPATH}/../.env"
