@@ -9,7 +9,7 @@ try {
     port: process.env.DB_PORT,
     user: process.env.DB_USER,
     database: process.env.DB_NAME,
-    password: process.env.DB_PASS,
+    password: process.env.POSTGRES_PASSWORD || process.env.DB_PASS,
   });
 } catch (e) {
   console.error(e);
