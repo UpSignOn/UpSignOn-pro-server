@@ -1,4 +1,4 @@
-import { checkBasicAuth } from '../../api1/helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 
@@ -13,13 +13,8 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
       [basicAuth.groupId],
     );
 
-    const list = urlListRes.rows.filter(u => !!u.displayed_name).map(u => ({
-      name: u.displayed_name,
-      url: u.signin_url
-    }))
-
     // Return res
-    return res.status(200).json({ urlList: list });
+    return res.status(200).json({ urlList: urlListRes.rows });
   } catch (e) {
     logError('getUrlList', e);
     return res.status(400).end();
