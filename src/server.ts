@@ -53,6 +53,7 @@ import { addNewData } from './routes/addNewData';
 import { disconnect } from './routes/disconnect';
 import { migrateEmailConfig } from './helpers/migrateEmailConfig';
 import { runMigrations } from './helpers/runMigrations';
+import { api2Router } from './api2/api2';
 
 const app = express();
 
@@ -83,6 +84,10 @@ app.get('/', (req, res) => {
   res.status(200).send('UpSignOn PRO server is running');
 });
 
+app.use('/api2', api2Router);
+
+
+// DEPRECATED
 // GROUP ROUTING with or without groupid (default groupid is 1)
 app.all(['/:groupId/config', '/config'], getConfig);
 app.post(['/:groupId/url-list', '/url-list'], getUrlList);
