@@ -20,7 +20,7 @@ import { getRandomString } from '../../helpers/randomString';
 // - 204
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const requestDeviceAccess = async (req: any, res: any) => {
+export const requestDeviceAccess2 = async (req: any, res: any) => {
     try {
         const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 

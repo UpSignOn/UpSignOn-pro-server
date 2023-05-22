@@ -5,7 +5,7 @@ import { createPasswordChallenge } from '../../helpers/passwordChallenge';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const getAuthenticationChallenges = async (req: any, res: any) => {
+export const getAuthenticationChallenges2 = async (req: any, res: any) => {
   try {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);

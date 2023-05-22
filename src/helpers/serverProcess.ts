@@ -3,7 +3,7 @@ import { db } from './db';
 import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';
-import { sendStatusUpdate } from '../api1/helpers/serverStatus';
+import { sendStatusUpdate } from './serverStatus';
 import { cleanOldRevokedDevices } from './dbCleaner';
 
 if (env.HTTP_PROXY) {

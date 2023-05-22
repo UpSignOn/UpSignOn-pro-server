@@ -6,7 +6,7 @@ import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../he
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const checkDevice = async (req: any, res: any) => {
+export const checkDevice2 = async (req: any, res: any) => {
     try {
         const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
