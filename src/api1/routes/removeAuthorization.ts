@@ -1,6 +1,6 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../helpers/deviceChallenge';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';

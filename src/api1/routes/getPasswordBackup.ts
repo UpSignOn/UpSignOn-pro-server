@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import { isExpired } from '../../helpers/dateHelper';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../helpers/deviceChallenge';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any

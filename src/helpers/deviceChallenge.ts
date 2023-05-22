@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { db } from '../../helpers/db';
-import { accessCodeHash } from './accessCodeHash';
+import { db } from './db';
+import { accessCodeHash } from '../api1/helpers/accessCodeHash';
 
 export const createDeviceChallenge = async (deviceId: string): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');

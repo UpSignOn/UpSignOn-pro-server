@@ -16,7 +16,7 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
             bankName: nameRes.rows[0].name,
         });
     } catch (e) {
-        logError('getConfig', e);
+        logError('getBankConfig', e);
         return res.status(400).end();
     }
 };

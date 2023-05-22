@@ -12,7 +12,7 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     if (!userEmail || !deviceId) {
-      return res.status(401).end();
+      return res.status(403).end();
     }
 
     const dbRes = await db.query(
@@ -20,8 +20,6 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
         u.id AS uid,
         u.encrypted_data AS encrypted_data,
         ud.id AS did,
-        char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
-        char_length(ud.device_public_key) > 0 AS has_device_public_key,
         ud.authorization_status AS authorization_status,
         g.settings AS group_settings
       FROM user_devices AS ud
@@ -42,37 +40,34 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
         [userEmail, groupId],
       );
       if (emailChangeRes.rowCount === 0) {
-        return res.status(404).json({ error: 'revoked' });
+        return res.status(403).json({ error: 'revoked' });
       } else {
-        return res.status(401).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
+        return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
     if (
       dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' ||
       dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
     ) {
-      return res.status(404).json({ error: 'revoked' });
+      return res.status(403).json({ error: 'revoked' });
     }
 
     if (
       dbRes.rows[0].group_settings?.IS_TESTING &&
       new Date(dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE) < new Date()
     ) {
-      return res.status(404).json({ error: 'test_expired' });
+      return res.status(403).json({ error: 'test_expired' });
     }
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
-      return res.status(401).json({
+      return res.status(403).json({
         error: 'other_authorization_status',
         authorizationStatus: dbRes.rows[0].authorization_status,
       });
 
-    if (dbRes.rows[0].has_access_code_hash || !dbRes.rows[0].has_device_public_key)
-      return res.status(401).end();
-
     const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
     if (!dbRes.rows[0].encrypted_data) {
-      return res.status(404).json({ error: 'empty_data', deviceChallenge });
+      return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
 
     const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);

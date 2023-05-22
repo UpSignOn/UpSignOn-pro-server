@@ -2,7 +2,7 @@ import { db } from '../../helpers/db';
 import { getExpirationDate, isExpired } from '../../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../helpers/deviceChallenge';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { getRandomString } from '../../helpers/randomString';
 

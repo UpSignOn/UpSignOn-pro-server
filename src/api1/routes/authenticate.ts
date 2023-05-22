@@ -1,5 +1,5 @@
 import { db } from '../../helpers/db';
-import { checkDeviceChallenge } from '../helpers/deviceChallenge';
+import { checkDeviceChallenge } from '../../helpers/deviceChallenge';
 import { logError } from '../../helpers/logger';
 import { checkPasswordChallenge } from '../../helpers/passwordChallenge';
 import { inputSanitizer } from '../../helpers/sanitizer';
