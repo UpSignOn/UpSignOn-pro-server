@@ -11,8 +11,56 @@ import env from './helpers/env';
 import { logInfo } from './helpers/logger';
 import { migrateEmailConfig } from './api1/helpers/migrateEmailConfig';
 import { runMigrations } from './helpers/runMigrations';
-import { api2Router } from './api2/api2';
-import { api1Router } from './api1/api1';
+
+import { requestAccess } from './api1/routes/requestAccess';
+import { checkDevice } from './api1/routes/checkDevice';
+import { getData } from './api1/routes/getData';
+import { updateData } from './api1/routes/updateData';
+import { getConfig } from './api1/routes/getConfig';
+import { getUrlList } from './api1/routes/getUrlList';
+import { removeAuthorization } from './api1/routes/removeAuthorization';
+import { getAuthorizedDevices } from './api1/routes/getAuthorizedDevices';
+import { renameDevice } from './api1/routes/renameDevice';
+import { backupPassword } from './api1/routes/backupPassword';
+import { requestPasswordReset } from './api1/routes/requestPasswordReset';
+import { getPasswordBackup } from './api1/routes/getPasswordBackup';
+import { checkEmailAddressForSharing } from './api1/routes/checkEmailAddressForSharing';
+import { share } from './api1/routes/share';
+import { updateSharedItem } from './api1/routes/updateSharedItem';
+import { getContactsPublicKeys } from './api1/routes/getContactsPublicKeys';
+import { updateContactItemRights } from './api1/routes/updateContactItemRights';
+import { stopSharingWithContact } from './api1/routes/stopSharingWithContact';
+import { checkUserPublicKey } from './api1/routes/checkUserPublicKey';
+import { updateDeviceMetaData } from './api1/routes/updateDeviceMetaData';
+import { logUsage } from './api1/routes/logUsage';
+import { getMatchingEmailAddressesForSharing } from './api1/routes/getMatchingEmailAddressesForSharing';
+import { getContactsSharingItemsWithMe } from './api1/routes/getContactsSharingItemsWithMe';
+import { deleteSharing } from './api1/routes/deleteSharing';
+import { stopReceivingSharing } from './api1/routes/stopReceivingSharing';
+import { deleteSingledSharings } from './api1/routes/deleteSingledSharings';
+import { sendStats } from './api1/routes/sendStats';
+import { getContactsSharingItemsWithMeV2 } from './api1/routes/getContactsSharingItemsWithMeV2';
+import { createSharedFolder } from './api1/routes/createSharedFolder';
+import { addSharedItemsToSharedFolder } from './api1/routes/addSharedItemsToSharedFolder';
+import { changeSharedFolderName } from './api1/routes/changeSharedFolderName';
+import { getContactsForSharedFolder } from './api1/routes/getContactsForSharedFolder';
+import { updateContactSharedFolderRights } from './api1/routes/updateContactSharedFolderRights';
+import { stopSharingFolderWithContact } from './api1/routes/stopSharingFolderWithContact';
+import { getContactsForSharedItemV2 } from './api1/routes/getContactsForSharedItemV2';
+import { makeMyselfSoleManagerOfSharedFolder } from './api1/routes/makeMyselfSoleManagerOfSharedFolder';
+import { updateSharedFolderIdForSharedItem } from './api1/routes/updateSharedFolderIdForSharedItem';
+import { unshareItemsThatWereMovedFromSharedFolder } from './api1/routes/unsharedItemsThatWereMovedFromSharedFolder';
+import { migrateToCryptographicAuthentication } from './api1/routes/migrateToCryptographicAuthentication';
+import { getAuthenticationChallenges } from './api1/routes/getAuthenticationChallenges';
+import { authenticate } from './api1/routes/authenticate';
+import { addNewData } from './api1/routes/addNewData';
+import { disconnect } from './api1/routes/disconnect';
+import { getBankConfig } from './api2/routes/getBankConfig';
+import { getUrlList2 } from './api2/routes/getUrlList';
+import { requestDeviceAccess2 } from './api2/routes/requestDeviceAccess';
+import { checkDevice2 } from './api2/routes/checkDevice';
+import { getAuthenticationChallenges2 } from './api2/routes/getAuthenticationChallenges';
+import { authenticate2 } from './api2/routes/authenticate';
 
 const app = express();
 
@@ -44,13 +92,63 @@ app.get('/', (req, res) => {
 });
 
 // GROUP ROUTING with or without groupid (default groupid is 1)
-app.use("/:groupId/api2", api2Router);
-app.use("/api2", api2Router);
 
-app.use("/:groupId/", api1Router);
-app.use("/", api1Router);
+// API 2
+app.all(['/:groupId/api2/bank-config', '/api2/bank-config'], getBankConfig);
+app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
+app.post(['/:groupId/api2/request-device-access', '/api2/request-device-access'], requestDeviceAccess2);
+app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
+app.post(
+  ['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'],
+  getAuthenticationChallenges2,
+);
+app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
 
-// DEPRECATED
+// API 1
+app.all(['/:groupId/config', '/config'], getConfig);
+app.post(['/:groupId/url-list', '/url-list'], getUrlList);
+app.post(['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'], migrateToCryptographicAuthentication);
+app.post(['/:groupId/get-authentication-challenges', '/get-authentication-challenges'], getAuthenticationChallenges);
+app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
+app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
+app.post(['/:groupId/request-access', '/request-access'], requestAccess);
+app.post(['/:groupId/check-device', '/check-device'], checkDevice);
+app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
+app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
+app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
+app.post(['/:groupId/get-data', '/get-data'], getData);
+app.post(['/:groupId/update-data', '/update-data'], updateData);
+app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
+app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
+app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
+app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+app.post(['/:groupId/get-matching-email-addresses-for-sharing', '/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
+app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
+app.post(['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'], getContactsSharingItemsWithMeV2);
+app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
+app.post(['/:groupId/share', '/share'], share);
+app.post(['/:groupId/create-shared-folder', '/create-shared-folder'], createSharedFolder);
+app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'], addSharedItemsToSharedFolder);
+app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
+app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
+app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactItemRights);
+app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], stopSharingWithContact);
+app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
+app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], deleteSingledSharings);
+app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
+app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
+app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
+app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
+app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
+app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
+app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
+app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'], getContactsForSharedFolder);
+app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'], updateContactSharedFolderRights);
+app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'], stopSharingFolderWithContact);
+app.post(['/:groupId/make-myself-sole-manager-of-shared-folder', '/make-myself-sole-manager-of-shared-folder'], makeMyselfSoleManagerOfSharedFolder);
+app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-id-for-item'], updateSharedFolderIdForSharedItem);
+app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
+
 
 if (module === require.main) {
   runMigrations().then(migrateEmailConfig).then(() => {

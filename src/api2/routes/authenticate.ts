@@ -6,7 +6,7 @@ import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const authenticate = async (req: any, res: any) => {
+export const authenticate2 = async (req: any, res: any) => {
     try {
         const deviceUId = inputSanitizer.getString(req.body?.deviceId);
         const passwordChallengeResponse = inputSanitizer.getString(req.body?.passwordChallengeResponse);

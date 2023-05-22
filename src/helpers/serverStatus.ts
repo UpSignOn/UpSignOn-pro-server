@@ -1,9 +1,9 @@
-import env from '../../helpers/env';
-import { db } from '../../helpers/db';
+import env from './env';
+import { db } from './db';
 import childProcess from 'child_process';
 import https from 'https';
 import http from 'http';
-import { logError } from '../../helpers/logger';
+import { logError } from './logger';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {

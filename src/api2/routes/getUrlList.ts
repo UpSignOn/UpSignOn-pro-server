@@ -3,7 +3,7 @@ import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const getUrlList = async (req: any, res: any): Promise<void> => {
+export const getUrlList2 = async (req: any, res: any): Promise<void> => {
   try {
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
