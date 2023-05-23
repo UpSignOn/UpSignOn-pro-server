@@ -37,11 +37,11 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
         // Check params
-        if (!deviceId) return res.status(400).end();
-        if (!deviceName) return res.status(400).end();
-        if (!deviceType) return res.status(400).end();
-        if (!deviceOS) return res.status(400).end();
-        if (!devicePublicKey) return res.status(400).end();
+        if (!deviceId) return res.status(400).json({ error: 'missing_deviceId' });
+        if (!deviceName) return res.status(400).json({ error: 'missing_deviceName' });
+        if (!deviceType) return res.status(400).json({ error: 'missing_deviceType' });
+        if (!deviceOS) return res.status(400).json({ error: 'missing_deviceOS' });
+        if (!devicePublicKey) return res.status(400).json({ error: 'missing_devicePublicKey' });
 
 
         // Request DB
