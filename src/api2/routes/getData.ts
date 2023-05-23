@@ -72,13 +72,13 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
       return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
-    const sharedItems = await getSharedItems(dbRes.rows[0].user_id, groupId);
+    const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupId);
 
     // Return res
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
       lastUpdateDate: dbRes.rows[0].updated_at,
-      sharedItems,
+      sharedVaults,
     });
 
     // Clean changed_emails table if necessary
@@ -89,56 +89,38 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
   }
 };
 
-export const getSharedItems = async (
+export const getSharedVaults = async (
   userId: number,
   groupId: number,
 ): Promise<
   {
     id: number;
-    type: string;
-    url: null | string;
-    name: null | string;
-    login: null | string;
+    name: string;
     isManager: boolean;
-    aesEncryptedData: string;
-    encryptedAesKey: string;
-    sharedFolderId: null | number;
-    sharedFolderName: null | string;
+    encryptedData: string;
+    encryptedKey: string;
   }[]
 > => {
-  const sharingRes = await db.query(
+  const sharedVaultsRes = await db.query(
     `SELECT
-      sa.id AS id,
-      sa.type AS type,
-      sa.url AS url,
-      sa.name AS name,
-      sa.login AS login,
-      sa.aes_encrypted_data AS aes_encrypted_data,
-      sau.is_manager AS is_manager,
-      sau.encrypted_aes_key AS encrypted_aes_key,
-      (SELECT COUNT(user_id) FROM shared_account_users WHERE shared_account_id=sau.shared_account_id) < 2 AS has_single_user,
-      sf.id as shared_folder_id,
-      sf.name as shared_folder_name
-    FROM shared_accounts AS sa
-    INNER JOIN shared_account_users AS sau
-    ON sau.shared_account_id=sa.id
-    LEFT JOIN shared_folders AS sf ON sf.id=sa.shared_folder_id
-    WHERE sau.user_id=$1
-    AND sa.group_id=$2`,
+      sv.id AS id,
+      sv.name AS name,
+      sv.encrypted_data AS encrypted_data,
+      svr.is_manager AS is_manager,
+      svr.encrypted_shared_vault_key AS encrypted_shared_vault_key
+    FROM shared_vaults AS sv
+    INNER JOIN shared_vault_recipients AS svr
+    ON svr.shared_vault_id=sv.id
+    WHERE svr.user_id=$1
+    AND sv.group_id=$2`,
     [userId, groupId],
   );
-  return sharingRes.rows.map((s) => ({
+  return sharedVaultsRes.rows.map((s) => ({
     id: s.id,
-    type: s.type,
-    url: s.url,
     name: s.name,
-    login: s.login,
-    aesEncryptedData: s.aes_encrypted_data,
-    encryptedAesKey: s.encrypted_aes_key,
+    encryptedData: s.encrypted_data,
+    encryptedKey: s.encrypted_shared_vault_key,
     isManager: s.is_manager,
-    hasSingleUser: s.has_single_user,
-    sharedFolderId: s.shared_folder_id,
-    sharedFolderName: s.shared_folder_name,
   }));
 };
 

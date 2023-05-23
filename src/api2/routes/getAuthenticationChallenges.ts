@@ -78,7 +78,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       deviceChallenge,
     });
   } catch (e) {
-    logError('getAuthenticationChallenges', e);
+    logError('getAuthenticationChallenges2', e);
     return res.status(400).end();
   }
 };
