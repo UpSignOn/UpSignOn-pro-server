@@ -62,11 +62,12 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
-    if (
-      dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' ||
-      dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
-    )
+    if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
       return res.status(403).json({ error: 'revoked' });
+    }
+    if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN') {
+      return res.status(403).json({ error: 'revoked_by_admin' });
+    }
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
       return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
