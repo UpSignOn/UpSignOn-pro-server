@@ -27,6 +27,7 @@ export const checkDevice2 = async (req: any, res: any) => {
             'ud.id AS id, ' +
             'users.id AS user_id, ' +
             'ud.authorization_code AS authorization_code, ' +
+            'ud.authorization_status AS authorization_status, ' +
             'ud.auth_code_expiration_date AS auth_code_expiration_date, ' +
             'ud.device_public_key AS device_public_key, ' +
             'ud.session_auth_challenge AS session_auth_challenge, ' +
@@ -36,7 +37,8 @@ export const checkDevice2 = async (req: any, res: any) => {
             'WHERE ' +
             'users.email=$1 ' +
             'AND ud.device_unique_id = $2 ' +
-            "AND ud.authorization_status = 'PENDING' " +
+            "AND ud.authorization_status != 'REVOKED_BY_ADMIN' " +
+            "AND ud.authorization_status != 'REVOKED_BY_USER' " +
             'AND users.group_id=$3',
             [userEmail, deviceId, groupId],
         );
@@ -45,6 +47,9 @@ export const checkDevice2 = async (req: any, res: any) => {
             return res.status(403).json({ error: "revoked" });
         }
 
+        if (dbRes.rows[0].authorization_status !== "PENDING") {
+            return res.status(200).end();
+        }
         if (!deviceChallengeResponse) {
             const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
             return res.status(401).json({ deviceChallenge });
@@ -80,7 +85,7 @@ export const checkDevice2 = async (req: any, res: any) => {
         );
         return res.status(200).end();
     } catch (e) {
-        logError('checkDevice', e);
+        logError('checkDevice2', e);
         return res.status(400).end();
     }
 };
