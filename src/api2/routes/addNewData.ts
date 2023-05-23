@@ -30,7 +30,6 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         char_length(u.encrypted_data) > 0 AS has_existing_data,
         u.id AS uid,
         ud.id AS did,
-        char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         ud.device_public_key AS device_public_key,
         ud.session_auth_challenge AS session_auth_challenge,
         ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
@@ -49,7 +48,6 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !selectRes ||
       selectRes.rowCount === 0 ||
       selectRes.rows[0].has_existing_data ||
-      selectRes.rows[0].has_access_code_hash ||
       !selectRes.rows[0].device_public_key ||
       !selectRes.rows[0].session_auth_challenge
     ) {
