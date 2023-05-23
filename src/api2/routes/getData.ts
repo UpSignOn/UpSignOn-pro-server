@@ -57,19 +57,19 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
         [userEmail, groupId],
       );
       if (emailChangeRes.rowCount === 0) {
-        return res.status(404).json({ error: 'revoked' });
+        return res.status(403).json({ error: 'revoked' });
       } else {
-        return res.status(401).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
+        return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
     if (
       dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' ||
       dbRes.rows[0].authorization_status === 'REVOKED_BY_USER'
     )
-      return res.status(404).json({ error: 'revoked' });
+      return res.status(403).json({ error: 'revoked' });
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
-      return res.status(401).json({ authorizationStatus: dbRes.rows[0].authorization_status });
+      return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
 
     const sharedItems = await getSharedItems(dbRes.rows[0].user_id, groupId);
 
@@ -83,7 +83,7 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
     // Clean changed_emails table if necessary
     cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
   } catch (e) {
-    logError('getData', e);
+    logError('getData2', e);
     return res.status(400).end();
   }
 };
