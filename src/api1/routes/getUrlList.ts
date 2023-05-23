@@ -1,4 +1,4 @@
-import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 

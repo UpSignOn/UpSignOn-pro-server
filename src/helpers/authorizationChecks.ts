@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { db } from '../../helpers/db';
-import { accessCodeHash } from './accessCodeHash';
-import { inputSanitizer } from '../../helpers/sanitizer';
-import { SessionStore } from '../../helpers/sessionStore';
+import { db } from './db';
+import { accessCodeHash } from '../api1/helpers/accessCodeHash';
+import { inputSanitizer } from './sanitizer';
+import { SessionStore } from './sessionStore';
 
 export const checkBasicAuth = async (
   req: any,

@@ -6,7 +6,7 @@ import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const removeAuthorization = async (req: any, res: any) => {
+export const removeAuthorization2 = async (req: any, res: any) => {
   try {
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
@@ -21,7 +21,6 @@ export const removeAuthorization = async (req: any, res: any) => {
       const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
       if (!userEmail) return res.status(401).end();
 
-      const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode);
       const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
 
       // Check params
@@ -33,7 +32,6 @@ export const removeAuthorization = async (req: any, res: any) => {
         'SELECT ' +
         'ud.id AS id, ' +
         'users.id AS uid, ' +
-        'ud.access_code_hash AS access_code_hash, ' +
         'ud.device_public_key AS device_public_key, ' +
         'ud.session_auth_challenge AS session_auth_challenge, ' +
         'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
@@ -61,13 +59,13 @@ export const removeAuthorization = async (req: any, res: any) => {
         });
       }
       if (!deviceSession || !isSessionAuthenticated) {
-        if (!deviceAccessCode && !deviceChallengeResponse) {
+        if (!deviceChallengeResponse) {
           const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
           return res.status(403).json({ deviceChallenge });
         }
         const isDeviceAuthorized = await checkDeviceRequestAuthorization(
-          deviceAccessCode,
-          dbRes.rows[0].access_code_hash,
+          null,
+          null,
           deviceChallengeResponse,
           dbRes.rows[0].id,
           dbRes.rows[0].session_auth_challenge_exp_time,
@@ -86,7 +84,7 @@ export const removeAuthorization = async (req: any, res: any) => {
     }
 
     await db.query(
-      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', access_code_hash='', device_public_key=null, encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key=null, encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
       [new Date().toISOString(), deviceToDelete, userId, groupId],
     );
     // Return res

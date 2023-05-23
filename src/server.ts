@@ -61,6 +61,10 @@ import { requestDeviceAccess2 } from './api2/routes/requestDeviceAccess';
 import { checkDevice2 } from './api2/routes/checkDevice';
 import { getAuthenticationChallenges2 } from './api2/routes/getAuthenticationChallenges';
 import { authenticate2 } from './api2/routes/authenticate';
+import { updateData2 } from './api2/routes/updateData';
+import { addNewData2 } from './api2/routes/addNewData';
+import { getData2 } from './api2/routes/getData';
+import { removeAuthorization2 } from './api2/routes/removeAuthorization';
 
 const app = express();
 
@@ -101,31 +105,31 @@ app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
 // AUTHORIZATION
 app.post(['/:groupId/api2/request-device-access', '/api2/request-device-access'], requestDeviceAccess2);
 app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
-// app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 
 // AUTHENTICATION
 app.post(['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'], getAuthenticationChallenges2);
 app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
-// app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
+app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect);
 
 // PASSWORD RESET
-// app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
-// app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
-// app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+// app.post(['/:groupId/api2/request-password-reset', '/api2/request-password-reset'], requestPasswordReset);
+// app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword);
+// app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup);
 
 // DATA
-// app.post(['/:groupId/get-data', '/get-data'], getData);
-// app.post(['/:groupId/update-data', '/update-data'], updateData);
-// app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
+app.post(['/:groupId/api2/get-data', '/api2/get-data'], getData2);
+app.post(['/:groupId/api2/update-data', '/api2/update-data'], updateData2);
+app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
-// app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
-// app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
+app.post(['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'], getAuthorizedDevices);
+app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice);
+app.post(['/:groupId/api2/remove-authorization', '/api2/remove-authorization'], removeAuthorization2);
 
 // LOGS
-// app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
-// app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
-// app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
+// app.post(['/:groupId/api2/log-usage', '/api2/log-usage'], logUsage);
+// app.post(['/:groupId/api2/send-stats', '/api2/send-stats'], sendStats);
+// app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData);
 
 // SHARING
 // ...
@@ -140,7 +144,6 @@ app.post(['/:groupId/url-list', '/url-list'], getUrlList);
 // AUTHORIZATION
 app.post(['/:groupId/request-access', '/request-access'], requestAccess);
 app.post(['/:groupId/check-device', '/check-device'], checkDevice);
-app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 
 // AUTHENTICATION
 app.post(['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'], migrateToCryptographicAuthentication);
@@ -161,6 +164,7 @@ app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
 // DEVICES
 app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
 app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
+app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 
 // LOGS
 app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
