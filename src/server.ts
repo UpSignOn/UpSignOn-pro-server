@@ -94,53 +94,99 @@ app.get('/', (req, res) => {
 // GROUP ROUTING with or without groupid (default groupid is 1)
 
 // API 2
+// BANK
 app.all(['/:groupId/api2/bank-config', '/api2/bank-config'], getBankConfig);
 app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
+
+// AUTHORIZATION
 app.post(['/:groupId/api2/request-device-access', '/api2/request-device-access'], requestDeviceAccess2);
 app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
-app.post(
-  ['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'],
-  getAuthenticationChallenges2,
-);
-app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
+// app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 
+// AUTHENTICATION
+app.post(['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'], getAuthenticationChallenges2);
+app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
+// app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
+
+// PASSWORD RESET
+// app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
+// app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
+// app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+
+// DATA
+// app.post(['/:groupId/get-data', '/get-data'], getData);
+// app.post(['/:groupId/update-data', '/update-data'], updateData);
+// app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
+
+// DEVICES
+// app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
+// app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
+
+// LOGS
+// app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
+// app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
+// app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
+
+// SHARING
+// ...
+
+///////////////////////////////////
 // API 1
+///////////////////////////////////
+// BANK
 app.all(['/:groupId/config', '/config'], getConfig);
 app.post(['/:groupId/url-list', '/url-list'], getUrlList);
+
+// AUTHORIZATION
+app.post(['/:groupId/request-access', '/request-access'], requestAccess);
+app.post(['/:groupId/check-device', '/check-device'], checkDevice);
+app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
+
+// AUTHENTICATION
 app.post(['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'], migrateToCryptographicAuthentication);
 app.post(['/:groupId/get-authentication-challenges', '/get-authentication-challenges'], getAuthenticationChallenges);
 app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
 app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
-app.post(['/:groupId/request-access', '/request-access'], requestAccess);
-app.post(['/:groupId/check-device', '/check-device'], checkDevice);
+
+// PASSWORD RESET
 app.post(['/:groupId/request-password-reset', '/request-password-reset'], requestPasswordReset);
-app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
-app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
+app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
+app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+
+// DATA
 app.post(['/:groupId/get-data', '/get-data'], getData);
 app.post(['/:groupId/update-data', '/update-data'], updateData);
 app.post(['/:groupId/add-new-data', '/add-new-data'], addNewData);
+
+// DEVICES
+app.post(['/:groupId/get-authorized-devices', '/get-authorized-devices'], getAuthorizedDevices);
 app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
-app.post(['/:groupId/backup-password', '/backup-password'], backupPassword);
-app.post(['/:groupId/get-password-backup', '/get-password-backup'], getPasswordBackup);
+
+// LOGS
+app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
+app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
+app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
+
+// SHARING
+// SHARING CONTACTS
+app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
 app.post(['/:groupId/get-matching-email-addresses-for-sharing', '/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
+app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
+app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
 app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
 app.post(['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'], getContactsSharingItemsWithMeV2);
-app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
+app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
+//SHARING ITEMS
 app.post(['/:groupId/share', '/share'], share);
-app.post(['/:groupId/create-shared-folder', '/create-shared-folder'], createSharedFolder);
-app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'], addSharedItemsToSharedFolder);
 app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
-app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
 app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactItemRights);
 app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], stopSharingWithContact);
 app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
 app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], deleteSingledSharings);
 app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
-app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
-app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
-app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
-app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
-app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
+// SHARING FOLDERS
+app.post(['/:groupId/create-shared-folder', '/create-shared-folder'], createSharedFolder);
+app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'], addSharedItemsToSharedFolder);
 app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
 app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'], getContactsForSharedFolder);
 app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'], updateContactSharedFolderRights);
