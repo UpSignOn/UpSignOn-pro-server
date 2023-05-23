@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { getSharedItems } from './getData';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorage } from '../../helpers/passwordChallenge';
 
