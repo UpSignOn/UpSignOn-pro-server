@@ -24,7 +24,6 @@ export const authenticate2 = async (req: any, res: any) => {
         ud.id AS did,
         ud.password_challenge_blocked_until AS password_challenge_blocked_until,
         ud.password_challenge_error_count AS password_challenge_error_count,
-        char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         ud.device_public_key AS device_public_key,
         ud.session_auth_challenge AS session_auth_challenge,
         ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
@@ -42,7 +41,6 @@ export const authenticate2 = async (req: any, res: any) => {
         if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
         const {
             did,
-            has_access_code_hash,
             device_public_key,
             password_challenge_blocked_until,
             session_auth_challenge_exp_time,
@@ -52,7 +50,7 @@ export const authenticate2 = async (req: any, res: any) => {
         } = dbRes.rows[0];
 
         // 1 - check device uses the new cryptographic authentication mechanism
-        if (!!has_access_code_hash || !device_public_key) return res.status(401).end();
+        if (!device_public_key) return res.status(401).end();
 
         // 2 - check that the user is not temporarily blocked
         if (

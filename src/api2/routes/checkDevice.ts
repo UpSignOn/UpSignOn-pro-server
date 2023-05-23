@@ -52,7 +52,7 @@ export const checkDevice2 = async (req: any, res: any) => {
 
         const isDeviceAuthorized = await checkDeviceRequestAuthorization(
             null,
-            dbRes.rows[0].access_code_hash,
+            null,
             deviceChallengeResponse,
             dbRes.rows[0].id,
             dbRes.rows[0].session_auth_challenge_exp_time,
