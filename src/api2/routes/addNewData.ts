@@ -51,7 +51,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !selectRes.rows[0].device_public_key ||
       !selectRes.rows[0].session_auth_challenge
     ) {
-      return res.status(403).end();
+      return res.status(403).json({ error: 'conflict' });
     }
 
     // 2 - check that the session auth challenge has not expired

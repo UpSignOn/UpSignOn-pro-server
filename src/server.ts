@@ -61,9 +61,9 @@ import { requestDeviceAccess2 } from './api2/routes/requestDeviceAccess';
 import { checkDevice2 } from './api2/routes/checkDevice';
 import { getAuthenticationChallenges2 } from './api2/routes/getAuthenticationChallenges';
 import { authenticate2 } from './api2/routes/authenticate';
-import { updateData2 } from './api2/routes/updateData';
+import { updateVaultData } from './api2/routes/updateVaultData';
 import { addNewData2 } from './api2/routes/addNewData';
-import { getData2 } from './api2/routes/getData';
+import { getVaultData } from './api2/routes/getVaultData';
 import { removeAuthorization2 } from './api2/routes/removeAuthorization';
 
 const app = express();
@@ -117,8 +117,8 @@ app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect);
 // app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup);
 
 // DATA
-app.post(['/:groupId/api2/get-data', '/api2/get-data'], getData2);
-app.post(['/:groupId/api2/update-data', '/api2/update-data'], updateData2);
+app.post(['/:groupId/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
+app.post(['/:groupId/api2/update-vault-data', '/api2/update-vault-data'], updateVaultData);
 app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
@@ -131,7 +131,7 @@ app.post(['/:groupId/api2/remove-authorization', '/api2/remove-authorization'], 
 // app.post(['/:groupId/api2/send-stats', '/api2/send-stats'], sendStats);
 // app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData);
 
-// SHARING
+// SHARED VAULTS
 // ...
 
 ///////////////////////////////////

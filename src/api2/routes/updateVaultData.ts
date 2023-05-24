@@ -1,16 +1,14 @@
 import { db } from '../../helpers/db';
-import { getSharedVaults } from './getData';
 import { logError } from '../../helpers/logger';
 import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorage } from '../../helpers/passwordChallenge';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const updateData2 = async (req: any, res: any): Promise<void> => {
+export const updateVaultData = async (req: any, res: any): Promise<void> => {
   try {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const lastUpdateDate = inputSanitizer.getString(req.body?.lastUpdateDate);
-    const returningSharedVaults = inputSanitizer.getBoolean(req.body?.returningSharedVaults);
 
     // Check params
     if (!newEncryptedData) return res.status(403).end();
@@ -33,15 +31,10 @@ export const updateData2 = async (req: any, res: any): Promise<void> => {
     );
     if (updateRes.rowCount === 0) {
       // CONFLICT
-      return res.status(403).end();
+      return res.status(409).json({ error: "outdated" });
     }
 
-    if (returningSharedVaults) {
-      const sharedVaults = await getSharedVaults(basicAuth.userId, basicAuth.groupId);
-      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, sharedVaults });
-    } else {
-      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
-    }
+    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
   } catch (e) {
     logError('updateData2', e);
     return res.status(400).end();
