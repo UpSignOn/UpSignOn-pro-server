@@ -19,8 +19,7 @@ exports.up = function (db) {
     nb_accounts_with_no_password INTEGER,
     nb_accounts_red INTEGER,
     nb_accounts_orange INTEGER,
-    nb_accounts_green INTEGER,
-    group_id SMALLINT REFERENCES groups(id)
+    nb_accounts_green INTEGER
   )`);
 }
 
