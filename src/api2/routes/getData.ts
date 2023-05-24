@@ -77,7 +77,7 @@ export const getData2 = async (req: any, res: any): Promise<void> => {
     // Return res
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
-      lastUpdateDate: dbRes.rows[0].updated_at,
+      lastUpdatedDate: dbRes.rows[0].updated_at,
       sharedVaults,
     });
 
@@ -99,6 +99,7 @@ export const getSharedVaults = async (
     isManager: boolean;
     encryptedData: string;
     encryptedKey: string;
+    lastUpdatedAt: any;
   }[]
 > => {
   const sharedVaultsRes = await db.query(
@@ -106,6 +107,7 @@ export const getSharedVaults = async (
       sv.id AS id,
       sv.name AS name,
       sv.encrypted_data AS encrypted_data,
+      sv.last_updated_at AS last_updated_at
       svr.is_manager AS is_manager,
       svr.encrypted_shared_vault_key AS encrypted_shared_vault_key
     FROM shared_vaults AS sv
@@ -119,6 +121,7 @@ export const getSharedVaults = async (
     id: s.id,
     name: s.name,
     encryptedData: s.encrypted_data,
+    lastUpdatedAt: s.last_updated_at,
     encryptedKey: s.encrypted_shared_vault_key,
     isManager: s.is_manager,
   }));
