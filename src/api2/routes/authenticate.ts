@@ -110,9 +110,9 @@ export const authenticate2 = async (req: any, res: any) => {
                 });
             } else {
                 if (!hasPassedDeviceChallenge) {
-                    return res.status(401).json({ error: "bad_password" });
-                } else {
                     return res.status(401).json({ error: "bad_device_challenge_response" })
+                } else {
+                    return res.status(401).json({ error: "bad_password" });
                 }
             }
         }
