@@ -65,6 +65,7 @@ import { updateVaultData } from './api2/routes/updateVaultData';
 import { addNewData2 } from './api2/routes/addNewData';
 import { getVaultData } from './api2/routes/getVaultData';
 import { revokeDevice } from './api2/routes/revokeDevice';
+import { getAuthorizedDevices2 } from './api2/routes/getAuthorizedDevices';
 
 const app = express();
 
@@ -122,7 +123,7 @@ app.post(['/:groupId/api2/update-vault-data', '/api2/update-vault-data'], update
 app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
-app.post(['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'], getAuthorizedDevices);
+app.post(['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'], getAuthorizedDevices2);
 app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice);
 app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
