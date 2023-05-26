@@ -84,7 +84,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     // Clean changed_emails table if necessary
     cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
   } catch (e) {
-    logError('getData2', e);
+    logError('getVaultData', e);
     return res.status(400).end();
   }
 };
@@ -107,7 +107,7 @@ export const getSharedVaults = async (
       sv.id AS id,
       sv.name AS name,
       sv.encrypted_data AS encrypted_data,
-      sv.last_updated_at AS last_updated_at
+      sv.last_updated_at AS last_updated_at,
       svr.is_manager AS is_manager,
       svr.encrypted_shared_vault_key AS encrypted_shared_vault_key
     FROM shared_vaults AS sv
