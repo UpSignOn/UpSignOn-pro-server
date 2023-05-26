@@ -6,7 +6,7 @@ import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const removeAuthorization2 = async (req: any, res: any) => {
+export const revokeDevice = async (req: any, res: any) => {
   try {
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
@@ -90,7 +90,7 @@ export const removeAuthorization2 = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('removeAuthorization', e);
+    logError('revokeDevice', e);
     return res.status(400).end();
   }
 };
