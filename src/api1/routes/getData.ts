@@ -95,7 +95,7 @@ export const getData = async (req: any, res: any): Promise<void> => {
     // Return res
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
-      lastUpdateDate: dbRes.rows[0].updated_at,
+      lastUpdatedAt: dbRes.rows[0].updated_at,
       sharedItems,
     });
 
