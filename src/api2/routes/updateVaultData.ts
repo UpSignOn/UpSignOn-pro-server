@@ -8,11 +8,11 @@ import { hashPasswordChallengeResultForSecureStorage } from '../../helpers/passw
 export const updateVaultData = async (req: any, res: any): Promise<void> => {
   try {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
-    const lastUpdateDate = inputSanitizer.getString(req.body?.lastUpdateDate);
+    const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
 
     // Check params
     if (!newEncryptedData) return res.status(403).end();
-    if (!lastUpdateDate) return res.status(403).end();
+    if (!lastUpdatedAt) return res.status(403).end();
 
     const basicAuth = await checkBasicAuth(req, {});
     if (!basicAuth.granted) return res.status(401).end();
@@ -25,7 +25,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       [
         newEncryptedDataWithPasswordChallengeSecured,
         basicAuth.userEmail,
-        lastUpdateDate,
+        lastUpdatedAt,
         basicAuth.groupId,
       ],
     );
@@ -34,7 +34,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       return res.status(409).json({ error: "outdated" });
     }
 
-    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
+    return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
   } catch (e) {
     logError('updateData2', e);
     return res.status(400).end();

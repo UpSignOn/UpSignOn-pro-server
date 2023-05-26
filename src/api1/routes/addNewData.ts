@@ -95,7 +95,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       userEmail,
     });
 
-    return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, deviceSession });
+    return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at, deviceSession });
   } catch (e) {
     logError('addNewData', e);
     return res.status(400).end();

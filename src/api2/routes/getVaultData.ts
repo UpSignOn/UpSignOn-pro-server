@@ -77,7 +77,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     // Return res
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
-      lastUpdatedDate: dbRes.rows[0].updated_at,
+      lastUpdatedAt: dbRes.rows[0].updated_at,
       sharedVaults,
     });
 
