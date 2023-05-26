@@ -15,7 +15,6 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!userEmail) return res.status(401).end();
 
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
-    const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const resetToken = inputSanitizer.getString(req.body?.resetToken);
 
@@ -29,7 +28,6 @@ export const getPasswordBackup = async (req: any, res: any) => {
       `SELECT
         user_devices.id AS id,
         users.id AS userid,
-        user_devices.access_code_hash AS access_code_hash,
         user_devices.device_public_key AS device_public_key,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
@@ -45,14 +43,13 @@ export const getPasswordBackup = async (req: any, res: any) => {
     );
 
     if (!deviceRes || deviceRes.rowCount === 0) return res.status(401).end();
-    
-    if (!deviceAccessCode && !deviceChallengeResponse) {
+
+    if (!deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallenge(deviceRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorization(
-      deviceAccessCode,
-      deviceRes.rows[0].access_code_hash,
+      null, null,
       deviceChallengeResponse,
       deviceRes.rows[0].id,
       deviceRes.rows[0].session_auth_challenge_exp_time,

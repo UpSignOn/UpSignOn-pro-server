@@ -66,6 +66,7 @@ import { addNewData2 } from './api2/routes/addNewData';
 import { getVaultData } from './api2/routes/getVaultData';
 import { revokeDevice } from './api2/routes/revokeDevice';
 import { getAuthorizedDevices2 } from './api2/routes/getAuthorizedDevices';
+import { requestPasswordReset2 } from './api2/routes/requestPasswordReset';
 
 const app = express();
 
@@ -113,9 +114,9 @@ app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
 app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect);
 
 // PASSWORD RESET
-// app.post(['/:groupId/api2/request-password-reset', '/api2/request-password-reset'], requestPasswordReset);
-// app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword);
-// app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup);
+app.post(['/:groupId/api2/request-password-reset', '/api2/request-password-reset'], requestPasswordReset2);
+app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword);
+app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup);
 
 // DATA
 app.post(['/:groupId/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
