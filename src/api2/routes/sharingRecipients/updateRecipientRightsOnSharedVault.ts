@@ -15,10 +15,16 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
     const willBeManager = inputSanitizer.getBoolean(req.body?.willBeManager);
     if (willBeManager == null) return res.status(403).end();
 
-
-
     const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!basicAuth.granted) return res.status(401).end();
+
+    // Check we are not removing the last manager
+    if (recipientId == basicAuth.userId) {
+      const checkRes = await db.query("SELECT count(*) AS count FROM shared_vault_recipients WHERE is_manager=true AND shared_vault_id=$1 AND group_id=$2", [sharedVaultId, basicAuth.groupId]);
+      if (checkRes.rows[0].count == 1) {
+        return res.status(403).json({ error: "last_manager_error" });
+      }
+    }
 
     const dbRes = await db.query(
       'UPDATE shared_vault_recipients SET is_manager=$1 WHERE shared_vault_id=$2 AND user_id=$3 AND group_id=$4',
