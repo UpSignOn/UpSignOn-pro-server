@@ -83,6 +83,7 @@ import { backupPassword2 } from './api2/routes/passwordReset/backupPassword';
 import { getPasswordBackup2 } from './api2/routes/passwordReset/getPasswordBackup';
 import { renameDevice2 } from './api2/routes/devices/renameDevice';
 import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPublicKey';
+import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 
 const app = express();
 
@@ -146,8 +147,7 @@ app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
 // LOGS
 // app.post(['/:groupId/api2/log-usage', '/api2/log-usage'], logUsage);
-// app.post(['/:groupId/api2/send-stats', '/api2/send-stats'], sendStats);
-// app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData);
+app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData2);
 
 
 // SHARED VAULTS
