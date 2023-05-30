@@ -1,4 +1,4 @@
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
@@ -10,7 +10,7 @@ export const changeSharedFolderName = async (req: any, res: any) => {
     const newName = inputSanitizer.getString(req.body?.newName);
 
     // Check params
-    if (!sharedFolderId || !newName) return res.status(401).end();
+    if (sharedFolderId == null || !newName) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

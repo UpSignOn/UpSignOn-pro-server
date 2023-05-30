@@ -1,8 +1,8 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorage } from '../../helpers/passwordChallenge';
+import { checkBasicAuth2 } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateVaultData = async (req: any, res: any): Promise<void> => {
@@ -14,13 +14,12 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     if (!newEncryptedData) return res.status(403).end();
     if (!lastUpdatedAt) return res.status(403).end();
 
-    const basicAuth = await checkBasicAuth(req, {});
+    const basicAuth = await checkBasicAuth2(req, {});
     if (!basicAuth.granted) return res.status(401).end();
 
-    let updateRes;
     const newEncryptedDataWithPasswordChallengeSecured =
       hashPasswordChallengeResultForSecureStorage(newEncryptedData);
-    updateRes = await db.query(
+    const updateRes = await db.query(
       'UPDATE users SET (encrypted_data, updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE users.email=$2 AND users.updated_at=CAST($3 AS TIMESTAMPTZ) AND users.group_id=$4 RETURNING updated_at',
       [
         newEncryptedDataWithPasswordChallengeSecured,

@@ -10,16 +10,16 @@ exports.up = function (db) {
     key_backup_shamir_index INTEGER,
     last_updated_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp(0),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT current_timestamp(0),
-    nb_accounts INTEGER,
-    nb_codes INTEGER,
-    nb_accounts_strong INTEGER,
-    nb_accounts_medium INTEGER,
-    nb_accounts_weak INTEGER,
-    nb_accounts_with_duplicated_password INTEGER,
-    nb_accounts_with_no_password INTEGER,
-    nb_accounts_red INTEGER,
-    nb_accounts_orange INTEGER,
-    nb_accounts_green INTEGER
+    nb_accounts INTEGER DEFAULT 0,
+    nb_codes INTEGER DEFAULT 0,
+    nb_accounts_strong INTEGER DEFAULT 0,
+    nb_accounts_medium INTEGER DEFAULT 0,
+    nb_accounts_weak INTEGER DEFAULT 0,
+    nb_accounts_with_duplicated_password INTEGER DEFAULT 0,
+    nb_accounts_with_no_password INTEGER DEFAULT 0,
+    nb_accounts_red INTEGER DEFAULT 0,
+    nb_accounts_orange INTEGER DEFAULT 0,
+    nb_accounts_green INTEGER DEFAULT 0
   )`);
 }
 

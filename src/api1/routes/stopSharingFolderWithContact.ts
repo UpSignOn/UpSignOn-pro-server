@@ -1,6 +1,6 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth, checkIsManagerForFolder } from '../../helpers/authorizationChecks';
+import { checkBasicAuth, checkIsManagerForFolder } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -8,8 +8,8 @@ export const stopSharingFolderWithContact = async (req: any, res: any): Promise<
   try {
     const contactId = inputSanitizer.getNumberOrNull(req.body?.contactId);
     const folderId = inputSanitizer.getNumberOrNull(req.body?.folderId);
-    if (!contactId) return res.status(401).end();
-    if (!folderId) return res.status(401).end();
+    if (contactId == null) return res.status(401).end();
+    if (folderId == null) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

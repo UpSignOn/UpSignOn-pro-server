@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
-import { checkBasicAuth, checkIsManagerForFolder } from '../../helpers/authorizationChecks';
+import { checkBasicAuth, checkIsManagerForFolder } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -13,7 +13,7 @@ export const makeMyselfSoleManagerOfSharedFolder = async (req: any, res: any): P
     }
 
     const sharedFolderId = inputSanitizer.getNumberOrNull(req.body?.sharedFolderId);
-    if (!sharedFolderId) return res.status(401).end();
+    if (sharedFolderId == null) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

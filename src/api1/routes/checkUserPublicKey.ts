@@ -1,13 +1,13 @@
 import { db } from '../../helpers/db';
 import { logError, logInfo } from '../../helpers/logger';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkUserPublicKey = async (req: any, res: any) => {
   try {
     const publicKey = inputSanitizer.getString(req.body?.publicKey);
-    if (!publicKey) return res.status(401).end();
+    if (!publicKey) return res.status(403).end();
 
     const basicAuth = await checkBasicAuth(req, { returningUserPublicKey: true });
     if (!basicAuth.granted) return res.status(401).end();

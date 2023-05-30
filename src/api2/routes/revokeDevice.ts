@@ -1,9 +1,9 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../helpers/deviceChallenge';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { checkBasicAuth2 } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const revokeDevice = async (req: any, res: any) => {
@@ -78,7 +78,7 @@ export const revokeDevice = async (req: any, res: any) => {
       userId = dbRes.rows[0].uid;
     } else {
       // DEVICE CAN ONLY REVOKE OTHER DEVICES WITH FULL SESSION
-      const basicAuth = await checkBasicAuth(req);
+      const basicAuth = await checkBasicAuth2(req);
       if (!basicAuth.granted) return res.status(401).end();
       userId = basicAuth.userId;
     }

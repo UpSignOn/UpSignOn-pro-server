@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { db } from './db';
-import { accessCodeHash } from '../api1/helpers/accessCodeHash';
-import { inputSanitizer } from './sanitizer';
-import { SessionStore } from './sessionStore';
+import { db } from '../../helpers/db';
+import { inputSanitizer } from '../../helpers/sanitizer';
+import { SessionStore } from '../../helpers/sessionStore';
 
-export const checkBasicAuth = async (
+export const checkBasicAuth2 = async (
   req: any,
   options?: {
     returningUserPublicKey?: true;
     returningData?: true;
     returningDeviceId?: true;
-    checkIsManagerForItemId?: number;
-    checkIsRecipientForItemId?: number;
+    checkIsManagerForVaultId?: number;
+    checkIsRecipientForVaultId?: number;
   },
 ): Promise<
   | {
@@ -32,11 +31,10 @@ export const checkBasicAuth = async (
   const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
   const deviceUId = inputSanitizer.getString(req.body?.deviceId);
-  const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // deprecated
 
   if (!userEmail) return { granted: false };
   if (!deviceUId) return { granted: false };
-  if (!deviceAccessCode && !deviceSession) return { granted: false };
+  if (!deviceSession) return { granted: false };
 
   if (deviceSession) {
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
@@ -54,21 +52,18 @@ export const checkBasicAuth = async (
   const deviceIdSelect = options?.returningDeviceId ? 'ud.id AS device_id,' : '';
 
   const accountManagerOrRecipientJoin =
-    options?.checkIsManagerForItemId || options?.checkIsRecipientForItemId
-      ? 'INNER JOIN shared_account_users AS sau ON u.id = sau.user_id'
+    options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
+      ? 'INNER JOIN shared_vault_recipients AS svr ON u.id = svr.user_id'
       : '';
-  const accountManagerWhere = options?.checkIsManagerForItemId
-    ? 'AND sau.is_manager=true AND sau.shared_account_id=$4'
+  const accountManagerOrRecipientWhere = options?.checkIsRecipientForVaultId || options?.checkIsManagerForVaultId
+    ? 'AND svr.shared_vault_id=$4'
     : '';
-  const accountManagerParam = options?.checkIsManagerForItemId
-    ? [options.checkIsManagerForItemId]
+  const accountManagerOrRecipientParam = options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
+    ? [options.checkIsManagerForVaultId || options.checkIsRecipientForVaultId]
     : [];
-  const accountRecipientWhere = options?.checkIsRecipientForItemId
-    ? 'AND sau.shared_account_id=$4'
+  const accountRecipientWhere = options?.checkIsRecipientForVaultId
+    ? 'AND svr.is_manager=true'
     : '';
-  const accountRecipientParam = options?.checkIsRecipientForItemId
-    ? [options.checkIsRecipientForItemId]
-    : [];
 
   // Request DB
   const dbRes = await db.query(
@@ -77,7 +72,6 @@ export const checkBasicAuth = async (
       ${dataSelect}
       ${deviceIdSelect}
       u.id AS user_id,
-      ud.access_code_hash AS access_code_hash,
       char_length(ud.device_public_key) > 0 AS has_device_public_key
     FROM user_devices AS ud
     INNER JOIN users AS u ON ud.user_id = u.id
@@ -87,27 +81,13 @@ export const checkBasicAuth = async (
       AND ud.device_unique_id = $2
       AND ud.authorization_status='AUTHORIZED'
       AND u.group_id=$3
-      ${accountManagerWhere}
+      ${accountManagerOrRecipientWhere}
       ${accountRecipientWhere}
       `,
-    [userEmail, deviceUId, groupId, ...accountManagerParam, ...accountRecipientParam],
+    [userEmail, deviceUId, groupId, ...accountManagerOrRecipientParam],
   );
 
   if (!dbRes || dbRes.rowCount === 0) return { granted: false };
-
-  // Check DEPRECATED access code
-  if (
-    !!dbRes.rows[0].access_code_hash &&
-    !dbRes.rows[0].has_device_public_key &&
-    !!deviceAccessCode
-  ) {
-    // DEPRECATED SYSTEM: Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      dbRes.rows[0].access_code_hash,
-    );
-    if (!isAccessGranted) return { granted: false };
-  }
 
   return {
     userEmail,
@@ -119,22 +99,4 @@ export const checkBasicAuth = async (
     granted: true,
     groupId,
   };
-};
-
-export const checkIsManagerForFolder = async (
-  groupId: number,
-  folderId: number,
-  userId: number,
-): Promise<boolean> => {
-  const folderAuthCheck = await db.query(
-    `SELECT BOOL_AND(sau.is_manager) AS is_folder_manager
-  FROM shared_account_users AS sau
-  INNER JOIN shared_accounts AS sa ON sa.id=sau.shared_account_id
-  WHERE sau.group_id=$1 AND sa.group_id=$1
-  AND sa.shared_folder_id=$2
-  AND sau.user_id=$3
-  GROUP BY sau.user_id`,
-    [groupId, folderId, userId],
-  );
-  return !!folderAuthCheck.rows[0] && folderAuthCheck.rows[0].is_folder_manager;
 };
