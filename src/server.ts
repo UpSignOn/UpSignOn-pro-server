@@ -55,29 +55,34 @@ import { getAuthenticationChallenges } from './api1/routes/getAuthenticationChal
 import { authenticate } from './api1/routes/authenticate';
 import { addNewData } from './api1/routes/addNewData';
 import { disconnect } from './api1/routes/disconnect';
-import { getBankConfig } from './api2/routes/getBankConfig';
-import { getUrlList2 } from './api2/routes/getUrlList';
-import { requestDeviceAccess2 } from './api2/routes/requestDeviceAccess';
-import { checkDevice2 } from './api2/routes/checkDevice';
-import { getAuthenticationChallenges2 } from './api2/routes/getAuthenticationChallenges';
-import { authenticate2 } from './api2/routes/authenticate';
-import { updateVaultData } from './api2/routes/updateVaultData';
-import { addNewData2 } from './api2/routes/addNewData';
-import { getVaultData } from './api2/routes/getVaultData';
-import { revokeDevice } from './api2/routes/revokeDevice';
-import { getAuthorizedDevices2 } from './api2/routes/getAuthorizedDevices';
-import { requestPasswordReset2 } from './api2/routes/requestPasswordReset';
-import { getMatchingEmailAddressesForSharing2 } from './api2/routes/getMatchingEmailAddressesForSharing';
-import { getRecipientPublicKey } from './api2/routes/getRecipientPublicKey';
-import { createSharedVault } from './api2/routes/createSharedVault';
-import { getSharedVaultData } from './api2/routes/getSharedVaultData';
-import { updateSharedVaultData } from './api2/routes/updateSharedVaultData';
-import { renameSharedVault } from './api2/routes/renameSharedVault';
-import { deleteSharedVault } from './api2/routes/deleteSharedVault';
-import { getRecipientsForSharedVault } from './api2/routes/getRecipientsForSharedVault';
-import { addRecipientToSharedVault } from './api2/routes/addRecipientToSharedVault';
-import { updateRecipientRightsOnSharedVault } from './api2/routes/updateRecipientRightsOnSharedVault';
-import { removeRecipientFromSharedVault } from './api2/routes/removeRecipientFromSharedVault';
+import { getBankConfig } from './api2/routes/bank/getBankConfig';
+import { getUrlList2 } from './api2/routes/bank/getUrlList';
+import { requestDeviceAccess2 } from './api2/routes/deviceAuthorization/requestDeviceAccess';
+import { checkDevice2 } from './api2/routes/deviceAuthorization/checkDevice';
+import { getAuthenticationChallenges2 } from './api2/routes/authentication/getAuthenticationChallenges';
+import { authenticate2 } from './api2/routes/authentication/authenticate';
+import { updateVaultData } from './api2/routes/data/updateVaultData';
+import { addNewData2 } from './api2/routes/data/addNewData';
+import { getVaultData } from './api2/routes/data/getVaultData';
+import { revokeDevice } from './api2/routes/devices/revokeDevice';
+import { getAuthorizedDevices2 } from './api2/routes/devices/getAuthorizedDevices';
+import { requestPasswordReset2 } from './api2/routes/passwordReset/requestPasswordReset';
+import { getMatchingEmailAddressesForSharing2 } from './api2/routes/sharingRecipients/getMatchingEmailAddressesForSharing';
+import { getRecipientPublicKey } from './api2/routes/sharingRecipients/getRecipientPublicKey';
+import { createSharedVault } from './api2/routes/sharedVaults/createSharedVault';
+import { getSharedVaultData } from './api2/routes/sharedVaults/getSharedVaultData';
+import { updateSharedVaultData } from './api2/routes/sharedVaults/updateSharedVaultData';
+import { renameSharedVault } from './api2/routes/sharedVaults/renameSharedVault';
+import { deleteSharedVault } from './api2/routes/sharedVaults/deleteSharedVault';
+import { getRecipientsForSharedVault } from './api2/routes/sharingRecipients/getRecipientsForSharedVault';
+import { addRecipientToSharedVault } from './api2/routes/sharingRecipients/addRecipientToSharedVault';
+import { updateRecipientRightsOnSharedVault } from './api2/routes/sharingRecipients/updateRecipientRightsOnSharedVault';
+import { removeRecipientFromSharedVault } from './api2/routes/sharingRecipients/removeRecipientFromSharedVault';
+import { disconnect2 } from './api2/routes/authentication/disconnect';
+import { backupPassword2 } from './api2/routes/passwordReset/backupPassword';
+import { getPasswordBackup2 } from './api2/routes/passwordReset/getPasswordBackup';
+import { renameDevice2 } from './api2/routes/devices/renameDevice';
+import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPublicKey';
 
 const app = express();
 
@@ -122,12 +127,12 @@ app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
 // AUTHENTICATION
 app.post(['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'], getAuthenticationChallenges2);
 app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
-app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect);
+app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect2);
 
 // PASSWORD RESET
 app.post(['/:groupId/api2/request-password-reset', '/api2/request-password-reset'], requestPasswordReset2);
-app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword);
-app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup);
+app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword2);
+app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup2);
 
 // DATA
 app.post(['/:groupId/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
@@ -136,7 +141,7 @@ app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
 app.post(['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'], getAuthorizedDevices2);
-app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice);
+app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice2);
 app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
 // LOGS
@@ -144,10 +149,6 @@ app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 // app.post(['/:groupId/api2/send-stats', '/api2/send-stats'], sendStats);
 // app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData);
 
-// SHARING RECIPIENTS
-app.post(['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'], checkUserPublicKey);
-app.post(['/:groupId/api2/get-matching-email-addresses-for-sharing', '/api2/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing2);
-app.post(['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'], getRecipientPublicKey);
 
 // SHARED VAULTS
 app.post(['/:groupId/api2/create-shared-vault', '/api2/create-shared-vault'], createSharedVault);
@@ -156,6 +157,10 @@ app.post(['/:groupId/api2/update-shared-vault-data', '/api2/update-shared-vault-
 app.post(['/:groupId/api2/rename-shared-vault', '/api2/rename-shared-vault'], renameSharedVault);
 app.post(['/:groupId/api2/delete-shared-vault', '/api2/delete-shared-vault'], deleteSharedVault);
 
+// SHARING RECIPIENTS
+app.post(['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'], checkUserPublicKey2);
+app.post(['/:groupId/api2/get-matching-email-addresses-for-sharing', '/api2/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing2);
+app.post(['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'], getRecipientPublicKey);
 app.post(['/:groupId/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'], addRecipientToSharedVault);
 app.post(['/:groupId/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'], getRecipientsForSharedVault);
 app.post(['/:groupId/api2/update-recipient-rights-on-shared-vault', '/api2/update-recipient-rights-on-shared-vault'], updateRecipientRightsOnSharedVault);

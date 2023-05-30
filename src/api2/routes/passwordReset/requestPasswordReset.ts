@@ -1,10 +1,10 @@
-import { db } from '../../helpers/db';
-import { getExpirationDate, isExpired } from '../../helpers/dateHelper';
-import { sendPasswordResetRequestEmail } from '../../helpers/sendPasswordResetRequestEmail';
-import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../helpers/deviceChallenge';
-import { inputSanitizer } from '../../helpers/sanitizer';
-import { getRandomString } from '../../helpers/randomString';
+import { db } from '../../../helpers/db';
+import { getExpirationDate, isExpired } from '../../../helpers/dateHelper';
+import { sendPasswordResetRequestEmail } from '../../../helpers/sendPasswordResetRequestEmail';
+import { logError } from '../../../helpers/logger';
+import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { inputSanitizer } from '../../../helpers/sanitizer';
+import { getRandomString } from '../../../helpers/randomString';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset2 = async (req: any, res: any) => {
