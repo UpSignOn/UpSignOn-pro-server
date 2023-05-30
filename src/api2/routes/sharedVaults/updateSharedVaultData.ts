@@ -15,16 +15,51 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
     if (!lastUpdatedAt) return res.status(403).end();
 
+    const vaultStats = inputSanitizer.getVaultStats(req.body?.vaultStats);
+    if (!vaultStats) return res.status(403).end();
+
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!authRes.granted) return res.status(401).end();
 
     const updateRes = await db.query(
-      'UPDATE shared_vaults SET (encrypted_data, last_updated_at)=($1, CURRENT_TIMESTAMP(0)) WHERE id=$2 AND updated_at=CAST($3 AS TIMESTAMPTZ) AND group_id=$4 RETURNING last_updated_at',
+      `UPDATE shared_vaults
+        SET (
+          encrypted_data,
+          last_updated_at,
+          nb_accounts,
+          nb_codes,
+          nb_accounts_strong,
+          nb_accounts_medium,
+          nb_accounts_weak,
+          nb_accounts_with_duplicated_password,
+          nb_accounts_with_no_password,
+          nb_accounts_red,
+          nb_accounts_orange,
+          nb_accounts_green
+        )=(
+          $1,
+          CURRENT_TIMESTAMP(0),
+          $5,$6,$7,$8,$9,$10,$11,$12,$13,$14
+        ) WHERE
+          id=$2
+          AND updated_at=CAST($3 AS TIMESTAMPTZ)
+          AND group_id=$4
+        RETURNING last_updated_at`,
       [
         newEncryptedData,
         sharedVaultId,
         lastUpdatedAt,
         authRes.groupId,
+        vaultStats.nbAccounts,
+        vaultStats.nbCodes,
+        vaultStats.nbAccountsStrong,
+        vaultStats.nbAccountsMedium,
+        vaultStats.nbAccountsWeak,
+        vaultStats.nbAccountsWithDuplicatedPassword,
+        vaultStats.nbAccountsWithNoPassword,
+        vaultStats.nbAccountsRed,
+        vaultStats.nbAccountsOrange,
+        vaultStats.nbAccountsGreen,
       ],
     );
     if (updateRes.rowCount === 0) {

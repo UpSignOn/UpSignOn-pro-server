@@ -227,6 +227,51 @@ function getAesKeyUpdates(untrustedInput: any):
   return trustedAesKeyUpdates;
 }
 
+function getVaultStats(untrustedInput: any):
+  | null
+  | {
+    nbAccounts: number,
+    nbCodes: number,
+    nbAccountsStrong: number,
+    nbAccountsMedium: number,
+    nbAccountsWeak: number,
+    nbAccountsWithDuplicatedPassword: number,
+    nbAccountsWithNoPassword: number,
+    nbAccountsRed: number,
+    nbAccountsOrange: number,
+    nbAccountsGreen: number
+  } {
+  const res = {
+    nbAccounts: inputSanitizer.getNumberOrNull(untrustedInput.nbAccounts),
+    nbCodes: inputSanitizer.getNumberOrNull(untrustedInput.nbCodes),
+    nbAccountsStrong: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsStrong),
+    nbAccountsMedium: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsMedium),
+    nbAccountsWeak: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWeak),
+    nbAccountsWithDuplicatedPassword: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWithDuplicatedPassword),
+    nbAccountsWithNoPassword: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWithNoPassword),
+    nbAccountsRed: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsRed),
+    nbAccountsOrange: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsOrange),
+    nbAccountsGreen: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsGreen)
+  }
+
+  if (res.nbAccounts == null
+    || res.nbCodes == null
+    || res.nbAccountsStrong == null
+    || res.nbAccountsMedium == null
+    || res.nbAccountsWeak == null
+    || res.nbAccountsWithDuplicatedPassword == null
+    || res.nbAccountsWithNoPassword == null
+    || res.nbAccountsRed == null
+    || res.nbAccountsOrange == null
+    || res.nbAccountsGreen == null
+  ) {
+    return null;
+  }
+
+  // @ts-ignore
+  return res;
+}
+
 export const inputSanitizer = {
   getNumber,
   getNumberOrNull,
@@ -241,4 +286,5 @@ export const inputSanitizer = {
   getSharings,
   getSharedItem,
   getAesKeyUpdates,
+  getVaultStats
 };
