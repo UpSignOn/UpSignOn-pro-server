@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { db } from './db';
 import { accessCodeHash } from '../api1/helpers/accessCodeHash';
 
-export const createDeviceChallenge = async (deviceId: string): Promise<string> => {
+export const createDeviceChallenge = async (deviceId: Number): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');
   const updateRes = await db.query(
     "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time=current_timestamp(0)+interval '3 minutes' WHERE id=$2",
