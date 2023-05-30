@@ -1,9 +1,9 @@
-import { db } from '../../helpers/db';
-import { checkDeviceChallenge } from '../../helpers/deviceChallenge';
-import { logError } from '../../helpers/logger';
-import { checkPasswordChallenge } from '../../helpers/passwordChallenge';
-import { inputSanitizer } from '../../helpers/sanitizer';
-import { SessionStore } from '../../helpers/sessionStore';
+import { db } from '../../../helpers/db';
+import { checkDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { logError } from '../../../helpers/logger';
+import { checkPasswordChallenge } from '../../../helpers/passwordChallenge';
+import { inputSanitizer } from '../../../helpers/sanitizer';
+import { SessionStore } from '../../../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const authenticate2 = async (req: any, res: any) => {

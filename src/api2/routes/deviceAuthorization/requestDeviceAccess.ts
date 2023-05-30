@@ -1,9 +1,9 @@
-import { db } from '../../helpers/db';
-import { getExpirationDate, isExpired } from '../../helpers/dateHelper';
-import { sendDeviceRequestEmail } from '../../helpers/sendDeviceRequestEmail';
-import { logError } from '../../helpers/logger';
-import { inputSanitizer } from '../../helpers/sanitizer';
-import { getRandomString } from '../../helpers/randomString';
+import { db } from '../../../helpers/db';
+import { getExpirationDate, isExpired } from '../../../helpers/dateHelper';
+import { sendDeviceRequestEmail } from '../../../helpers/sendDeviceRequestEmail';
+import { logError } from '../../../helpers/logger';
+import { inputSanitizer } from '../../../helpers/sanitizer';
+import { getRandomString } from '../../../helpers/randomString';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request

@@ -1,6 +1,6 @@
-import { db } from '../../helpers/db';
-import { logError } from '../../helpers/logger';
-import { inputSanitizer } from '../../helpers/sanitizer';
+import { db } from '../../../helpers/db';
+import { logError } from '../../../helpers/logger';
+import { inputSanitizer } from '../../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getBankConfig = async (req: any, res: any): Promise<void> => {

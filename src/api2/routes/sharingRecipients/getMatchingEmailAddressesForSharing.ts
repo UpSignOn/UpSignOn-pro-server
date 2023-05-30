@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../../helpers/db';
-import { logError } from '../../helpers/logger';
-import { inputSanitizer } from '../../helpers/sanitizer';
-import { checkBasicAuth2 } from '../helpers/authorizationChecks';
+import { db } from '../../../helpers/db';
+import { logError } from '../../../helpers/logger';
+import { inputSanitizer } from '../../../helpers/sanitizer';
+import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
 let contactSearchSessions: { session: string; expirationTimestamp: number }[] = [];
 

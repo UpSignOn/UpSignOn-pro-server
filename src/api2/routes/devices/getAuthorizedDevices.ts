@@ -1,6 +1,6 @@
-import { db } from '../../helpers/db';
-import { logError } from '../../helpers/logger';
-import { checkBasicAuth2 } from '../helpers/authorizationChecks';
+import { db } from '../../../helpers/db';
+import { logError } from '../../../helpers/logger';
+import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthorizedDevices2 = async (req: any, res: any) => {
