@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -14,7 +14,7 @@ export const addSharedItemsToSharedFolder = async (req: any, res: any): Promise<
 
     const sharedItemIds = inputSanitizer.getArrayOfNumbers(req.body?.sharedItemIds);
     const sharedFolderId = inputSanitizer.getNumberOrNull(req.body?.sharedFolderId);
-    if (!sharedItemIds || !sharedFolderId) return res.status(401).end();
+    if (!sharedItemIds || sharedFolderId == null) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

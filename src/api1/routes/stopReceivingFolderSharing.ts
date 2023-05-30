@@ -1,13 +1,13 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const stopReceivingFolderSharing = async (req: any, res: any): Promise<void> => {
   try {
     const folderId = inputSanitizer.getNumberOrNull(req.body?.folderId);
-    if (!folderId) return res.status(401).end();
+    if (folderId == null) return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();

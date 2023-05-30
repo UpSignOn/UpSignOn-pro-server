@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any

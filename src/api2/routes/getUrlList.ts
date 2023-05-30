@@ -1,11 +1,11 @@
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
+import { checkBasicAuth2 } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getUrlList2 = async (req: any, res: any): Promise<void> => {
   try {
-    const basicAuth = await checkBasicAuth(req);
+    const basicAuth = await checkBasicAuth2(req);
     if (!basicAuth.granted) return res.status(401).end();
 
     const urlListRes = await db.query(

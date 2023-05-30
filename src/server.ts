@@ -67,6 +67,17 @@ import { getVaultData } from './api2/routes/getVaultData';
 import { revokeDevice } from './api2/routes/revokeDevice';
 import { getAuthorizedDevices2 } from './api2/routes/getAuthorizedDevices';
 import { requestPasswordReset2 } from './api2/routes/requestPasswordReset';
+import { getMatchingEmailAddressesForSharing2 } from './api2/routes/getMatchingEmailAddressesForSharing';
+import { getRecipientPublicKey } from './api2/routes/getRecipientPublicKey';
+import { createSharedVault } from './api2/routes/createSharedVault';
+import { getSharedVaultData } from './api2/routes/getSharedVaultData';
+import { updateSharedVaultData } from './api2/routes/updateSharedVaultData';
+import { renameSharedVault } from './api2/routes/renameSharedVault';
+import { deleteSharedVault } from './api2/routes/deleteSharedVault';
+import { getRecipientsForSharedVault } from './api2/routes/getRecipientsForSharedVault';
+import { addRecipientToSharedVault } from './api2/routes/addRecipientToSharedVault';
+import { updateRecipientRightsOnSharedVault } from './api2/routes/updateRecipientRightsOnSharedVault';
+import { removeRecipientFromSharedVault } from './api2/routes/removeRecipientFromSharedVault';
 
 const app = express();
 
@@ -133,8 +144,23 @@ app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 // app.post(['/:groupId/api2/send-stats', '/api2/send-stats'], sendStats);
 // app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData);
 
+// SHARING RECIPIENTS
+app.post(['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'], checkUserPublicKey);
+app.post(['/:groupId/api2/get-matching-email-addresses-for-sharing', '/api2/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing2);
+app.post(['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'], getRecipientPublicKey);
+
 // SHARED VAULTS
-// ...
+app.post(['/:groupId/api2/create-shared-vault', '/api2/create-shared-vault'], createSharedVault);
+app.post(['/:groupId/api2/get-shared-vault-data', '/api2/get-shared-vault-data'], getSharedVaultData);
+app.post(['/:groupId/api2/update-shared-vault-data', '/api2/update-shared-vault-data'], updateSharedVaultData);
+app.post(['/:groupId/api2/rename-shared-vault', '/api2/rename-shared-vault'], renameSharedVault);
+app.post(['/:groupId/api2/delete-shared-vault', '/api2/delete-shared-vault'], deleteSharedVault);
+
+app.post(['/:groupId/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'], addRecipientToSharedVault);
+app.post(['/:groupId/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'], getRecipientsForSharedVault);
+app.post(['/:groupId/api2/update-recipient-rights-on-shared-vault', '/api2/update-recipient-rights-on-shared-vault'], updateRecipientRightsOnSharedVault);
+app.post(['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'], removeRecipientFromSharedVault);
+
 
 ///////////////////////////////////
 // API 1

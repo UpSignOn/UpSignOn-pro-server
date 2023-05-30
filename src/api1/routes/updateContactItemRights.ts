@@ -1,6 +1,6 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -9,8 +9,8 @@ export const updateContactItemRights = async (req: any, res: any): Promise<void>
     const contactId = inputSanitizer.getNumberOrNull(req.body?.contactId);
     const itemId = inputSanitizer.getNumberOrNull(req.body?.itemId);
     const isManager = inputSanitizer.getBoolean(req.body.isManager);
-    if (!contactId) return res.status(401).end();
-    if (!itemId) return res.status(401).end();
+    if (contactId == null) return res.status(401).end();
+    if (itemId == null) return res.status(401).end();
     if (typeof isManager === 'undefined') return res.status(401).end();
 
     const basicAuth = await checkBasicAuth(req, { checkIsManagerForItemId: itemId });

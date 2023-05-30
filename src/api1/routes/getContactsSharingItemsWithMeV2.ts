@@ -1,6 +1,6 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../../helpers/authorizationChecks';
+import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getContactsSharingItemsWithMeV2 = async (req: any, res: any) => {
