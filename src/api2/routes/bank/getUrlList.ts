@@ -15,7 +15,8 @@ export const getUrlList2 = async (req: any, res: any): Promise<void> => {
 
     const list = urlListRes.rows.filter(u => !!u.displayed_name).map(u => ({
       name: u.displayed_name,
-      url: u.signin_url
+      url: u.signin_url,
+      usesHTTPBasic: u.uses_basic_auth
     }))
 
     // Return res
