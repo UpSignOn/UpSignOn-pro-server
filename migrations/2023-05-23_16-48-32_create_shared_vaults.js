@@ -4,7 +4,7 @@ exports.up = function (db) {
   return db.query(`CREATE TABLE IF NOT EXISTS shared_vaults (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
-    name VARCHAR(512),
+    name TEXT,
     encrypted_data TEXT,
     key_backup TEXT,
     key_backup_shamir_index INTEGER,
