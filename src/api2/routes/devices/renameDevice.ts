@@ -8,8 +8,8 @@ export const renameDevice2 = async (req: any, res: any) => {
   try {
     const deviceToRename = inputSanitizer.getString(req.body?.deviceToRename);
     const newName = inputSanitizer.getString(req.body?.newName);
-    if (!deviceToRename) return res.status(401).end();
-    if (!newName) return res.status(401).end();
+    if (!deviceToRename) return res.status(403).end();
+    if (!newName) return res.status(403).end();
 
     const basicAuth = await checkBasicAuth2(req);
     if (!basicAuth.granted) return res.status(401).end();
