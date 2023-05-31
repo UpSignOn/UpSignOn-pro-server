@@ -84,6 +84,7 @@ import { getPasswordBackup2 } from './api2/routes/passwordReset/getPasswordBacku
 import { renameDevice2 } from './api2/routes/devices/renameDevice';
 import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPublicKey';
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
+import { logEvent } from './api2/routes/audit/logEvent';
 
 const app = express();
 
@@ -146,7 +147,7 @@ app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice2)
 app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
 // LOGS
-// app.post(['/:groupId/api2/log-usage', '/api2/log-usage'], logUsage);
+app.post(['/:groupId/api2/log-event', '/api2/log-event'], logEvent);
 app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData2);
 
 
