@@ -2,8 +2,8 @@
 
 exports.up = function (db) {
   return db.query(`ALTER TABLE users
-  ADD COLUMN IF NOT EXISTS allowed_to_export BOOLEAN DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS allowed_offline BOOLEAN DEFAULT 0
+  ADD COLUMN IF NOT EXISTS allowed_to_export BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS allowed_offline BOOLEAN DEFAULT false
 `);
 }
 
