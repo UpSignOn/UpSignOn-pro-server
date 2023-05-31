@@ -11,16 +11,15 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    if (!userEmail) return res.status(401).end();
+    if (!userEmail) return res.status(403).end();
 
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const resetToken = inputSanitizer.getString(req.body?.resetToken);
 
     // Check params
-    if (!userEmail) return res.status(401).end();
-    if (!deviceId) return res.status(401).end();
-    if (!resetToken) return res.status(401).end();
+    if (!deviceId) return res.status(403).end();
+    if (!resetToken) return res.status(403).end();
 
     // Request DB
     const dbRes = await db.query(

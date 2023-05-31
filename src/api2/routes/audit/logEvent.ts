@@ -7,7 +7,7 @@ import { inputSanitizer } from '../../../helpers/sanitizer';
 export const logEvent = async (req: any, res: any): Promise<void> => {
     try {
         const event = inputSanitizer.getString(req.body?.event);
-        if (!event) return res.status(401).end();
+        if (!event) return res.status(403).end();
 
         // TODO do not delete devices to allow keeping the audit track
         const basicAuth = await checkBasicAuth2(req, { returningDeviceId: true });

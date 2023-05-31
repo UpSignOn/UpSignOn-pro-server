@@ -7,7 +7,7 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const backupPassword2 = async (req: any, res: any) => {
   try {
     const backups = inputSanitizer.getArrayOfBackups(req.body?.backups);
-    if (!backups) return res.status(401).end();
+    if (!backups) return res.status(403).end();
 
     const basicAuth = await checkBasicAuth2(req);
     if (!basicAuth.granted) return res.status(401).end();
