@@ -40,7 +40,9 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         user_devices.authorization_status AS authorization_status,
         users.encrypted_data AS encrypted_data,
         users.updated_at AS updated_at,
-        char_length(user_devices.device_public_key) > 0 AS has_device_public_key
+        char_length(user_devices.device_public_key) > 0 AS has_device_public_key,
+        users.allowed_to_export AS allowed_to_export,
+        users.allowed_offline AS allowed_offline
       FROM user_devices
       INNER JOIN users ON user_devices.user_id = users.id
       WHERE
@@ -78,6 +80,8 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data,
       lastUpdatedAt: dbRes.rows[0].updated_at,
+      allowedToExport: dbRes.rows[0].allowed_to_export,
+      allowedOffline: dbRes.rows[0].allowed_offline,
       sharedVaults,
     });
 
