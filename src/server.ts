@@ -85,7 +85,6 @@ import { renameDevice2 } from './api2/routes/devices/renameDevice';
 import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPublicKey';
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 import { logEvent } from './api2/routes/audit/logEvent';
-import { getUserSettings } from './api2/routes/bank/getUserSettings';
 
 const app = express();
 
@@ -122,7 +121,6 @@ app.get('/', (req, res) => {
 // BANK
 app.all(['/:groupId/api2/bank-config', '/api2/bank-config'], getBankConfig);
 app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
-app.post(['/:groupId/api2/user-settings', '/api2/user-settings'], getUserSettings);
 
 // AUTHORIZATION
 app.post(['/:groupId/api2/request-device-access', '/api2/request-device-access'], requestDeviceAccess2);
