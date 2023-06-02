@@ -42,7 +42,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
           $5,$6,$7,$8,$9,$10,$11,$12,$13,$14
         ) WHERE
           id=$2
-          AND updated_at=CAST($3 AS TIMESTAMPTZ)
+          AND last_updated_at=CAST($3 AS TIMESTAMPTZ)
           AND group_id=$4
         RETURNING last_updated_at`,
       [
