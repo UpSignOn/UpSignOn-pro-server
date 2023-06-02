@@ -16,7 +16,7 @@ export const renameSharedVault = async (req: any, res: any): Promise<void> => {
     if (!authRes.granted) return res.status(401).end();
 
     const updateRes = await db.query(
-      'UPDATE shared_vaults SET (name)=($1) WHERE id=$2 AND group_id=$3',
+      'UPDATE shared_vaults SET name=$1 WHERE id=$2 AND group_id=$3',
       [
         newName,
         sharedVaultId,
@@ -24,7 +24,7 @@ export const renameSharedVault = async (req: any, res: any): Promise<void> => {
       ],
     );
 
-    return res.status(204);
+    return res.status(204).end();
   } catch (e) {
     logError('renameSharedVault', e);
     return res.status(400).end();
