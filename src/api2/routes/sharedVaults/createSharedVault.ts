@@ -18,7 +18,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
     if (!authRes.granted) return res.status(401).end();
 
     const creationRes = await db.query(`INSERT INTO shared_vaults
-      (group_id, name, enrypted_data)
+      (group_id, name, encrypted_data)
       VALUES ($1,$2,$3)
       RETURNING id, last_updated_at
     `, [authRes.groupId, name, encryptedData]);
