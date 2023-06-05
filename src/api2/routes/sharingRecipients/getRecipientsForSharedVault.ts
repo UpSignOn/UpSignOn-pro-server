@@ -13,7 +13,10 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const dbRes = await db.query(
-      'SELECT id, email, is_manager FROM shared_vault_recipients WHERE shared_vault_id=$1 AND group_id=$2',
+      `SELECT svr.shared_vault_id, users.email, svr.is_manager
+          FROM shared_vault_recipients AS svr
+          INNER JOIN users ON users.id=svr.user_id
+          WHERE shared_vault_id=$1 AND group_id=$2`,
       [sharedVaultId, basicAuth.groupId],
     );
     // Return res
@@ -21,7 +24,7 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
       .status(200)
       .json({
         recipients: dbRes.rows.map(r => ({
-          id: r.id,
+          id: r.shared_vault_id,
           email: r.email,
           isManager: r.is_manager
         }))
