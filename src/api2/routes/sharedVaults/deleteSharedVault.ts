@@ -13,7 +13,7 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
     if (!authRes.granted) return res.status(401).end();
 
     await db.query(
-      'DELETE FROM shared_vaults WHERE id=$2 AND group_id=$2',
+      'DELETE FROM shared_vaults WHERE id=$1 AND group_id=$2',
       [
         sharedVaultId,
         authRes.groupId,
