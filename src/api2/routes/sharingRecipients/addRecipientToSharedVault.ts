@@ -16,7 +16,6 @@ export const addRecipientToSharedVault = async (req: any, res: any): Promise<voi
     if (recipientId == null) return res.status(403).end();
 
     const isManager = inputSanitizer.getBoolean(req.body?.isManager);
-    if (!isManager) return res.status(403).end();
 
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!authRes.granted) return res.status(401).end();
