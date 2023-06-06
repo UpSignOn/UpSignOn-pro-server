@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { db } from '../helpers/db';
 import { isExpired } from '../helpers/dateHelper';
 import { logError } from '../helpers/logger';
@@ -24,22 +25,16 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!resetToken) return res.status(401).end();
 
     // Request DB
-    const dbRes = await db.query(
+    const deviceRes = await db.query(
       `SELECT
         user_devices.id AS id,
         users.id AS userid,
         user_devices.access_code_hash AS access_code_hash,
-        user_devices.encrypted_password_backup AS encrypted_password_backup,
-        password_reset_request.id AS reset_request_id,
-        password_reset_request.status AS reset_status,
-        password_reset_request.reset_token AS reset_token,
-        password_reset_request.reset_token_expiration_date AS reset_token_expiration_date,
         user_devices.device_public_key AS device_public_key,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices
         INNER JOIN users ON user_devices.user_id = users.id
-        LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
       WHERE
         users.email=$1
         AND user_devices.device_unique_id = $2
@@ -49,36 +44,63 @@ export const getPasswordBackup = async (req: any, res: any) => {
       [userEmail, deviceId, groupId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
-    const resetRequest = dbRes.rows[0];
-
+    if (!deviceRes || deviceRes.rowCount === 0) return res.status(401).end();
+    
     if (!deviceAccessCode && !deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+      const deviceChallenge = await createDeviceChallenge(deviceRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorization(
       deviceAccessCode,
-      dbRes.rows[0].access_code_hash,
+      deviceRes.rows[0].access_code_hash,
       deviceChallengeResponse,
-      dbRes.rows[0].id,
-      dbRes.rows[0].session_auth_challenge_exp_time,
-      dbRes.rows[0].session_auth_challenge,
-      dbRes.rows[0].device_public_key,
+      deviceRes.rows[0].id,
+      deviceRes.rows[0].session_auth_challenge_exp_time,
+      deviceRes.rows[0].session_auth_challenge,
+      deviceRes.rows[0].device_public_key,
+      );
+      if (!isDeviceAuthorized) return res.status(401).end();
+      
+      const existingRequestRes = await db.query(`
+      SELECT
+        user_devices.encrypted_password_backup AS encrypted_password_backup,
+        password_reset_request.id AS reset_request_id,
+        password_reset_request.status AS reset_status,
+        password_reset_request.reset_token AS reset_token,
+        password_reset_request.reset_token_expiration_date AS reset_token_expiration_date
+      FROM user_devices
+        LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
+      WHERE
+        user_devices.device_unique_id=$1
+        AND user_devices.group_id=$2
+        AND password_reset_request.status != 'COMPLETED'
+      LIMIT 1
+    `,
+      [deviceId, groupId],
     );
-    if (!isDeviceAuthorized) return res.status(401).end();
-
+    const resetRequest = existingRequestRes.rows[0];
+    if (!resetRequest) {
+      return res.status(401).json({ error: 'no_request' });
+    }
     if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
       return res.status(401).json({ error: 'not_admin_authorized' });
-    } else if (!resetRequest.reset_request_id) {
-      return res.status(401).json({ error: 'no_request' });
-    } else if (resetRequest.reset_token !== resetToken) {
+    }
+    
+    const expectedToken = Buffer.from(resetRequest.reset_token, 'utf-8');
+    const inputToken = Buffer.from(resetToken, 'utf-8');
+    let tokenMatch = false;
+    try {
+      tokenMatch = crypto.timingSafeEqual(expectedToken, inputToken);
+    } catch (e) {}
+    if (!tokenMatch) {
       return res.status(401).json({ error: 'bad_token' });
     } else if (isExpired(resetRequest.reset_token_expiration_date)) {
       return res.status(401).json({ error: 'expired' });
     }
 
     await db.query(
-      `UPDATE password_reset_request SET status='COMPLETED' WHERE id='${resetRequest.reset_request_id}'`,
+      `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND groupd_id=$2`,
+      [resetRequest.reset_request_id, groupId],
     );
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
