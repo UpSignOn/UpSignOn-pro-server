@@ -83,22 +83,26 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     const resetRequest = existingRequestRes.rows[0];
     if (!resetRequest) {
       return res.status(401).json({ error: 'no_request' });
-    } else if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
+    }
+    if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
       return res.status(401).json({ error: 'not_admin_authorized' });
-    } else if (
-      !crypto.timingSafeEqual(
-        resetRequest.reset_token,
-        // @ts-ignore
-        resetToken,
-      )
-    ) {
+    }
+
+    const expectedToken = Buffer.from(resetRequest.reset_token, 'utf-8');
+    const inputToken = Buffer.from(resetToken, 'utf-8');
+    let tokenMatch = false;
+    try {
+      tokenMatch = crypto.timingSafeEqual(expectedToken, inputToken);
+    } catch (e) {}
+    if (!tokenMatch) {
       return res.status(401).json({ error: 'bad_token' });
     } else if (isExpired(resetRequest.reset_token_expiration_date)) {
       return res.status(401).json({ error: 'expired' });
     }
 
     await db.query(
-      `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND group_id=$2` , [resetRequest.reset_request_id, groupId],
+      `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND group_id=$2`,
+      [resetRequest.reset_request_id, groupId],
     );
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
