@@ -72,7 +72,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     FROM user_devices
       LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
     WHERE
-      AND user_devices.device_unique_id=$1
+      user_devices.device_unique_id=$1
       AND user_devices.group_id=$2
       AND password_reset_request.status != 'COMPLETED'
     LIMIT 1
