@@ -77,7 +77,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       AND password_reset_request.status != 'COMPLETED'
     LIMIT 1
     `,
-      [deviceRes.rows[0].id, groupId],
+      [deviceId, groupId],
     );
 
     const resetRequest = existingRequestRes.rows[0];
