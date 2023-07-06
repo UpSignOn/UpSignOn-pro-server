@@ -1,8 +1,9 @@
-import crypto from 'crypto';
 import { db } from '../../helpers/db';
+import libsodium from 'libsodium-wrappers';
+
 
 export const createDeviceChallengeV2 = async (deviceId: Number): Promise<string> => {
-  const deviceChallenge = crypto.randomBytes(16).toString('base64');
+  const deviceChallenge = libsodium.to_base64(libsodium.randombytes_buf(16));
   const updateRes = await db.query(
     "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time=current_timestamp(0)+interval '3 minutes' WHERE id=$2",
     [deviceChallenge, deviceId],
@@ -19,59 +20,11 @@ export const checkDeviceChallengeV2 = async (
   devicePublicKey: string,
 ): Promise<boolean> => {
   try {
-    const publicKey = Buffer.from(devicePublicKey, 'base64');
-    const deviceChallenge = Buffer.from(challenge, 'base64');
-    const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
-
-    // @ts-ignore
-    const key = await crypto.webcrypto.subtle.importKey(
-      'spki',
-      publicKey,
-      {
-        hash: 'SHA-256',
-        name: 'RSA-PSS',
-      },
-      false,
-      ['verify'],
-    );
-    let hasPassedDeviceChallenge = crypto.verify(
-      'RSA-SHA256',
-      deviceChallenge,
-      {
-        // @ts-ignore
-        key,
-        padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
-        saltLength: crypto.constants.RSA_PSS_SALTLEN_AUTO,
-      },
-      deviceChallengeResponseBytes,
-    );
-
-    if (!hasPassedDeviceChallenge) {
-      // try ios 10 fallback with pkcs1.5 SHA256
-      // @ts-ignore
-      const fallbackKey = await crypto.webcrypto.subtle.importKey(
-        'spki',
-        publicKey,
-        {
-          hash: 'SHA-256',
-          name: 'RSASSA-PKCS1-v1_5',
-        },
-        false,
-        ['verify'],
-      );
-
-      hasPassedDeviceChallenge = crypto.verify(
-        'RSA-SHA256',
-        deviceChallenge,
-        {
-          // @ts-ignore
-          key: fallbackKey,
-          padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-        },
-        deviceChallengeResponseBytes,
-      );
-    }
-    return hasPassedDeviceChallenge;
+    const publicKey = libsodium.from_base64(devicePublicKey);
+    const deviceChallenge = libsodium.from_base64(challenge);
+    const deviceChallengeResponseBytes = libsodium.from_base64(challengeResponse);
+    const unsignedChallengeResponse = libsodium.crypto_sign_open(deviceChallengeResponseBytes, publicKey);
+    return libsodium.memcmp(deviceChallenge, unsignedChallengeResponse);
   } catch (e) {
     return false;
   }
