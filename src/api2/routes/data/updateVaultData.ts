@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
 import { logError } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
-import { hashPasswordChallengeResultForSecureStorage } from '../../../api1/helpers/passwordChallengev1';
+import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -20,7 +20,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const newEncryptedDataWithPasswordChallengeSecured =
-      hashPasswordChallengeResultForSecureStorage(newEncryptedData);
+      hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
     const updateRes = await db.query(
       `UPDATE users
         SET (
