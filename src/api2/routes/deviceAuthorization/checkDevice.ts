@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { db } from '../../../helpers/db';
 import { isExpired } from '../../../helpers/dateHelper';
 import { logError } from '../../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -51,13 +51,11 @@ export const checkDevice2 = async (req: any, res: any) => {
             return res.status(200).end();
         }
         if (!deviceChallengeResponse) {
-            const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+            const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].id);
             return res.status(401).json({ deviceChallenge });
         }
 
-        const isDeviceAuthorized = await checkDeviceRequestAuthorization(
-            null,
-            null,
+        const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
             deviceChallengeResponse,
             dbRes.rows[0].id,
             dbRes.rows[0].session_auth_challenge_exp_time,

@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { createDeviceChallenge } from '../../helpers/deviceChallenge';
-import { createPasswordChallenge } from '../../helpers/passwordChallenge';
+import { createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
+import { createPasswordChallengeV1 } from '../helpers/passwordChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -70,12 +70,12 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
     if (dbRes.rows[0].has_access_code_hash || !dbRes.rows[0].has_device_public_key)
       return res.status(401).end();
 
-    const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
+    const deviceChallenge = await createDeviceChallengeV1(dbRes.rows[0].did);
     if (!dbRes.rows[0].encrypted_data) {
       return res.status(404).json({ error: 'empty_data', deviceChallenge });
     }
 
-    const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);
+    const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
 
     return res.status(200).json({
       passwordChallenge: passwordChallenge.pwdChallengeBase64,

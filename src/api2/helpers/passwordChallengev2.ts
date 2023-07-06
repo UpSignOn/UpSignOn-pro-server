@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { db } from './db';
+import { db } from '../../helpers/db';
 
-export const createPasswordChallenge = (
+export const createPasswordChallengeV2 = (
   encryptedDataString: string,
 ): {
   pwdChallengeBase64: string;
@@ -24,7 +24,7 @@ export const createPasswordChallenge = (
   return { pwdChallengeBase64, pwdDerivationSaltBase64 };
 };
 
-export const checkPasswordChallenge = async (
+export const checkPasswordChallengeV2 = async (
   encryptedData: string,
   passwordChallengeResponse: string,
   passwordErrorCount: null | number,
@@ -75,7 +75,7 @@ export const checkPasswordChallenge = async (
   }
 };
 
-export const hashPasswordChallengeResultForSecureStorage = (
+export const hashPasswordChallengeResultForSecureStorageV2 = (
   encryptedDataString: string,
 ): string => {
   if (!encryptedDataString.startsWith('formatP001-')) {

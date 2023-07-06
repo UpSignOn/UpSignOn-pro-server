@@ -3,7 +3,7 @@ import { getSharedItems } from './getData';
 import { logError } from '../../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
-import { hashPasswordChallengeResultForSecureStorage } from '../../helpers/passwordChallenge';
+import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwordChallengev1';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
@@ -30,7 +30,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     }
     let updateRes;
     const newEncryptedDataWithPasswordChallengeSecured =
-      hashPasswordChallengeResultForSecureStorage(newEncryptedData);
+    hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);
     if (isNewData) {
       updateRes = await db.query(
         'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',

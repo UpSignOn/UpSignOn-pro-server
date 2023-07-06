@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
 import { logError } from '../../../helpers/logger';
-import { createDeviceChallenge } from '../../../helpers/deviceChallenge';
-import { createPasswordChallenge } from '../../../helpers/passwordChallenge';
+import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
+import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -65,12 +65,12 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         authorizationStatus: dbRes.rows[0].authorization_status,
       });
 
-    const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].did);
+    const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].did);
     if (!dbRes.rows[0].encrypted_data) {
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
 
-    const passwordChallenge = createPasswordChallenge(dbRes.rows[0].encrypted_data);
+    const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data);
 
     return res.status(200).json({
       passwordChallenge: passwordChallenge.pwdChallengeBase64,

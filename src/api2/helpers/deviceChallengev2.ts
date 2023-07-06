@@ -1,8 +1,7 @@
 import crypto from 'crypto';
-import { db } from './db';
-import { accessCodeHash } from '../api1/helpers/accessCodeHash';
+import { db } from '../../helpers/db';
 
-export const createDeviceChallenge = async (deviceId: Number): Promise<string> => {
+export const createDeviceChallengeV2 = async (deviceId: Number): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');
   const updateRes = await db.query(
     "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time=current_timestamp(0)+interval '3 minutes' WHERE id=$2",
@@ -14,7 +13,7 @@ export const createDeviceChallenge = async (deviceId: Number): Promise<string> =
   return deviceChallenge;
 };
 
-export const checkDeviceChallenge = async (
+export const checkDeviceChallengeV2 = async (
   challenge: string,
   challengeResponse: string,
   devicePublicKey: string,
@@ -78,54 +77,32 @@ export const checkDeviceChallenge = async (
   }
 };
 
-export const checkDeviceRequestAuthorization = async (
-  deviceAccessCode: null | string,
-  expectedAccessCodeHash: null | string,
-  deviceChallengeResponse: null | string,
+export const checkDeviceRequestAuthorizationV2 = async (
+  deviceChallengeResponse: string,
   deviceId: string,
   sessionAuthChallengeExpTime: null | Date,
   sessionAuthChallenge: null | string,
   devicePublicKey: string,
 ): Promise<boolean> => {
-  if (!deviceAccessCode && !deviceChallengeResponse) {
+  if (!sessionAuthChallenge) {
+    return false;
+  }
+  if (!sessionAuthChallengeExpTime || sessionAuthChallengeExpTime.getTime() < Date.now()) {
+    return false;
+  }
+  const hasPassedDeviceChallenge = await checkDeviceChallengeV2(
+    sessionAuthChallenge,
+    deviceChallengeResponse,
+    devicePublicKey,
+  );
+  if (!hasPassedDeviceChallenge) {
     return false;
   }
 
-  if (!!deviceChallengeResponse) {
-    if (!sessionAuthChallenge) {
-      return false;
-    }
-    if (!sessionAuthChallengeExpTime || sessionAuthChallengeExpTime.getTime() < Date.now()) {
-      return false;
-    }
-    const hasPassedDeviceChallenge = await checkDeviceChallenge(
-      sessionAuthChallenge,
-      deviceChallengeResponse,
-      devicePublicKey,
-    );
-    if (!hasPassedDeviceChallenge) {
-      return false;
-    }
-
-    // if device is authenticated, cleanup db
-    await db.query(
-      'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
-      [deviceId],
-    );
-    return true;
-  }
-
-  if (!!deviceAccessCode) {
-    if (!expectedAccessCodeHash) {
-      return false;
-    }
-    // Check access code
-    const isAccessGranted = await accessCodeHash.asyncIsOk(
-      deviceAccessCode,
-      expectedAccessCodeHash,
-    );
-    return isAccessGranted;
-  }
-
-  return false;
+  // if device is authenticated, cleanup db
+  await db.query(
+    'UPDATE user_devices SET session_auth_challenge=null, session_auth_challenge_exp_time=null WHERE id=$1',
+    [deviceId],
+  );
+  return true;
 };

@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { logError } from '../../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
@@ -60,12 +60,10 @@ export const revokeDevice = async (req: any, res: any) => {
       }
       if (!deviceSession || !isSessionAuthenticated) {
         if (!deviceChallengeResponse) {
-          const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+          const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].id);
           return res.status(403).json({ deviceChallenge });
         }
-        const isDeviceAuthorized = await checkDeviceRequestAuthorization(
-          null,
-          null,
+        const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
           deviceChallengeResponse,
           dbRes.rows[0].id,
           dbRes.rows[0].session_auth_challenge_exp_time,

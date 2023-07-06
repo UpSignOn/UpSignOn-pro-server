@@ -2,7 +2,7 @@ import { db } from '../../../helpers/db';
 import { getExpirationDate, isExpired } from '../../../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../../../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
 
@@ -41,11 +41,10 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
 
     if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
     if (!deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(authDbRes.rows[0].did);
+      const deviceChallenge = await createDeviceChallengeV2(authDbRes.rows[0].did);
       return res.status(403).json({ deviceChallenge });
     }
-    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
-      null, null,
+    const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
       deviceChallengeResponse,
       authDbRes.rows[0].did,
       authDbRes.rows[0].session_auth_challenge_exp_time,

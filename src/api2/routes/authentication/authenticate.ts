@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
-import { checkDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { checkDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { logError } from '../../../helpers/logger';
-import { checkPasswordChallenge } from '../../../helpers/passwordChallenge';
+import { checkPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 
@@ -72,7 +72,7 @@ export const authenticate2 = async (req: any, res: any) => {
         }
 
         // 4 - check Password challenge
-        const { hasPassedPasswordChallenge, blockedUntil } = await checkPasswordChallenge(
+        const { hasPassedPasswordChallenge, blockedUntil } = await checkPasswordChallengeV2(
             encrypted_data,
             passwordChallengeResponse,
             password_challenge_error_count,
@@ -81,7 +81,7 @@ export const authenticate2 = async (req: any, res: any) => {
         );
 
         // 5 - check Device challenge
-        const hasPassedDeviceChallenge = await checkDeviceChallenge(
+        const hasPassedDeviceChallenge = await checkDeviceChallengeV2(
             session_auth_challenge,
             deviceChallengeResponse,
             device_public_key,
