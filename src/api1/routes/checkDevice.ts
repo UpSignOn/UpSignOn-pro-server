@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import { isExpired } from '../../helpers/dateHelper';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallengev1';
+import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -48,11 +48,11 @@ export const checkDevice = async (req: any, res: any) => {
     }
 
     if (!deviceAccessCode && !deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(dbRes.rows[0].id);
+      const deviceChallenge = await createDeviceChallengeV1(dbRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }
 
-    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
+    const isDeviceAuthorized = await checkDeviceRequestAuthorizationV1(
       deviceAccessCode,
       dbRes.rows[0].access_code_hash,
       deviceChallengeResponse,

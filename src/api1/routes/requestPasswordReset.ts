@@ -2,7 +2,7 @@ import { db } from '../../helpers/db';
 import { getExpirationDate, isExpired } from '../../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallengev1';
+import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { getRandomString } from '../../helpers/randomString';
 
@@ -43,10 +43,10 @@ export const requestPasswordReset = async (req: any, res: any) => {
 
     if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
     if (!deviceAccessCode && !deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(authDbRes.rows[0].did);
+      const deviceChallenge = await createDeviceChallengeV1(authDbRes.rows[0].did);
       return res.status(403).json({ deviceChallenge });
     }
-    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
+    const isDeviceAuthorized = await checkDeviceRequestAuthorizationV1(
       deviceAccessCode,
       authDbRes.rows[0].access_code_hash,
       deviceChallengeResponse,

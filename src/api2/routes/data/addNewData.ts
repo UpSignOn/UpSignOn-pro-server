@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
-import { checkDeviceChallenge } from '../../../api1/helpers/deviceChallengev1';
+import { checkDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { logError } from '../../../helpers/logger';
-import { hashPasswordChallengeResultForSecureStorage } from '../../../api1/helpers/passwordChallengev1';
+import { hashPasswordChallengeResultForSecureStorageV2 } from '../..//helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 
@@ -64,7 +64,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     }
 
     // 3 - check Device challenge
-    const hasPassedDeviceChallenge = await checkDeviceChallenge(
+    const hasPassedDeviceChallenge = await checkDeviceChallengeV2(
       selectRes.rows[0].session_auth_challenge,
       deviceChallengeResponse,
       selectRes.rows[0].device_public_key,
@@ -75,7 +75,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     }
 
     const newEncryptedDataWithPasswordChallengeSecured =
-      hashPasswordChallengeResultForSecureStorage(newEncryptedData);
+      hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
       'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',

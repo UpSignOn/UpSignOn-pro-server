@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import { isExpired } from '../../helpers/dateHelper';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorization, createDeviceChallenge } from '../helpers/deviceChallengev1';
+import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -45,10 +45,10 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (!deviceRes || deviceRes.rowCount === 0) return res.status(401).end();
 
     if (!deviceChallengeResponse) {
-      const deviceChallenge = await createDeviceChallenge(deviceRes.rows[0].id);
+      const deviceChallenge = await createDeviceChallengeV1(deviceRes.rows[0].id);
       return res.status(403).json({ deviceChallenge });
     }
-    const isDeviceAuthorized = await checkDeviceRequestAuthorization(
+    const isDeviceAuthorized = await checkDeviceRequestAuthorizationV1(
       null, null,
       deviceChallengeResponse,
       deviceRes.rows[0].id,
