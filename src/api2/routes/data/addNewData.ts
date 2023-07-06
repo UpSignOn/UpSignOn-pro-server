@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
-import { checkDeviceChallenge } from '../../../helpers/deviceChallenge';
+import { checkDeviceChallenge } from '../../../api1/helpers/deviceChallengev1';
 import { logError } from '../../../helpers/logger';
-import { hashPasswordChallengeResultForSecureStorage } from '../../../helpers/passwordChallenge';
+import { hashPasswordChallengeResultForSecureStorage } from '../../../api1/helpers/passwordChallengev1';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 

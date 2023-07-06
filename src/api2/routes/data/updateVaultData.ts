@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
 import { logError } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
-import { hashPasswordChallengeResultForSecureStorage } from '../../../helpers/passwordChallenge';
+import { hashPasswordChallengeResultForSecureStorage } from '../../../api1/helpers/passwordChallengev1';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
