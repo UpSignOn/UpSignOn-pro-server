@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { db } from '../../../helpers/db';
 import { isExpired } from '../../../helpers/dateHelper';
 import { logError } from '../../../helpers/logger';
@@ -7,6 +6,7 @@ import {
   createDeviceChallengeV2,
 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import libsodium from 'libsodium-wrappers';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup2 = async (req: any, res: any) => {
@@ -90,7 +90,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     const inputToken = Buffer.from(resetToken, 'utf-8');
     let tokenMatch = false;
     try {
-      tokenMatch = crypto.timingSafeEqual(expectedToken, inputToken);
+      tokenMatch = libsodium.memcmp(expectedToken, inputToken);
     } catch (e) {}
     if (!tokenMatch) {
       return res.status(401).json({ error: 'bad_token' });

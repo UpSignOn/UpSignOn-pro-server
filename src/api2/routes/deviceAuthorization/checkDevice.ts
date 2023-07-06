@@ -1,9 +1,9 @@
-import crypto from 'crypto';
 import { db } from '../../../helpers/db';
 import { isExpired } from '../../../helpers/dateHelper';
 import { logError } from '../../../helpers/logger';
 import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import libsodium from 'libsodium-wrappers';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice2 = async (req: any, res: any) => {
@@ -68,7 +68,7 @@ export const checkDevice2 = async (req: any, res: any) => {
         const expectedAuthCodeBuffer = Buffer.from(dbRes.rows[0].authorization_code, 'utf-8');
         let codeMatch = false;
         try {
-            codeMatch = crypto.timingSafeEqual(deviceValidationCodeBuffer, expectedAuthCodeBuffer);
+            codeMatch = libsodium.memcmp(deviceValidationCodeBuffer, expectedAuthCodeBuffer);
         } catch (e) { }
         if (!codeMatch) {
             return res.status(403).json({ "error": "bad_code" });

@@ -7,6 +7,9 @@ export const createPasswordChallengeV1 = (
   pwdChallengeBase64: string;
   pwdDerivationSaltBase64: string;
 } => {
+  if (encryptedDataString.startsWith('formatP002-')) {
+    throw Error("Calling checkPasswordChallengeV1 with a formatP002- encrypted data");
+  }
   if (!encryptedDataString.startsWith('formatP001-')) {
     // The password challenge will not exist when the data has not yet been reencrypted by a v5+ app
     // However, in order for the v5+ app to continue working or being able to enroll a new device for a data that is still in the old format (where the password challenge does not exist)
@@ -31,6 +34,9 @@ export const checkPasswordChallengeV1 = async (
   deviceId: string,
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
+  if (encryptedData.startsWith('formatP002-')) {
+    throw Error("Calling checkPasswordChallengeV1 with a formatP002- encrypted data");
+  }
   if (!encryptedData.startsWith('formatP001-')) {
     return { hasPassedPasswordChallenge: true }; // This would be the case when the NONE fallback were sent as the password challenge
   }

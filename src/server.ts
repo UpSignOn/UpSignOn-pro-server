@@ -85,6 +85,7 @@ import { renameDevice2 } from './api2/routes/devices/renameDevice';
 import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPublicKey';
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 import { logEvent } from './api2/routes/audit/logEvent';
+import libsodium from 'libsodium-wrappers';
 
 const app = express();
 
@@ -235,7 +236,7 @@ app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshar
 
 
 if (module === require.main) {
-  runMigrations().then(migrateEmailConfig).then(() => {
+  runMigrations().then(migrateEmailConfig).then(()=>libsodium.ready).then(() => {
     startServer(app, () => {
       logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
       logInfo(
