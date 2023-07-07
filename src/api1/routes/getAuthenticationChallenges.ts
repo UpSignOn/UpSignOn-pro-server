@@ -81,6 +81,9 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       passwordChallenge: passwordChallenge.pwdChallengeBase64,
       passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
       deviceChallenge,
+      algoName: passwordChallenge.algoName, // for migration to v2
+      cpuCost: passwordChallenge.cpuCost, // for migration to v2
+      memoryCost: passwordChallenge.memoryCost, // for migration to v2
     });
   } catch (e) {
     logError('getAuthenticationChallenges', e);

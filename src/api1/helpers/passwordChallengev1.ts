@@ -1,14 +1,19 @@
 import crypto from 'crypto';
 import { db } from '../../helpers/db';
+import { checkPasswordChallengeV2, createPasswordChallengeV2 } from '../../api2/helpers/passwordChallengev2';
 
 export const createPasswordChallengeV1 = (
   encryptedDataString: string,
 ): {
   pwdChallengeBase64: string;
   pwdDerivationSaltBase64: string;
+  algoName?: string;
+  cpuCost?: number;
+  memoryCost?: number;
 } => {
   if (encryptedDataString.startsWith('formatP002-')) {
-    throw Error("Calling checkPasswordChallengeV1 with a formatP002- encrypted data");
+    // For migration to v2
+    return createPasswordChallengeV2(encryptedDataString);
   }
   if (!encryptedDataString.startsWith('formatP001-')) {
     // The password challenge will not exist when the data has not yet been reencrypted by a v5+ app
@@ -35,7 +40,8 @@ export const checkPasswordChallengeV1 = async (
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
   if (encryptedData.startsWith('formatP002-')) {
-    throw Error("Calling checkPasswordChallengeV1 with a formatP002- encrypted data");
+    // For migration to v2
+    return checkPasswordChallengeV2(encryptedData, passwordChallengeResponse, passwordErrorCount, deviceId, groupId);
   }
   if (!encryptedData.startsWith('formatP001-')) {
     return { hasPassedPasswordChallenge: true }; // This would be the case when the NONE fallback were sent as the password challenge
