@@ -7,7 +7,7 @@ export const createPasswordChallengeV1 = (
 ): {
   pwdChallengeBase64: string;
   pwdDerivationSaltBase64: string;
-  algoName?: string;
+  derivationAlgorithm?: string;
   cpuCost?: number;
   memoryCost?: number;
 } => {
