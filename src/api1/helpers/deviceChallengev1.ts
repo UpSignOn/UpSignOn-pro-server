@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import { accessCodeHash } from './accessCodeHash';
+import { checkDeviceChallengeV2 } from '../../api2/helpers/deviceChallengev2';
 
 export const createDeviceChallengeV1 = async (deviceId: Number): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');
@@ -20,6 +21,9 @@ export const checkDeviceChallengeV1 = async (
   devicePublicKey: string,
 ): Promise<boolean> => {
   try {
+    if(devicePublicKey.length == 44) {
+      return checkDeviceChallengeV2(challenge, challengeResponse, devicePublicKey);
+    }
     const publicKey = Buffer.from(devicePublicKey, 'base64');
     const deviceChallenge = Buffer.from(challenge, 'base64');
     const deviceChallengeResponseBytes = Buffer.from(challengeResponse, 'base64');
