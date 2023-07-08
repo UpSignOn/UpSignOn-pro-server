@@ -27,7 +27,7 @@ export const checkPasswordChallengeV2 = async (
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
   if (!encryptedData.startsWith('formatP002-')) {
-    throw Error("Calling createPasswordChallengeV2 with a data format that is not formatP002-");
+    throw Error("Calling checkPasswordChallengeV2 with a data format that is not formatP002-");
   }
   // data = 'formatP002-derivationAlgoName-derivationCpuCost-derivationMemoryCost-derivationSalt-passwordChallenge-passwordChallengeExpectedResponse-nonce-cipherText'
   

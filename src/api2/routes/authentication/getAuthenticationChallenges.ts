@@ -70,16 +70,20 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
 
-    const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data);
-
-    return res.status(200).json({
-      passwordChallenge: passwordChallenge.pwdChallengeBase64,
-      passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
-      deviceChallenge,
-      algoName: passwordChallenge.algoName,
-      cpuCost: passwordChallenge.cpuCost,
-      memoryCost: passwordChallenge.memoryCost,
-    });
+    try {
+      const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data);
+      
+      return res.status(200).json({
+        passwordChallenge: passwordChallenge.pwdChallengeBase64,
+        passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+        deviceChallenge,
+        algoName: passwordChallenge.algoName,
+        cpuCost: passwordChallenge.cpuCost,
+        memoryCost: passwordChallenge.memoryCost,
+      });
+    }catch(e) {
+      return res.status(403).json({error: 'needs_migration'});
+    }
   } catch (e) {
     logError('getAuthenticationChallenges2', e);
     return res.status(400).end();
