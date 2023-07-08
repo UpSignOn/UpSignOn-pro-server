@@ -77,7 +77,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         passwordChallenge: passwordChallenge.pwdChallengeBase64,
         passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
         deviceChallenge,
-        algoName: passwordChallenge.algoName,
+        derivationAlgorithm: passwordChallenge.derivationAlgorithm,
         cpuCost: passwordChallenge.cpuCost,
         memoryCost: passwordChallenge.memoryCost,
       });

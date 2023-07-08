@@ -6,7 +6,7 @@ export const createPasswordChallengeV2 = (
 ): {
   pwdChallengeBase64: string;
   pwdDerivationSaltBase64: string;
-  algoName: string,
+  derivationAlgorithm: string,
   cpuCost: number,
   memoryCost: number,
 } => {
@@ -16,7 +16,7 @@ export const createPasswordChallengeV2 = (
   // data = 'formatP002-derivationAlgoName-derivationCpuCost-derivationMemoryCost-derivationSalt-passwordChallenge-passwordChallengeExpectedResponse-nonce-cipherText'
   const parts = encryptedDataString.split("-");
 
-  return { pwdChallengeBase64: parts[5], pwdDerivationSaltBase64: parts[4], algoName: parts[1], cpuCost: parseInt(parts[2]), memoryCost: parseInt(parts[3]) };
+  return { pwdChallengeBase64: parts[5], pwdDerivationSaltBase64: parts[4], derivationAlgorithm: parts[1], cpuCost: parseInt(parts[2]), memoryCost: parseInt(parts[3]) };
 };
 
 export const checkPasswordChallengeV2 = async (
