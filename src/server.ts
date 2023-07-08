@@ -86,6 +86,11 @@ import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPu
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 import { logEvent } from './api2/routes/audit/logEvent';
 import libsodium from 'libsodium-wrappers';
+import { getSharedVaultKeysToMigrate } from './api1/routes/migrationToV6/getSharedVaultKeysToMigrate';
+import { migrateSharingPublicKey } from './api1/routes/migrationToV6/migrateSharingPublicKey';
+import { migrateDeviceAuthenticationKey } from './api1/routes/migrationToV6/migrateDeviceAuthenticationKey';
+import { migrateSharedVaultKeys } from './api1/routes/migrationToV6/migrateSharedVaultKeys';
+import { deleteAllMigratedSharedItems } from './api1/routes/migrationToV6/deleteAllMigratedSharedItems';
 
 const app = express();
 
@@ -233,6 +238,13 @@ app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-wi
 app.post(['/:groupId/make-myself-sole-manager-of-shared-folder', '/make-myself-sole-manager-of-shared-folder'], makeMyselfSoleManagerOfSharedFolder);
 app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-id-for-item'], updateSharedFolderIdForSharedItem);
 app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
+
+// MIGRATION TO V6
+app.post(['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-to-migrate'], getSharedVaultKeysToMigrate);
+app.post(['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'], migrateSharedVaultKeys);
+app.post(['/:groupId/migrate-device-authentication-key', '/migrate-device-authentication-key'], migrateDeviceAuthenticationKey);
+app.post(['/:groupId/migrate-sharing-public-key', '/migrate-sharing-public-key'], migrateSharingPublicKey);
+app.post(['/:groupId/delete-all-migrated-shared-items', '/delete-all-migrated-shared-items'], deleteAllMigratedSharedItems);
 
 
 if (module === require.main) {
