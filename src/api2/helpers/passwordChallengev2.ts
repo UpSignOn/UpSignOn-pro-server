@@ -1,5 +1,6 @@
 import libsodium from 'libsodium-wrappers';
 import { db } from '../../helpers/db';
+import { fromBase64 } from './base64Convert';
 
 export const createPasswordChallengeV2 = (
   encryptedDataString: string,
@@ -32,10 +33,10 @@ export const checkPasswordChallengeV2 = async (
   // data = 'formatP002-derivationAlgoName-derivationCpuCost-derivationMemoryCost-derivationSalt-passwordChallenge-passwordChallengeExpectedResponse-nonce-cipherText'
   
   const parts = encryptedData.split('-');
-  const hashedPwdChallengeResponse = libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, libsodium.from_base64(passwordChallengeResponse));
+  const hashedPwdChallengeResponse = libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, fromBase64(passwordChallengeResponse));
 
 
-  let hasPassedPasswordChallenge = libsodium.memcmp(libsodium.from_base64(parts[6]), hashedPwdChallengeResponse);
+  let hasPassedPasswordChallenge = libsodium.memcmp(fromBase64(parts[6]), hashedPwdChallengeResponse);
 
   if (hasPassedPasswordChallenge) {
     return { hasPassedPasswordChallenge: true };
@@ -62,15 +63,4 @@ export const checkPasswordChallengeV2 = async (
   }
 };
 
-export const hashPasswordChallengeResultForSecureStorageV2 = (
-  encryptedDataString: string,
-): string => {
-  if (!encryptedDataString.startsWith('formatP002-')) {
-    throw Error("Calling hashPasswordChallengeResultForSecureStorageV2 with a data format that is not formatP002-");
-  }
-  // data = 'formatP002-derivationAlgoName-derivationCpuCost-derivationMemoryCost-derivationSalt-passwordChallenge-passwordChallengeExpectedResponse-nonce-cipherText'
-  
-  const parts = encryptedDataString.split('-');
-  parts[6] = libsodium.to_base64(libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, libsodium.from_base64(parts[6])));
-  return parts.join('-');
-};
+
