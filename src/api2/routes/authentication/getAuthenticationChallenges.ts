@@ -82,6 +82,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         memoryCost: passwordChallenge.memoryCost,
       });
     }catch(e) {
+      console.error(e);
       return res.status(403).json({error: 'needs_migration'});
     }
   } catch (e) {
