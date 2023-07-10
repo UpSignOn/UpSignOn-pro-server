@@ -60,27 +60,37 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
 
 const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
   const rawStats = await db.query(
-    "SELECT user_id, date_trunc('day', date) as day, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_no_password, nb_accounts_with_duplicate_password, nb_accounts_red, nb_accounts_orange, nb_accounts_green FROM data_stats ORDER BY day ASC",
+    "SELECT user_id, shared_vault_id, date_trunc('day', date) as day, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_no_password, nb_accounts_with_duplicate_password, nb_accounts_red, nb_accounts_orange, nb_accounts_green FROM data_stats ORDER BY day ASC",
   );
 
   if (rawStats.rowCount === 0) {
     return { def: [], data: [] };
   }
 
-  /*
-   * First get chartDataPerUserPerDay = {
-   *  [userId]: {
-   *    [day]: stats
-   *  }
-   * }
-   */
-  const chartDataPerUserPerDay: any = {};
-  rawStats.rows.forEach((r) => {
-    if (!chartDataPerUserPerDay[r.user_id]) {
-      chartDataPerUserPerDay[r.user_id] = {};
-    }
-    chartDataPerUserPerDay[r.user_id][r.day.toISOString()] = r;
-  });
+
+    /*
+     * First get chartDataPerVaultPerDay = {
+     *  [userId]: {
+     *    [day]: stats
+     *  }
+     * }
+     */
+    const chartDataPerVaultPerDay: any = {};
+    rawStats.rows.forEach((r: any) => {
+      if(r.user_id) {
+        if (!chartDataPerVaultPerDay['v'+r.user_id]) {
+          chartDataPerVaultPerDay['v'+r.user_id] = {};
+        }
+        chartDataPerVaultPerDay['v'+r.user_id][r.day.toISOString()] = r;
+      } else {
+        if (!chartDataPerVaultPerDay['sv'+r.shared_vault_id]) {
+          chartDataPerVaultPerDay['sv'+r.shared_vault_id] = {};
+        }
+        chartDataPerVaultPerDay['sv'+r.shared_vault_id][r.day.toISOString()] = r;
+
+      }
+    });
+
 
   // Then get the continuous list of days
   const startDay = rawStats.rows[0].day;
@@ -110,10 +120,10 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
   });
 
   // Then map each day to its stats
-  const userList = Object.keys(chartDataPerUserPerDay);
+  const userList = Object.keys(chartDataPerVaultPerDay);
   userList.forEach((u) => {
     let lastKnownStats: any = null;
-    const userStats = chartDataPerUserPerDay[u];
+    const userStats = chartDataPerVaultPerDay[u];
     days.forEach((d) => {
       if (userStats[d]) {
         lastKnownStats = userStats[d];
