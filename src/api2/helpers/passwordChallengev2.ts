@@ -1,6 +1,6 @@
 import libsodium from 'libsodium-wrappers';
 import { db } from '../../helpers/db';
-import { fromBase64 } from './base64Convert';
+import { fromBase64, toBase64 } from './base64Convert';
 
 export const createPasswordChallengeV2 = (
   encryptedDataString: string,
@@ -72,6 +72,6 @@ export const hashPasswordChallengeResultForSecureStorageV2 = (
   // data = 'formatP002-derivationAlgoName-derivationCpuCost-derivationMemoryCost-derivationSalt-passwordChallenge-passwordChallengeExpectedResponse-nonce-cipherText'
   
   const parts = encryptedDataString.split('-');
-  parts[6] = libsodium.to_base64(libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, libsodium.from_base64(parts[6])));
+  parts[6] = toBase64(libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, fromBase64(parts[6])));
   return parts.join('-');
 };
