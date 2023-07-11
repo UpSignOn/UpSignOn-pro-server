@@ -15,7 +15,7 @@ export const migrateDeviceAuthenticationKey = async (req: any, res: any) => {
     }
 
     await db.query(
-      'UPDATE user_device SET device_public_key=$1 WHERE id=$2 AND user_id=$3 AND group_id=$4',
+      'UPDATE user_devices SET device_public_key=$1 WHERE id=$2 AND user_id=$3 AND group_id=$4',
       [newDeviceAuthenticationKey, basicAuth.deviceId, basicAuth.userId, basicAuth.groupId]
     );
     return res.status(204).end();
