@@ -60,7 +60,7 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
 
 const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
   const rawStats = await db.query(
-    "SELECT user_id, shared_vault_id, date_trunc('day', date) as day, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_no_password, nb_accounts_with_duplicate_password, nb_accounts_red, nb_accounts_orange, nb_accounts_green FROM data_stats ORDER BY day ASC",
+    "SELECT user_id, shared_vault_id, date_trunc('day', date) as day, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_no_password, nb_accounts_with_duplicated_password, nb_accounts_red, nb_accounts_orange, nb_accounts_green FROM data_stats ORDER BY day ASC",
   );
 
   if (rawStats.rowCount === 0) {
@@ -134,7 +134,7 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
       chartDataObjet[d].md += lastKnownStats?.nb_accounts_medium || 0;
       chartDataObjet[d].wk += lastKnownStats?.nb_accounts_weak || 0;
       chartDataObjet[d].no += lastKnownStats?.nb_accounts_with_no_password || 0;
-      chartDataObjet[d].dp += lastKnownStats?.nb_accounts_with_duplicate_password || 0;
+      chartDataObjet[d].dp += lastKnownStats?.nb_accounts_with_duplicated_password || 0;
       chartDataObjet[d].gr += lastKnownStats?.nb_accounts_green || 0;
       chartDataObjet[d].or += lastKnownStats?.nb_accounts_orange || 0;
       chartDataObjet[d].rd += lastKnownStats?.nb_accounts_red || 0;
