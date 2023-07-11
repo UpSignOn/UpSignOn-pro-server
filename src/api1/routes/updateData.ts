@@ -9,14 +9,14 @@ import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwo
 export const updateData = async (req: any, res: any): Promise<void> => {
   try {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
-    const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
+    const lastUpdateDate = inputSanitizer.getString(req.body?.lastUpdateDate);
     const isNewData = inputSanitizer.getBoolean(req.body?.isNewData); // DEPRECATED => this route is no longer used to add an empty space
     const sharingPublicKey = inputSanitizer.getString(req.body?.sharingPublicKey); // DEPRECATED => this route is no longer used to add an empty space
     const returningSharedItems = inputSanitizer.getBoolean(req.body?.returningSharedItems);
 
     // Check params
     if (!newEncryptedData) return res.status(401).end();
-    if (!isNewData && !lastUpdatedAt) return res.status(409).end(); // Behave like a CONFLICT
+    if (!isNewData && !lastUpdateDate) return res.status(409).end(); // Behave like a CONFLICT
     if (isNewData && !sharingPublicKey) return res.status(409).end(); // Behave like a CONFLICT
 
     const basicAuth = await checkBasicAuth(req, { returningData: true });
@@ -47,7 +47,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
         [
           newEncryptedDataWithPasswordChallengeSecured,
           basicAuth.userEmail,
-          lastUpdatedAt,
+          lastUpdateDate,
           basicAuth.groupId,
         ],
       );
@@ -59,9 +59,9 @@ export const updateData = async (req: any, res: any): Promise<void> => {
 
     if (returningSharedItems) {
       const sharedItems = await getSharedItems(basicAuth.userId, basicAuth.groupId);
-      return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at, sharedItems });
+      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at, sharedItems });
     } else {
-      return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
+      return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
     }
   } catch (e) {
     logError('updateData', e);
