@@ -96,7 +96,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
     }
 
     await db.query(
-      `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND groupd_id=$2`,
+      `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND group_id=$2`,
       [resetRequest.reset_request_id, groupId],
     );
     await db.query(
