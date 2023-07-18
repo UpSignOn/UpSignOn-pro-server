@@ -23,7 +23,7 @@ export const backupPassword2 = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('backupPassword', e);
+    logError('backupPassword2', e);
     return res.status(400).end();
   }
 };
