@@ -98,6 +98,10 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       return res.status(401).json({ error: 'expired' });
     }
 
+    if(!resetRequest.encrypted_password_backup) {
+      return res.status(403).json({error: "backup_not_setup"});
+    }
+
     await db.query(
       `UPDATE password_reset_request SET status='COMPLETED' WHERE id=$1 AND group_id=$2`,
       [resetRequest.reset_request_id, groupId],
