@@ -4,7 +4,7 @@ import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';
 import { sendStatusUpdate } from './serverStatus';
-import { cleanOldRevokedDevices } from './dbCleaner';
+import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -16,6 +16,7 @@ if (env.HTTP_PROXY) {
 
 async function cronjob() {
   await cleanOldRevokedDevices();
+  await cleanOrphanSharedVaults();
   await sendStatusUpdate();
 }
 
