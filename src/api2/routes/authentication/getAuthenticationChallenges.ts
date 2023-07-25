@@ -21,7 +21,8 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         u.encrypted_data AS encrypted_data,
         ud.id AS did,
         ud.authorization_status AS authorization_status,
-        g.settings AS group_settings
+        g.settings AS group_settings,
+        ud.encrypted_password_backup AS encrypted_password_backup
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
       INNER JOIN groups AS g ON g.id = u.group_id
@@ -80,6 +81,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         derivationAlgorithm: passwordChallenge.derivationAlgorithm,
         cpuCost: passwordChallenge.cpuCost,
         memoryCost: passwordChallenge.memoryCost,
+        hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup
       });
     }catch(e) {
       console.error(e);

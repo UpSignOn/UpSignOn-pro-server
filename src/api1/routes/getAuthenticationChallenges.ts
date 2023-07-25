@@ -23,7 +23,8 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         char_length(ud.device_public_key) > 0 AS has_device_public_key,
         ud.authorization_status AS authorization_status,
-        g.settings AS group_settings
+        g.settings AS group_settings,
+        ud.encrypted_password_backup AS encrypted_password_backup
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
       INNER JOIN groups AS g ON g.id = u.group_id
@@ -84,6 +85,7 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       derivationAlgorithm: passwordChallenge.derivationAlgorithm, // for migration to v2
       cpuCost: passwordChallenge.cpuCost, // for migration to v2
       memoryCost: passwordChallenge.memoryCost, // for migration to v2
+      hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
     });
   } catch (e) {
     logError('getAuthenticationChallenges', e);
