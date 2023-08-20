@@ -13,7 +13,7 @@ export const getContactsPublicKeys = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const contactRes = await db.query(
-      'SELECT users.id, users.sharing_public_key FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1 AND users.group_id=$2',
+      'SELECT users.id AS id, users.sharing_public_key AS sharing_public_key, sau.is_manager AS is_manager FROM users INNER JOIN shared_account_users AS sau ON sau.user_id=users.id WHERE sau.shared_account_id = $1 AND users.group_id=$2',
       [itemId, basicAuth.groupId],
     );
     // Return res
