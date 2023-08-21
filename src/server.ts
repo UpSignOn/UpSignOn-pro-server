@@ -91,6 +91,7 @@ import { migrateSharingPublicKey } from './api1/routes/migrationToV6/migrateShar
 import { migrateDeviceAuthenticationKey } from './api1/routes/migrationToV6/migrateDeviceAuthenticationKey';
 import { migrateSharedVaultKeys } from './api1/routes/migrationToV6/migrateSharedVaultKeys';
 import { deleteAllMigratedSharedItems } from './api1/routes/migrationToV6/deleteAllMigratedSharedItems';
+import { getDevicesBlockingDataMigration } from './api1/routes/migrationToV6/getDevicesBlockingDataMigration';
 
 const app = express();
 
@@ -240,6 +241,7 @@ app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-i
 app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
 
 // MIGRATION TO V6
+app.post(['/:groupId/get-devices-blocking-data-migration', '/get-devices-blocking-data-migration'], getDevicesBlockingDataMigration);
 app.post(['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-to-migrate'], getSharedVaultKeysToMigrate);
 app.post(['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'], migrateSharedVaultKeys);
 app.post(['/:groupId/migrate-device-authentication-key', '/migrate-device-authentication-key'], migrateDeviceAuthenticationKey);
