@@ -84,7 +84,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       allowedToExport: dbRes.rows[0].allowed_to_export,
       allowedOffline: dbRes.rows[0].allowed_offline,
       sharedVaults,
-      needsPasswordBackup: !dbRes.rows[0].encrypted_password_backup
+      needsPasswordBackup: !dbRes.rows[0].encrypted_password_backup || dbRes.rows[0].encrypted_password_backup.length == 512
     });
 
     // Clean changed_emails table if necessary
