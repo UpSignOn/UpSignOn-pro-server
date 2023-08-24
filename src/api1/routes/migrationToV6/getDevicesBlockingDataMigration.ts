@@ -10,8 +10,8 @@ export const getDevicesBlockingDataMigration = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const outdatedDevices = await db.query(
-      'SELECT id, device_name, device_type, app_version FROM user_devices WHERE user_id=$1 AND group_id=$2 AND authorization_status = \'AUTHORIZED\'',
-      [basicAuth.userId, basicAuth.groupId]
+      'SELECT id, device_name, device_type, app_version FROM user_devices WHERE user_id=$1 AND group_id=$2 AND authorization_status = \'AUTHORIZED\' AND device_unique_id!=$3',
+      [basicAuth.userId, basicAuth.groupId, basicAuth.deviceUId]
     );
 
     // Return res
