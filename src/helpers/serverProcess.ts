@@ -17,7 +17,10 @@ if (env.HTTP_PROXY) {
 async function cronjob() {
   await cleanOldRevokedDevices();
   await cleanOrphanSharedVaults();
-  await sendStatusUpdate();
+  setTimeout(async ()=>{
+    await sendStatusUpdate();
+    // randomize the time of the call in the next 5 minutes to avoid overloading the server
+  }, 60*5*Math.random()*1000);
 }
 
 export const startServer = (app: any, then: any): void => {
@@ -45,7 +48,8 @@ export const startServer = (app: any, then: any): void => {
     listenForGracefulShutdown(server);
   }
   cronjob();
-  setInterval(cronjob, 24 * 3600 * 1000);
+  // Add status update every hour and avoid all calls at the same time by randomizing the interval
+  setInterval(cronjob, 3600 * 1000);
 };
 
 const listenForGracefulShutdown = (server: any) => {
