@@ -14,13 +14,13 @@ if (env.HTTP_PROXY) {
   global.GLOBAL_AGENT.HTTP_PROXY = env.HTTP_PROXY;
 }
 
-async function cronjob() {
+async function cronjob(randomDelay: number) {
   await cleanOldRevokedDevices();
   await cleanOrphanSharedVaults();
   setTimeout(async ()=>{
     await sendStatusUpdate();
     // randomize the time of the call in the next 5 minutes to avoid overloading the server
-  }, 60*5*Math.random()*1000);
+  }, randomDelay || 0);
 }
 
 export const startServer = (app: any, then: any): void => {
@@ -47,9 +47,9 @@ export const startServer = (app: any, then: any): void => {
     });
     listenForGracefulShutdown(server);
   }
-  cronjob();
+  cronjob(0);
   // Add status update every hour and avoid all calls at the same time by randomizing the interval
-  setInterval(cronjob, 3600 * 1000);
+  setInterval(()=> cronjob(60*5*Math.random()*1000), 3600 * 1000);
 };
 
 const listenForGracefulShutdown = (server: any) => {

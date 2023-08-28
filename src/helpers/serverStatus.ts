@@ -50,7 +50,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       userAppVersions,
       securityGraph: JSON.stringify(stats),
       statsByGroup,
-      detailedUserAppVersions: detailedUserAppVersions.rows
+      detailedUserAppVersions: JSON.stringify(detailedUserAppVersions.rows),
     };
 
     sendToUpSignOn(serverStatus);
