@@ -28,17 +28,22 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const detailedUserAppVersions = await db.query(
       `SELECT
         users.id AS user_id,
-        starts_with(users.encrypted_data, 'formatP001-') AS is_formatP001,
-        starts_with(users.encrypted_data, 'formatP002-') AS is_formatP002,
+        starts_with(users.encrypted_data, 'formatP001-') AS formatP001,
+        starts_with(users.encrypted_data, 'formatP002-') AS formatP002,
         length(users.encrypted_data) AS data_length,
-        device_type,
-        os_version,
-        app_version,
-        (SELECT date FROM usage_logs WHERE log_type='SESSION' AND device_id=user_devices.id ORDER BY date DESC LIMIT 1) AS last_session
+        COALESCE((
+          SELECT JSON_AGG(
+            json_build_object(
+              't', device_type,
+              'os', os_version,
+              'v', app_version,
+              'last', (SELECT TO_CHAR(date :: DATE, 'yyyy-mm-dd') FROM usage_logs WHERE log_type='SESSION' AND device_id=user_devices.id ORDER BY date DESC LIMIT 1)
+            )
+          )
+          FROM user_devices WHERE user_devices.user_id = users.id
+        ), '[]'::json) AS devices
       FROM users
-      LEFT JOIN user_devices ON user_devices.user_id = users.id
-      WHERE authorization_status='AUTHORIZED'
-      ORDER BY users.group_id ASC, users.email ASC`,
+      GROUP BY users.id`,
     );
     const stats: { def: string[]; data: number[] } = await getStats();
     const serverStatus = {
