@@ -1,5 +1,5 @@
 #!/bin/bash
-git fetch origin
+git fetch origin production
 git reset --hard origin/production
 git clean -df
 
