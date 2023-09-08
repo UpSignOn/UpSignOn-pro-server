@@ -28,6 +28,10 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       logError('updateData - Attempted to init user data where data already exists.');
       return res.status(400).end();
     }
+    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [basicAuth.userId]);
+    if(hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({error: 'deprecated_app'});
+    }
     let updateRes;
     const newEncryptedDataWithPasswordChallengeSecured =
     hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);

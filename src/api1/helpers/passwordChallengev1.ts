@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import { db } from '../../helpers/db';
+import libsodium from 'libsodium-wrappers';
+import { fromBase64, toBase64 } from '../../api2/helpers/base64Convert';
 import { checkPasswordChallengeV2, createPasswordChallengeV2 } from '../../api2/helpers/passwordChallengev2';
 
 export const createPasswordChallengeV1 = (
@@ -7,14 +9,7 @@ export const createPasswordChallengeV1 = (
 ): {
   pwdChallengeBase64: string;
   pwdDerivationSaltBase64: string;
-  derivationAlgorithm?: string;
-  cpuCost?: number;
-  memoryCost?: number;
 } => {
-  if (encryptedDataString.startsWith('formatP002-')) {
-    // For migration to v2
-    return createPasswordChallengeV2(encryptedDataString);
-  }
   if (!encryptedDataString.startsWith('formatP001-')) {
     // The password challenge will not exist when the data has not yet been reencrypted by a v5+ app
     // However, in order for the v5+ app to continue working or being able to enroll a new device for a data that is still in the old format (where the password challenge does not exist)
@@ -33,37 +28,47 @@ export const createPasswordChallengeV1 = (
 };
 
 export const checkPasswordChallengeV1 = async (
-  encryptedData: string,
+  encryptedData: null | string,
+  encryptedData2: null | string,
   passwordChallengeResponse: string,
   passwordErrorCount: null | number,
   deviceId: string,
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
-  if (encryptedData.startsWith('formatP002-')) {
-    // For migration to v2
-    return checkPasswordChallengeV2(encryptedData, passwordChallengeResponse, passwordErrorCount, deviceId, groupId);
-  }
-  if (!encryptedData.startsWith('formatP001-')) {
+  if ((!!encryptedData && !encryptedData?.startsWith('formatP001-')) && !encryptedData2) {
     return { hasPassedPasswordChallenge: true }; // This would be the case when the NONE fallback were sent as the password challenge
   }
-  // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
-  const expectedPwdChallengeResult = Buffer.from(encryptedData.substring(79, 123), 'base64');
-  const passwordChallengeResponseBuffer = crypto
+  let hasPassedPasswordChallenge = false;
+
+  if(encryptedData) {
+    // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
+    const expectedPwdChallengeResult = Buffer.from(encryptedData!.substring(79, 123), 'base64');
+    const passwordChallengeResponseBuffer = crypto
     .createHash('sha256')
     .update(passwordChallengeResponse, 'base64')
     .digest();
+    
+    
+    try {
+      hasPassedPasswordChallenge = crypto.timingSafeEqual(
+        expectedPwdChallengeResult,
+        passwordChallengeResponseBuffer,
+        );
+    } catch (e) {}
+      
+    if (hasPassedPasswordChallenge) {
+      return { hasPassedPasswordChallenge: true };
+    }
+  } else if(encryptedData2){
+    const parts = encryptedData2.split('-');
+    const hashedPwdChallengeResponse = libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, fromBase64(passwordChallengeResponse));
 
-  let hasPassedPasswordChallenge = false;
 
-  try {
-    hasPassedPasswordChallenge = crypto.timingSafeEqual(
-      expectedPwdChallengeResult,
-      passwordChallengeResponseBuffer,
-    );
-  } catch (e) {}
+    hasPassedPasswordChallenge = libsodium.memcmp(fromBase64(parts[6]), hashedPwdChallengeResponse);
 
-  if (hasPassedPasswordChallenge) {
-    return { hasPassedPasswordChallenge: true };
+    if (hasPassedPasswordChallenge) {
+      return { hasPassedPasswordChallenge: true };
+    }
   }
 
   // Add a time constraint to the number of failed attempts per device

@@ -21,6 +21,7 @@ export const authenticate = async (req: any, res: any) => {
     const dbRes = await db.query(
       `SELECT
         u.encrypted_data AS encrypted_data,
+        u.encrypted_data_2 AS encrypted_data_2,
         ud.id AS did,
         ud.password_challenge_blocked_until AS password_challenge_blocked_until,
         ud.password_challenge_error_count AS password_challenge_error_count,
@@ -48,6 +49,7 @@ export const authenticate = async (req: any, res: any) => {
       session_auth_challenge_exp_time,
       password_challenge_error_count,
       encrypted_data,
+      encrypted_data_2,
       session_auth_challenge,
     } = dbRes.rows[0];
 
@@ -76,6 +78,7 @@ export const authenticate = async (req: any, res: any) => {
     // 4 - check Password challenge
     const { hasPassedPasswordChallenge, blockedUntil } = await checkPasswordChallengeV1(
       encrypted_data,
+      encrypted_data_2,
       passwordChallengeResponse,
       password_challenge_error_count,
       did,

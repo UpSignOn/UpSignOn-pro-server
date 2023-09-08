@@ -56,6 +56,11 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       return res.status(401).end();
     }
 
+    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [selectRes.rows[0].uid]);
+    if(hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({error: 'deprecated_app'});
+    }
+
     // 2 - check that the session auth challenge has not expired
     if (
       !selectRes.rows[0].session_auth_challenge_exp_time ||

@@ -18,7 +18,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     const dbRes = await db.query(
       `SELECT
         u.id AS uid,
-        u.encrypted_data AS encrypted_data,
+        u.encrypted_data_2 AS encrypted_data_2,
         ud.id AS did,
         ud.authorization_status AS authorization_status,
         g.settings AS group_settings,
@@ -67,12 +67,12 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       });
 
     const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].did);
-    if (!dbRes.rows[0].encrypted_data) {
+    if (!dbRes.rows[0].encrypted_data_2) {
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
 
     try {
-      const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data);
+      const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
       
       return res.status(200).json({
         passwordChallenge: passwordChallenge.pwdChallengeBase64,

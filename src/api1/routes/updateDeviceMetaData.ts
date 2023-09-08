@@ -13,6 +13,13 @@ export const updateDeviceMetaData = async (req: any, res: any): Promise<void> =>
     const basicAuth = await checkBasicAuth(req, { returningDeviceId: true });
     if (!basicAuth.granted) return res.status(401).end();
 
+
+    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [basicAuth.userId]);
+    if(hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({error: 'deprecated_app'});
+    }
+
+
     await db.query(
       'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
       [deviceName, osVersion, appVersion, basicAuth.deviceId, basicAuth.groupId],

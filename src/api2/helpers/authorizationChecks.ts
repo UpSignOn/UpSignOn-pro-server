@@ -48,7 +48,7 @@ export const checkBasicAuth2 = async (
   const publicKeySelect = options?.returningUserPublicKey
     ? 'u.sharing_public_key AS sharing_public_key,'
     : '';
-  const dataSelect = options?.returningData ? 'u.encrypted_data AS encrypted_data,' : '';
+  const dataSelect = options?.returningData ? 'u.encrypted_data_2 AS encrypted_data_2,' : '';
   const deviceIdSelect = options?.returningDeviceId ? 'ud.id AS device_id,' : '';
 
   const accountManagerOrRecipientJoin =
@@ -94,7 +94,7 @@ export const checkBasicAuth2 = async (
     deviceUId,
     userId: dbRes.rows[0].user_id,
     sharingPublicKey: dbRes.rows[0].sharing_public_key,
-    encryptedData: dbRes.rows[0].encrypted_data,
+    encryptedData: dbRes.rows[0].encrypted_data_2,
     deviceId: dbRes.rows[0].device_id,
     granted: true,
     groupId,

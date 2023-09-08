@@ -25,7 +25,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       const updateRes = await db.query(
         `UPDATE users
         SET (
-          encrypted_data,
+          encrypted_data_2,
           updated_at,
           nb_accounts,
           nb_codes,
@@ -98,7 +98,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     } else {
       const updateRes = await db.query(
         `UPDATE users
-          SET (encrypted_data, updated_at)=($1,CURRENT_TIMESTAMP(0))
+          SET (encrypted_data_2, updated_at)=($1,CURRENT_TIMESTAMP(0))
           WHERE
             users.email=$2
             AND users.updated_at=CAST($3 AS TIMESTAMPTZ)

@@ -19,6 +19,11 @@ export const updateSharedItem = async (req: any, res: any): Promise<void> => {
     const basicAuth = await checkBasicAuth(req, { checkIsManagerForItemId: sharedItem.id });
     if (!basicAuth.granted) return res.status(401).end();
 
+    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [basicAuth.userId]);
+    if(hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({error: 'deprecated_app'});
+    }
+
     await db.query(
       'UPDATE shared_accounts SET (url, name, login, aes_encrypted_data)=($1, $2, $3, $4) WHERE id=$5 AND group_id=$6',
       [

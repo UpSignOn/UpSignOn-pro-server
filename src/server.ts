@@ -93,6 +93,7 @@ import { migrateSharedVaultKeys } from './api1/routes/migrationToV6/migrateShare
 import { deleteAllMigratedSharedItems } from './api1/routes/migrationToV6/deleteAllMigratedSharedItems';
 import { getDevicesBlockingDataMigration } from './api1/routes/migrationToV6/getDevicesBlockingDataMigration';
 import { updateDeviceAppVersion } from './api1/routes/updateDeviceAppVersion';
+import { getV5OrV6AuthenticationChallenges } from './api1/routes/migrationToV6/getV5OrV6AuthenticationChallenges';
 
 const app = express();
 
@@ -190,6 +191,7 @@ app.post(['/:groupId/check-device', '/check-device'], checkDevice);
 // AUTHENTICATION
 app.post(['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'], migrateToCryptographicAuthentication);
 app.post(['/:groupId/get-authentication-challenges', '/get-authentication-challenges'], getAuthenticationChallenges);
+app.post(['/:groupId/get-v5-or-v6-authentication-challenges', '/get-v5-or-v6-authentication-challenges'], getV5OrV6AuthenticationChallenges);
 app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
 app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
 

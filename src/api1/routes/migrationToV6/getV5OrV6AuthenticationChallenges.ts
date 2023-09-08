@@ -1,11 +1,12 @@
-import { db } from '../../helpers/db';
-import { logError } from '../../helpers/logger';
-import { createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
-import { createPasswordChallengeV1 } from '../helpers/passwordChallengev1';
-import { inputSanitizer } from '../../helpers/sanitizer';
+import { db } from '../../../helpers/db';
+import { logError } from '../../../helpers/logger';
+import { createDeviceChallengeV1 } from '../../helpers/deviceChallengev1';
+import { createPasswordChallengeV1 } from '../../helpers/passwordChallengev1';
+import { inputSanitizer } from '../../../helpers/sanitizer';
+import { createPasswordChallengeV2 } from '../../../api2/helpers/passwordChallengev2';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const getAuthenticationChallenges = async (req: any, res: any) => {
+export const getV5OrV6AuthenticationChallenges = async (req: any, res: any) => {
   try {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -19,6 +20,7 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       `SELECT
         u.id AS uid,
         u.encrypted_data AS encrypted_data,
+        u.encrypted_data_2 AS encrypted_data_2,
         ud.id AS did,
         char_length(ud.access_code_hash) > 0 AS has_access_code_hash,
         char_length(ud.device_public_key) > 0 AS has_device_public_key,
@@ -72,18 +74,31 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       return res.status(401).end();
 
     const deviceChallenge = await createDeviceChallengeV1(dbRes.rows[0].did);
-    if (!dbRes.rows[0].encrypted_data) {
+    if (!dbRes.rows[0].encrypted_data && !dbRes.rows[0].encrypted_data_2) {
       return res.status(404).json({ error: 'empty_data', deviceChallenge });
     }
 
-    const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
+    if(dbRes.rows[0].encrypted_data_2) {
+        const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
+        return res.status(200).json({
+            passwordChallenge: passwordChallenge.pwdChallengeBase64,
+            passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+            deviceChallenge,
+            derivationAlgorithm: passwordChallenge.derivationAlgorithm,
+            cpuCost: passwordChallenge.cpuCost,
+            memoryCost: passwordChallenge.memoryCost,
+            hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
+          });
+    } else {
+        const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
+        return res.status(200).json({
+            passwordChallenge: passwordChallenge.pwdChallengeBase64,
+            passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+            deviceChallenge,
+            hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
+          });
+    }
 
-    return res.status(200).json({
-      passwordChallenge: passwordChallenge.pwdChallengeBase64,
-      passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
-      deviceChallenge,
-      hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
-    });
   } catch (e) {
     logError('getAuthenticationChallenges', e);
     return res.status(400).end();

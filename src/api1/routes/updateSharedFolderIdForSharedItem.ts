@@ -19,6 +19,12 @@ export const updateSharedFolderIdForSharedItem = async (req: any, res: any): Pro
     const basicAuth = await checkBasicAuth(req, { checkIsManagerForItemId: sharedItemId });
     if (!basicAuth.granted) return res.status(401).end();
 
+
+    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [basicAuth.userId]);
+    if(hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({error: 'deprecated_app'});
+    }
+
     // check is manager for destination folder
     await db.query(
       'SELECT is_manager FROM shared_account_users WHERE user_id=$1 AND shared_account_id=$2 AND group_id=$3',

@@ -38,7 +38,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       `SELECT
         users.id AS user_id,
         user_devices.authorization_status AS authorization_status,
-        users.encrypted_data AS encrypted_data,
+        users.encrypted_data_2 AS encrypted_data_2,
         users.updated_at AS updated_at,
         char_length(user_devices.device_public_key) > 0 AS has_device_public_key,
         users.allowed_to_export AS allowed_to_export,
@@ -79,7 +79,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
 
     // Return res
     res.status(200).json({
-      encryptedData: dbRes.rows[0].encrypted_data,
+      encryptedData: dbRes.rows[0].encrypted_data_2,
       lastUpdatedAt: dbRes.rows[0].updated_at,
       allowedToExport: dbRes.rows[0].allowed_to_export,
       allowedOffline: dbRes.rows[0].allowed_offline,
