@@ -1,8 +1,7 @@
 import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import libsodium from 'libsodium-wrappers';
-import { fromBase64, toBase64 } from '../../api2/helpers/base64Convert';
-import { checkPasswordChallengeV2, createPasswordChallengeV2 } from '../../api2/helpers/passwordChallengev2';
+import { fromBase64 } from '../../api2/helpers/base64Convert';
 
 export const createPasswordChallengeV1 = (
   encryptedDataString: string,

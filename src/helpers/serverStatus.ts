@@ -30,6 +30,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
         users.id AS user_id,
         starts_with(users.encrypted_data, 'formatP001-') AS formatP001,
         starts_with(users.encrypted_data_2, 'formatP002-') AS formatP002,
+        starts_with(users.encrypted_data_2, 'formatP003-') AS formatP003,
         length(users.encrypted_data_2) AS data_length,
         COALESCE((
           SELECT JSON_AGG(

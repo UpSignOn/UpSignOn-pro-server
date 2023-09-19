@@ -84,6 +84,7 @@ export const getV5OrV6AuthenticationChallenges = async (req: any, res: any) => {
             passwordChallenge: passwordChallenge.pwdChallengeBase64,
             passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
             deviceChallenge,
+            dataFormat: passwordChallenge.dataFormat,
             derivationAlgorithm: passwordChallenge.derivationAlgorithm,
             cpuCost: passwordChallenge.cpuCost,
             memoryCost: passwordChallenge.memoryCost,
