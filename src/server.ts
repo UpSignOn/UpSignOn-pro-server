@@ -90,8 +90,8 @@ import { getSharedVaultKeysToMigrate } from './api1/routes/migrationToV6/getShar
 import { migrateSharingPublicKey } from './api1/routes/migrationToV6/migrateSharingPublicKey';
 import { migrateDeviceAuthenticationKey } from './api1/routes/migrationToV6/migrateDeviceAuthenticationKey';
 import { migrateSharedVaultKeys } from './api1/routes/migrationToV6/migrateSharedVaultKeys';
-import { deleteAllMigratedSharedItems } from './api1/routes/migrationToV6/deleteAllMigratedSharedItems';
 import { updateDeviceAppVersion } from './api1/routes/updateDeviceAppVersion';
+import { markAllMigratedSharedItems } from './api1/routes/migrationToV6/markAllMigratedSharedItems';
 import { getV5OrV6AuthenticationChallenges } from './api1/routes/migrationToV6/getV5OrV6AuthenticationChallenges';
 
 const app = express();
@@ -248,7 +248,7 @@ app.post(['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-
 app.post(['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'], migrateSharedVaultKeys);
 app.post(['/:groupId/migrate-device-authentication-key', '/migrate-device-authentication-key'], migrateDeviceAuthenticationKey);
 app.post(['/:groupId/migrate-sharing-public-key', '/migrate-sharing-public-key'], migrateSharingPublicKey);
-app.post(['/:groupId/delete-all-migrated-shared-items', '/delete-all-migrated-shared-items'], deleteAllMigratedSharedItems);
+app.post(['/:groupId/mark-all-migrated-shared-items', '/mark-all-migrated-shared-items'], markAllMigratedSharedItems);
 
 
 if (module === require.main) {

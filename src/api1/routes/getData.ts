@@ -122,6 +122,7 @@ export const getSharedItems = async (
     encryptedAesKey: string;
     sharedFolderId: null | number;
     sharedFolderName: null | string;
+    isMigrated: boolean
   }[]
 > => {
   const sharingRes = await db.query(
@@ -136,7 +137,8 @@ export const getSharedItems = async (
       sau.encrypted_aes_key AS encrypted_aes_key,
       (SELECT COUNT(user_id) FROM shared_account_users WHERE shared_account_id=sau.shared_account_id) < 2 AS has_single_user,
       sf.id as shared_folder_id,
-      sf.name as shared_folder_name
+      sf.name as shared_folder_name,
+      sa.is_migrated as is_migrated
     FROM shared_accounts AS sa
     INNER JOIN shared_account_users AS sau
     ON sau.shared_account_id=sa.id
@@ -157,6 +159,7 @@ export const getSharedItems = async (
     hasSingleUser: s.has_single_user,
     sharedFolderId: s.shared_folder_id,
     sharedFolderName: s.shared_folder_name,
+    isMigrated: s.is_migrated,
   }));
 };
 

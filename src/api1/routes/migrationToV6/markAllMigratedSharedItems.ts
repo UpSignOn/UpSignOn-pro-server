@@ -4,7 +4,7 @@ import { checkBasicAuth } from '../../helpers/authorizationChecks';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
-export const deleteAllMigratedSharedItems = async (req: any, res: any): Promise<void> => {
+export const markAllMigratedSharedItems = async (req: any, res: any): Promise<void> => {
   try {
     const itemIds = inputSanitizer.getArrayOfNumbers(req.body?.itemIds);
     if (itemIds == null) return res.status(401).end();
@@ -19,7 +19,7 @@ export const deleteAllMigratedSharedItems = async (req: any, res: any): Promise<
       );
       if (isManagerRes?.rows[0] && isManagerRes.rows[0].is_manager) {
         // NB shared_account_users will be deleted by cascade
-        await db.query('DELETE FROM shared_accounts WHERE id=$1 AND group_id=$2', [
+        await db.query('UPDATE shared_accounts SET is_migrated=true WHERE id=$1 AND group_id=$2', [
           i,
           basicAuth.groupId,
         ]);
@@ -27,7 +27,7 @@ export const deleteAllMigratedSharedItems = async (req: any, res: any): Promise<
     }
     return res.status(200).end();
   } catch (e) {
-    logError('deleteAllMigratedSharedItems', e);
+    logError('markAllMigratedSharedItems', e);
     return res.status(400).end();
   }
 };
