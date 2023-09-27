@@ -243,6 +243,8 @@ app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-i
 app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
 
 // MIGRATION TO V6
+app.post(['/:groupId/get-data-v6', '/get-data-v6'], getVaultData);
+app.post(['/:groupId/update-data-v6', '/update-data-v6'], updateVaultData);
 app.post(['/:groupId/update-device-app-version', '/update-device-app-version'], updateDeviceAppVersion);
 app.post(['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-to-migrate'], getSharedVaultKeysToMigrate);
 app.post(['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'], migrateSharedVaultKeys);
@@ -257,7 +259,7 @@ if (module === require.main) {
       logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
       logInfo(
         `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
-      );
+        );
     });
   });
 }
