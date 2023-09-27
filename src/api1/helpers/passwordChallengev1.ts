@@ -54,11 +54,11 @@ export const checkPasswordChallengeV1 = async (
         passwordChallengeResponseBuffer,
         );
     } catch (e) {}
-      
     if (hasPassedPasswordChallenge) {
       return { hasPassedPasswordChallenge: true };
     }
-  } else if(encryptedData2){
+  }
+  if(!hasPassedPasswordChallenge && encryptedData2){
     const parts = encryptedData2.split('-');
     const hashedPwdChallengeResponse = libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, fromBase64(passwordChallengeResponse));
 
