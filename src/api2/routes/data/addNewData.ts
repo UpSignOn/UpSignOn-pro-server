@@ -78,7 +78,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
-      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
+      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at, allowed_offline',
       [newEncryptedDataWithPasswordChallengeSecured, sharingPublicKey, userEmail, groupId],
     );
     if (updateRes.rowCount === 0) {
@@ -93,7 +93,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       userEmail,
     });
 
-    return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at, deviceSession });
+    return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at, deviceSession, allowedOffline: updateRes.rows[0].allowed_offline });
   } catch (e) {
     logError('addNewData2', e);
     return res.status(400).end();
