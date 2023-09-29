@@ -56,7 +56,7 @@ function perform_backups()
         echo -e "--------------------------------------------\n"
 
         set -o pipefail
-        if ! PGPASSWORD="$DB_PASS" pg_dump -Fp -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -T "admin_sessions" -T "device_sessions" -T "temporary_admins" "$DB_NAME" | gzip > $FINAL_BACKUP_DIR"$DB_NAME".sql.gz.in_progress; then
+        if ! PGPASSWORD="$DB_PASS" pg_dump -Fp -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" --exclude-table-data "admin_sessions" --exclude-table-data "device_sessions" --exclude-table-data "temporary_admins" "$DB_NAME" | gzip > $FINAL_BACKUP_DIR"$DB_NAME".sql.gz.in_progress; then
                 echo "[!!ERROR!!] Failed to produce plain backup database $DB_NAME" 1>&2
         else
                 mv $FINAL_BACKUP_DIR"$DB_NAME".sql.gz.in_progress $FINAL_BACKUP_DIR"$DB_NAME".sql.gz
