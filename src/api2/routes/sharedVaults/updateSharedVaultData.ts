@@ -21,7 +21,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!authRes.granted) return res.status(401).end();
 
-    const contentDetails = inputSanitizer.getString(req.body?.contentDetails);
+    const contentDetails = inputSanitizer.getSharedVaultDetails(req.body?.contentDetails);
 
     const updateRes = await db.query(
       `UPDATE shared_vaults

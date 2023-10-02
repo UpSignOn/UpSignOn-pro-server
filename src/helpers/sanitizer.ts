@@ -1,10 +1,10 @@
 function getNumber(untrustedInput: any, defaultValue: number): number {
-  let trustedNumber = Number.parseInt(untrustedInput);
+  const trustedNumber = Number.parseInt(untrustedInput);
   if (Number.isNaN(trustedNumber)) return defaultValue;
   return trustedNumber;
 }
 function getNumberOrNull(untrustedInput: any): null | number {
-  let trustedNumber = Number.parseInt(untrustedInput);
+  const trustedNumber = Number.parseInt(untrustedInput);
   if (Number.isNaN(trustedNumber)) return null;
   return trustedNumber;
 }
@@ -111,19 +111,19 @@ function getStatObject(untrustedInput: any): null | {
 function getSharings(untrustedInput: unknown):
   | null
   | {
-    type: string;
-    url: null | string;
-    name: null | string;
-    login: null | string;
-    dbId: null | number;
-    idInUserEnv: null | number;
-    contacts: {
-      email: string;
-      isManager: boolean;
-      encryptedAesKey: string;
-    }[];
-    aesEncryptedData: null | string;
-  }[] {
+      type: string;
+      url: null | string;
+      name: null | string;
+      login: null | string;
+      dbId: null | number;
+      idInUserEnv: null | number;
+      contacts: {
+        email: string;
+        isManager: boolean;
+        encryptedAesKey: string;
+      }[];
+      aesEncryptedData: null | string;
+    }[] {
   if (!untrustedInput || !Array.isArray(untrustedInput)) return null;
   try {
     const trustedSharings = [];
@@ -208,9 +208,9 @@ function getSharedItem(untrustedInput: any): null | {
 function getAesKeyUpdates(untrustedInput: any):
   | null
   | {
-    id: number;
-    encryptedAesKey: string;
-  }[] {
+      id: number;
+      encryptedAesKey: string;
+    }[] {
   if (!untrustedInput || !Array.isArray(untrustedInput)) return null;
   const trustedAesKeyUpdates = [];
   for (let i = 0; i < untrustedInput.length; i++) {
@@ -227,48 +227,73 @@ function getAesKeyUpdates(untrustedInput: any):
   return trustedAesKeyUpdates;
 }
 
-function getVaultStats(untrustedInput: any):
-  | null
-  | {
-    nbAccounts: number,
-    nbCodes: number,
-    nbAccountsStrong: number,
-    nbAccountsMedium: number,
-    nbAccountsWeak: number,
-    nbAccountsWithDuplicatedPassword: number,
-    nbAccountsWithNoPassword: number,
-    nbAccountsRed: number,
-    nbAccountsOrange: number,
-    nbAccountsGreen: number
-  } {
+function getVaultStats(untrustedInput: any): null | {
+  nbAccounts: number;
+  nbCodes: number;
+  nbAccountsStrong: number;
+  nbAccountsMedium: number;
+  nbAccountsWeak: number;
+  nbAccountsWithDuplicatedPassword: number;
+  nbAccountsWithNoPassword: number;
+  nbAccountsRed: number;
+  nbAccountsOrange: number;
+  nbAccountsGreen: number;
+} {
   const res = {
     nbAccounts: inputSanitizer.getNumberOrNull(untrustedInput.nbAccounts),
     nbCodes: inputSanitizer.getNumberOrNull(untrustedInput.nbCodes),
     nbAccountsStrong: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsStrong),
     nbAccountsMedium: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsMedium),
     nbAccountsWeak: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWeak),
-    nbAccountsWithDuplicatedPassword: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWithDuplicatedPassword),
-    nbAccountsWithNoPassword: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsWithNoPassword),
+    nbAccountsWithDuplicatedPassword: inputSanitizer.getNumberOrNull(
+      untrustedInput.nbAccountsWithDuplicatedPassword,
+    ),
+    nbAccountsWithNoPassword: inputSanitizer.getNumberOrNull(
+      untrustedInput.nbAccountsWithNoPassword,
+    ),
     nbAccountsRed: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsRed),
     nbAccountsOrange: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsOrange),
-    nbAccountsGreen: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsGreen)
-  }
+    nbAccountsGreen: inputSanitizer.getNumberOrNull(untrustedInput.nbAccountsGreen),
+  };
 
-  if (res.nbAccounts == null
-    || res.nbCodes == null
-    || res.nbAccountsStrong == null
-    || res.nbAccountsMedium == null
-    || res.nbAccountsWeak == null
-    || res.nbAccountsWithDuplicatedPassword == null
-    || res.nbAccountsWithNoPassword == null
-    || res.nbAccountsRed == null
-    || res.nbAccountsOrange == null
-    || res.nbAccountsGreen == null
+  if (
+    res.nbAccounts == null ||
+    res.nbCodes == null ||
+    res.nbAccountsStrong == null ||
+    res.nbAccountsMedium == null ||
+    res.nbAccountsWeak == null ||
+    res.nbAccountsWithDuplicatedPassword == null ||
+    res.nbAccountsWithNoPassword == null ||
+    res.nbAccountsRed == null ||
+    res.nbAccountsOrange == null ||
+    res.nbAccountsGreen == null
   ) {
     return null;
   }
 
   // @ts-ignore
+  return res;
+}
+
+function getSharedVaultDetails(untrustedInput: any): null | {
+  accounts: { id: string; name: string; urls: string[]; login: null | string }[];
+  codes: { id: string; name: string }[];
+} {
+  const res = { accounts: [], codes: [] };
+  if (Array.isArray(untrustedInput.accounts)) {
+    res.accounts = untrustedInput.accounts.map((ac: any) => ({
+      id: getString(ac.id) || 1,
+      name: getString(ac.name) || '',
+      urls: Array.isArray(ac.urls) ? ac.urls?.map((u: any) => getString(u) || '') : [],
+      login: getString(ac.login),
+    }));
+  }
+  if (Array.isArray(untrustedInput.codes)) {
+    res.codes = untrustedInput.codes.map((c: any) => ({
+      id: getString(c.id) || 1,
+      name: getString(c.name) || '',
+    }));
+  }
   return res;
 }
 
@@ -286,5 +311,6 @@ export const inputSanitizer = {
   getSharings,
   getSharedItem,
   getAesKeyUpdates,
-  getVaultStats
+  getVaultStats,
+  getSharedVaultDetails,
 };
