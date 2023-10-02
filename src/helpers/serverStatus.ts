@@ -1,4 +1,6 @@
 import env from './env';
+import fs from 'fs';
+import path from 'path';
 import { db } from './db';
 import childProcess from 'child_process';
 import https from 'https';
@@ -47,6 +49,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       GROUP BY users.id`,
     );
     const stats: { def: string[]; data: number[] } = await getStats();
+    const hasDailyBackup = getHasDailyBackup();
     const serverStatus = {
       serverUrl: env.API_PUBLIC_HOSTNAME,
       gitCommit,
@@ -57,6 +60,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       securityGraph: JSON.stringify(stats),
       statsByGroup,
       detailedUserAppVersions: JSON.stringify(detailedUserAppVersions.rows),
+      hasDailyBackup,
     };
 
     sendToUpSignOn(serverStatus);
@@ -89,30 +93,27 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
     return { def: [], data: [] };
   }
 
-
-    /*
-     * First get chartDataPerVaultPerDay = {
-     *  [userId]: {
-     *    [day]: stats
-     *  }
-     * }
-     */
-    const chartDataPerVaultPerDay: any = {};
-    rawStats.rows.forEach((r: any) => {
-      if(r.user_id) {
-        if (!chartDataPerVaultPerDay['v'+r.user_id]) {
-          chartDataPerVaultPerDay['v'+r.user_id] = {};
-        }
-        chartDataPerVaultPerDay['v'+r.user_id][r.day.toISOString()] = r;
-      } else {
-        if (!chartDataPerVaultPerDay['sv'+r.shared_vault_id]) {
-          chartDataPerVaultPerDay['sv'+r.shared_vault_id] = {};
-        }
-        chartDataPerVaultPerDay['sv'+r.shared_vault_id][r.day.toISOString()] = r;
-
+  /*
+   * First get chartDataPerVaultPerDay = {
+   *  [userId]: {
+   *    [day]: stats
+   *  }
+   * }
+   */
+  const chartDataPerVaultPerDay: any = {};
+  rawStats.rows.forEach((r: any) => {
+    if (r.user_id) {
+      if (!chartDataPerVaultPerDay['v' + r.user_id]) {
+        chartDataPerVaultPerDay['v' + r.user_id] = {};
       }
-    });
-
+      chartDataPerVaultPerDay['v' + r.user_id][r.day.toISOString()] = r;
+    } else {
+      if (!chartDataPerVaultPerDay['sv' + r.shared_vault_id]) {
+        chartDataPerVaultPerDay['sv' + r.shared_vault_id] = {};
+      }
+      chartDataPerVaultPerDay['sv' + r.shared_vault_id][r.day.toISOString()] = r;
+    }
+  });
 
   // Then get the continuous list of days
   const startDay = rawStats.rows[0].day;
@@ -198,7 +199,7 @@ const sendToUpSignOn = (status: any) => {
       },
     };
 
-    req = https.request(options, () => { });
+    req = https.request(options, () => {});
   } else {
     const options = {
       hostname: 'localhost',
@@ -210,7 +211,7 @@ const sendToUpSignOn = (status: any) => {
       },
     };
 
-    req = http.request(options, () => { });
+    req = http.request(options, () => {});
   }
 
   req.on('error', (error) => {
@@ -227,4 +228,12 @@ const getStatsByGroup = async () => {
     'SELECT groups.name, groups.created_at, groups.nb_licences_sold, (SELECT COUNT(users.id) FROM users WHERE users.group_id=groups.id) AS nb_users FROM groups',
   );
   return JSON.stringify(res.rows);
+};
+
+const getHasDailyBackup = () => {
+  if (!env.DB_BACKUP_DIR) return false;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const folderName = `${yesterday.toISOString().split('T')[0]}-daily`;
+  return fs.existsSync(path.join(env.DB_BACKUP_DIR, folderName));
 };

@@ -7,6 +7,7 @@ const {
   DB_HOST,
   DB_PORT,
   POSTGRES_PASSWORD,
+  DB_BACKUP_DIR,
   NODE_ENV,
   API_PUBLIC_HOSTNAME,
   SESSION_SECRET,
@@ -36,6 +37,7 @@ export default {
   DB_USER,
   DB_NAME,
   DB_PASS: POSTGRES_PASSWORD || DB_PASS,
+  DB_BACKUP_DIR: DB_BACKUP_DIR,
   SERVER_PORT: SERVER_PORT ? Number.parseInt(SERVER_PORT) : 3000,
   API_PUBLIC_HOSTNAME: API_PUBLIC_HOSTNAME || '',
   // eslint-disable-next-line @typescript-eslint/no-var-requires
