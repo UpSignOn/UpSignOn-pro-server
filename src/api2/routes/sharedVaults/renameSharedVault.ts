@@ -17,11 +17,7 @@ export const renameSharedVault = async (req: any, res: any): Promise<void> => {
 
     const updateRes = await db.query(
       'UPDATE shared_vaults SET name=$1 WHERE id=$2 AND group_id=$3',
-      [
-        newName,
-        sharedVaultId,
-        authRes.groupId,
-      ],
+      [newName, sharedVaultId, authRes.groupId],
     );
 
     return res.status(204).end();

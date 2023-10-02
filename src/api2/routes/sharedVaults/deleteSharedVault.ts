@@ -12,13 +12,10 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!authRes.granted) return res.status(401).end();
 
-    await db.query(
-      'DELETE FROM shared_vaults WHERE id=$1 AND group_id=$2',
-      [
-        sharedVaultId,
-        authRes.groupId,
-      ],
-    );
+    await db.query('DELETE FROM shared_vaults WHERE id=$1 AND group_id=$2', [
+      sharedVaultId,
+      authRes.groupId,
+    ]);
 
     return res.status(204).end();
   } catch (e) {
