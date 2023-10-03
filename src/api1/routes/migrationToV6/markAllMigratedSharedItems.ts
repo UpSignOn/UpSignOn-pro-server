@@ -12,15 +12,16 @@ export const markAllMigratedSharedItems = async (req: any, res: any): Promise<vo
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 
-    for (var i = 0; i < itemIds.length; i++) {
+    for (let i = 0; i < itemIds.length; i++) {
+      const itemId = itemIds[i];
       const isManagerRes = await db.query(
         'SELECT is_manager FROM shared_account_users WHERE shared_account_id=$1 AND user_id=$2 AND group_id=$3',
-        [i, basicAuth.userId, basicAuth.groupId],
+        [itemId, basicAuth.userId, basicAuth.groupId],
       );
       if (isManagerRes?.rows[0] && isManagerRes.rows[0].is_manager) {
         // NB shared_account_users will be deleted by cascade
         await db.query('UPDATE shared_accounts SET is_migrated=true WHERE id=$1 AND group_id=$2', [
-          i,
+          itemId,
           basicAuth.groupId,
         ]);
       }

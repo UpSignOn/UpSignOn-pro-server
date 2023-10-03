@@ -131,16 +131,25 @@ app.all(['/:groupId/api2/bank-config', '/api2/bank-config'], getBankConfig);
 app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
 
 // AUTHORIZATION
-app.post(['/:groupId/api2/request-device-access', '/api2/request-device-access'], requestDeviceAccess2);
+app.post(
+  ['/:groupId/api2/request-device-access', '/api2/request-device-access'],
+  requestDeviceAccess2,
+);
 app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
 
 // AUTHENTICATION
-app.post(['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'], getAuthenticationChallenges2);
+app.post(
+  ['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'],
+  getAuthenticationChallenges2,
+);
 app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
 app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect2);
 
 // PASSWORD RESET
-app.post(['/:groupId/api2/request-password-reset', '/api2/request-password-reset'], requestPasswordReset2);
+app.post(
+  ['/:groupId/api2/request-password-reset', '/api2/request-password-reset'],
+  requestPasswordReset2,
+);
 app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword2);
 app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup2);
 
@@ -150,31 +159,68 @@ app.post(['/:groupId/api2/update-vault-data', '/api2/update-vault-data'], update
 app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
-app.post(['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'], getAuthorizedDevices2);
+app.post(
+  ['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'],
+  getAuthorizedDevices2,
+);
 app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice2);
 app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
 // LOGS
 app.post(['/:groupId/api2/log-event', '/api2/log-event'], logEvent);
-app.post(['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'], updateDeviceMetaData2);
-
+app.post(
+  ['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'],
+  updateDeviceMetaData2,
+);
 
 // SHARED VAULTS
 app.post(['/:groupId/api2/create-shared-vault', '/api2/create-shared-vault'], createSharedVault);
-app.post(['/:groupId/api2/get-shared-vault-data', '/api2/get-shared-vault-data'], getSharedVaultData);
-app.post(['/:groupId/api2/update-shared-vault-data', '/api2/update-shared-vault-data'], updateSharedVaultData);
+app.post(
+  ['/:groupId/api2/get-shared-vault-data', '/api2/get-shared-vault-data'],
+  getSharedVaultData,
+);
+app.post(
+  ['/:groupId/api2/update-shared-vault-data', '/api2/update-shared-vault-data'],
+  updateSharedVaultData,
+);
 app.post(['/:groupId/api2/rename-shared-vault', '/api2/rename-shared-vault'], renameSharedVault);
 app.post(['/:groupId/api2/delete-shared-vault', '/api2/delete-shared-vault'], deleteSharedVault);
 
 // SHARING RECIPIENTS
-app.post(['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'], checkUserPublicKey2);
-app.post(['/:groupId/api2/get-matching-email-addresses-for-sharing', '/api2/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing2);
-app.post(['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'], getRecipientPublicKey);
-app.post(['/:groupId/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'], addRecipientToSharedVault);
-app.post(['/:groupId/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'], getRecipientsForSharedVault);
-app.post(['/:groupId/api2/update-recipient-rights-on-shared-vault', '/api2/update-recipient-rights-on-shared-vault'], updateRecipientRightsOnSharedVault);
-app.post(['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'], removeRecipientFromSharedVault);
-
+app.post(
+  ['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'],
+  checkUserPublicKey2,
+);
+app.post(
+  [
+    '/:groupId/api2/get-matching-email-addresses-for-sharing',
+    '/api2/get-matching-email-addresses-for-sharing',
+  ],
+  getMatchingEmailAddressesForSharing2,
+);
+app.post(
+  ['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'],
+  getRecipientPublicKey,
+);
+app.post(
+  ['/:groupId/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'],
+  addRecipientToSharedVault,
+);
+app.post(
+  ['/:groupId/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'],
+  getRecipientsForSharedVault,
+);
+app.post(
+  [
+    '/:groupId/api2/update-recipient-rights-on-shared-vault',
+    '/api2/update-recipient-rights-on-shared-vault',
+  ],
+  updateRecipientRightsOnSharedVault,
+);
+app.post(
+  ['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'],
+  removeRecipientFromSharedVault,
+);
 
 ///////////////////////////////////
 // API 1
@@ -188,9 +234,18 @@ app.post(['/:groupId/request-access', '/request-access'], requestAccess);
 app.post(['/:groupId/check-device', '/check-device'], checkDevice);
 
 // AUTHENTICATION
-app.post(['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'], migrateToCryptographicAuthentication);
-app.post(['/:groupId/get-authentication-challenges', '/get-authentication-challenges'], getAuthenticationChallenges);
-app.post(['/:groupId/get-v5-or-v6-authentication-challenges', '/get-v5-or-v6-authentication-challenges'], getV5OrV6AuthenticationChallenges);
+app.post(
+  ['/:groupId/migrate-to-cryptographic-authentication', '/migrate-to-cryptographic-authentication'],
+  migrateToCryptographicAuthentication,
+);
+app.post(
+  ['/:groupId/get-authentication-challenges', '/get-authentication-challenges'],
+  getAuthenticationChallenges,
+);
+app.post(
+  ['/:groupId/get-v5-or-v6-authentication-challenges', '/get-v5-or-v6-authentication-challenges'],
+  getV5OrV6AuthenticationChallenges,
+);
 app.post(['/:groupId/authenticate', '/authenticate'], authenticate);
 app.post(['/:groupId/disconnect', '/disconnect'], disconnect);
 
@@ -217,51 +272,125 @@ app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], update
 // SHARING
 // SHARING CONTACTS
 app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
-app.post(['/:groupId/get-matching-email-addresses-for-sharing', '/get-matching-email-addresses-for-sharing'], getMatchingEmailAddressesForSharing);
-app.post(['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'], checkEmailAddressForSharing);
-app.post(['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'], getContactsPublicKeys);
-app.post(['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'], getContactsSharingItemsWithMe);
-app.post(['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'], getContactsSharingItemsWithMeV2);
-app.post(['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'], getContactsForSharedItemV2);
+app.post(
+  [
+    '/:groupId/get-matching-email-addresses-for-sharing',
+    '/get-matching-email-addresses-for-sharing',
+  ],
+  getMatchingEmailAddressesForSharing,
+);
+app.post(
+  ['/:groupId/check-email-address-for-sharing', '/check-email-address-for-sharing'],
+  checkEmailAddressForSharing,
+);
+app.post(
+  ['/:groupId/get-contacts-public-keys', '/get-contacts-public-keys'],
+  getContactsPublicKeys,
+);
+app.post(
+  ['/:groupId/get-contacts-sharing-items-with-me', '/get-contacts-sharing-items-with-me'],
+  getContactsSharingItemsWithMe,
+);
+app.post(
+  ['/:groupId/get-contacts-sharing-items-with-me-v2', '/get-contacts-sharing-items-with-me-v2'],
+  getContactsSharingItemsWithMeV2,
+);
+app.post(
+  ['/:groupId/get-contacts-for-shared-item-v2', '/get-contacts-for-shared-item-v2'],
+  getContactsForSharedItemV2,
+);
 //SHARING ITEMS
 app.post(['/:groupId/share', '/share'], share);
 app.post(['/:groupId/update-shared-item', '/update-shared-item'], updateSharedItem);
 app.post(['/:groupId/update-contact-rights', '/update-contact-rights'], updateContactItemRights);
-app.post(['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'], stopSharingWithContact);
+app.post(
+  ['/:groupId/stop-sharing-with-contact', '/stop-sharing-with-contact'],
+  stopSharingWithContact,
+);
 app.post(['/:groupId/delete-sharing', '/delete-sharing'], deleteSharing);
 app.post(['/:groupId/delete-singled-sharings', '/delete-singled-sharings'], deleteSingledSharings);
 app.post(['/:groupId/stop-receiving-sharing', '/stop-receiving-sharing'], stopReceivingSharing);
 // SHARING FOLDERS
 app.post(['/:groupId/create-shared-folder', '/create-shared-folder'], createSharedFolder);
-app.post(['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'], addSharedItemsToSharedFolder);
-app.post(['/:groupId/change-shared-folder-name', '/change-shared-folder-name'], changeSharedFolderName);
-app.post(['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'], getContactsForSharedFolder);
-app.post(['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'], updateContactSharedFolderRights);
-app.post(['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'], stopSharingFolderWithContact);
-app.post(['/:groupId/make-myself-sole-manager-of-shared-folder', '/make-myself-sole-manager-of-shared-folder'], makeMyselfSoleManagerOfSharedFolder);
-app.post(['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-id-for-item'], updateSharedFolderIdForSharedItem);
-app.post(['/:groupId/unshare-items-that-were-moved-from-shared-folder', '/unshare-items-that-were-moved-from-shared-folder'], unshareItemsThatWereMovedFromSharedFolder);
+app.post(
+  ['/:groupId/add-shared-items-to-shared-folder', '/add-shared-items-to-shared-folder'],
+  addSharedItemsToSharedFolder,
+);
+app.post(
+  ['/:groupId/change-shared-folder-name', '/change-shared-folder-name'],
+  changeSharedFolderName,
+);
+app.post(
+  ['/:groupId/get-contacts-for-shared-folder', '/get-contacts-for-shared-folder'],
+  getContactsForSharedFolder,
+);
+app.post(
+  ['/:groupId/update-contact-shared-folder-rights', '/update-contact-shared-folder-rights'],
+  updateContactSharedFolderRights,
+);
+app.post(
+  ['/:groupId/stop-sharing-folder-with-contact', '/stop-sharing-folder-with-contact'],
+  stopSharingFolderWithContact,
+);
+app.post(
+  [
+    '/:groupId/make-myself-sole-manager-of-shared-folder',
+    '/make-myself-sole-manager-of-shared-folder',
+  ],
+  makeMyselfSoleManagerOfSharedFolder,
+);
+app.post(
+  ['/:groupId/update-shared-folder-id-for-item', '/update-shared-folder-id-for-item'],
+  updateSharedFolderIdForSharedItem,
+);
+app.post(
+  [
+    '/:groupId/unshare-items-that-were-moved-from-shared-folder',
+    '/unshare-items-that-were-moved-from-shared-folder',
+  ],
+  unshareItemsThatWereMovedFromSharedFolder,
+);
 
 // MIGRATION TO V6
 app.post(['/:groupId/get-data-v6', '/get-data-v6'], getVaultData);
 app.post(['/:groupId/update-data-v6', '/update-data-v6'], updateVaultData);
-app.post(['/:groupId/update-device-app-version', '/update-device-app-version'], updateDeviceAppVersion);
-app.post(['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-to-migrate'], getSharedVaultKeysToMigrate);
-app.post(['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'], migrateSharedVaultKeys);
-app.post(['/:groupId/migrate-device-authentication-key', '/migrate-device-authentication-key'], migrateDeviceAuthenticationKey);
-app.post(['/:groupId/migrate-sharing-public-key', '/migrate-sharing-public-key'], migrateSharingPublicKey);
-app.post(['/:groupId/mark-all-migrated-shared-items', '/mark-all-migrated-shared-items'], markAllMigratedSharedItems);
-
+app.post(
+  ['/:groupId/update-device-app-version', '/update-device-app-version'],
+  updateDeviceAppVersion,
+);
+app.post(
+  ['/:groupId/get-shared-vault-keys-to-migrate', '/get-shared-vault-keys-to-migrate'],
+  getSharedVaultKeysToMigrate,
+);
+app.post(
+  ['/:groupId/migrate-shared-vault-keys', '/migrate-shared-vault-keys'],
+  migrateSharedVaultKeys,
+);
+app.post(
+  ['/:groupId/migrate-device-authentication-key', '/migrate-device-authentication-key'],
+  migrateDeviceAuthenticationKey,
+);
+app.post(
+  ['/:groupId/migrate-sharing-public-key', '/migrate-sharing-public-key'],
+  migrateSharingPublicKey,
+);
+app.post(
+  ['/:groupId/mark-all-migrated-shared-items', '/mark-all-migrated-shared-items'],
+  markAllMigratedSharedItems,
+);
 
 if (module === require.main) {
-  runMigrations().then(migrateEmailConfig).then(()=>libsodium.ready).then(() => {
-    startServer(app, () => {
-      logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
-      logInfo(
-        `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
+  runMigrations()
+    .then(migrateEmailConfig)
+    .then(() => libsodium.ready)
+    .then(() => {
+      startServer(app, () => {
+        logInfo(`You can try to open in your browser\n  - https://${env.API_PUBLIC_HOSTNAME}\n`);
+        logInfo(
+          `Your setup link is https://upsignon.eu/pro-setup?url=https://${env.API_PUBLIC_HOSTNAME}`,
         );
+      });
     });
-  });
 }
 
 module.exports = app;
