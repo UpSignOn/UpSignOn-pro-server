@@ -279,6 +279,7 @@ function getSharedVaultDetails(untrustedInput: any): null | {
   accounts: { id: string; name: string; urls: string[]; login: null | string }[];
   codes: { id: string; name: string }[];
 } {
+  if (!untrustedInput) return null;
   const res = { accounts: [], codes: [] };
   if (Array.isArray(untrustedInput.accounts)) {
     res.accounts = untrustedInput.accounts.map((ac: any) => ({
