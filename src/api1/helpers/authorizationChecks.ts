@@ -5,6 +5,8 @@ import { accessCodeHash } from './accessCodeHash';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
+export const PREVENT_V1_API_WHEN_V2_DATA = false;
+
 export const checkBasicAuth = async (
   req: any,
   options?: {
@@ -16,15 +18,15 @@ export const checkBasicAuth = async (
   },
 ): Promise<
   | {
-    userEmail: string;
-    deviceUId: string;
-    userId: number;
-    sharingPublicKey: null | string;
-    encryptedData: null | string;
-    deviceId: null | number;
-    granted: true;
-    groupId: number;
-  }
+      userEmail: string;
+      deviceUId: string;
+      userId: number;
+      sharingPublicKey: null | string;
+      encryptedData: null | string;
+      deviceId: null | number;
+      granted: true;
+      groupId: number;
+    }
   | { granted: false }
 > => {
   const groupId = inputSanitizer.getNumber(req.params.groupId, 1);

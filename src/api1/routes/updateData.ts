@@ -1,7 +1,7 @@
 import { db } from '../../helpers/db';
 import { getSharedItems } from './getData';
 import { logError } from '../../helpers/logger';
-import { checkBasicAuth } from '../helpers/authorizationChecks';
+import { PREVENT_V1_API_WHEN_V2_DATA, checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwordChallengev1';
 
@@ -28,13 +28,16 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       logError('updateData - Attempted to init user data where data already exists.');
       return res.status(400).end();
     }
-    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [basicAuth.userId]);
-    if(hasDataV2Res.rows[0].data2_length > 0) {
-      return res.status(403).json({error: 'deprecated_app'});
+    const hasDataV2Res = await db.query(
+      'SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1',
+      [basicAuth.userId],
+    );
+    if (PREVENT_V1_API_WHEN_V2_DATA && hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({ error: 'deprecated_app' });
     }
     let updateRes;
     const newEncryptedDataWithPasswordChallengeSecured =
-    hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);
+      hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);
     if (isNewData) {
       updateRes = await db.query(
         'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',

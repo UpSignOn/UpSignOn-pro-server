@@ -4,6 +4,7 @@ import { logError } from '../../helpers/logger';
 import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwordChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { PREVENT_V1_API_WHEN_V2_DATA } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData = async (req: any, res: any): Promise<void> => {
@@ -56,9 +57,12 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
       return res.status(401).end();
     }
 
-    const hasDataV2Res = await db.query("SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1", [selectRes.rows[0].uid]);
-    if(hasDataV2Res.rows[0].data2_length > 0) {
-      return res.status(403).json({error: 'deprecated_app'});
+    const hasDataV2Res = await db.query(
+      'SELECT length(encrypted_data_2) AS data2_length FROM users WHERE id=$1',
+      [selectRes.rows[0].uid],
+    );
+    if (PREVENT_V1_API_WHEN_V2_DATA && hasDataV2Res.rows[0].data2_length > 0) {
+      return res.status(403).json({ error: 'deprecated_app' });
     }
 
     // 2 - check that the session auth challenge has not expired
@@ -82,7 +86,7 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     }
 
     const newEncryptedDataWithPasswordChallengeSecured =
-    hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);
+      hashPasswordChallengeResultForSecureStorageV1(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
       'UPDATE users SET (encrypted_data, updated_at, sharing_public_key)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
