@@ -35,7 +35,7 @@ export const revokeDevice = async (req: any, res: any) => {
         'SELECT ' +
           'ud.id AS id, ' +
           'users.id AS uid, ' +
-          'ud.device_public_key AS device_public_key, ' +
+          'ud.device_public_key_2 AS device_public_key_2, ' +
           'ud.session_auth_challenge AS session_auth_challenge, ' +
           'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
           'FROM user_devices AS ud ' +
@@ -71,7 +71,7 @@ export const revokeDevice = async (req: any, res: any) => {
           dbRes.rows[0].id,
           dbRes.rows[0].session_auth_challenge_exp_time,
           dbRes.rows[0].session_auth_challenge,
-          dbRes.rows[0].device_public_key,
+          dbRes.rows[0].device_public_key_2,
         );
         if (!isDeviceAuthorized) return res.status(401).end();
       }
@@ -85,7 +85,7 @@ export const revokeDevice = async (req: any, res: any) => {
     }
 
     await db.query(
-      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key=null, encrypted_password_backup='', encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup='', encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
       [new Date().toISOString(), deviceToDelete, userId, groupId],
     );
     // Return res

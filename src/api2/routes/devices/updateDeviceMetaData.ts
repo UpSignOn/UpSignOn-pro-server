@@ -1,5 +1,8 @@
 import { db } from '../../../helpers/db';
-import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
+import {
+  checkDeviceRequestAuthorizationV2,
+  createDeviceChallengeV2,
+} from '../../helpers/deviceChallengev2';
 import { logError } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 
@@ -15,7 +18,6 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     const osVersion = inputSanitizer.getString(req.body?.osVersion);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
-
     if (!userEmail) return res.status(403).end();
     if (!deviceUId) return res.status(403).end();
     if (!deviceName) return res.status(403).end();
@@ -25,17 +27,17 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     // Request DB
     const dbRes = await db.query(
       'SELECT ' +
-      'ud.id AS id, ' +
-      'ud.device_public_key AS device_public_key, ' +
-      'ud.session_auth_challenge AS session_auth_challenge, ' +
-      'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
-      'FROM user_devices AS ud ' +
-      'INNER JOIN users ON ud.user_id = users.id ' +
-      'WHERE ' +
-      'users.email=$1 ' +
-      'AND ud.device_unique_id = $2 ' +
-      "AND ud.authorization_status = 'AUTHORIZED' " +
-      'AND users.group_id=$3',
+        'ud.id AS id, ' +
+        'ud.device_public_key_2 AS device_public_key_2, ' +
+        'ud.session_auth_challenge AS session_auth_challenge, ' +
+        'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
+        'FROM user_devices AS ud ' +
+        'INNER JOIN users ON ud.user_id = users.id ' +
+        'WHERE ' +
+        'users.email=$1 ' +
+        'AND ud.device_unique_id = $2 ' +
+        "AND ud.authorization_status = 'AUTHORIZED' " +
+        'AND users.group_id=$3',
       [userEmail, deviceUId, groupId],
     );
 
@@ -53,7 +55,7 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
       dbRes.rows[0].id,
       dbRes.rows[0].session_auth_challenge_exp_time,
       dbRes.rows[0].session_auth_challenge,
-      dbRes.rows[0].device_public_key,
+      dbRes.rows[0].device_public_key_2,
     );
     if (!isDeviceAuthorized) return res.status(401).end();
 

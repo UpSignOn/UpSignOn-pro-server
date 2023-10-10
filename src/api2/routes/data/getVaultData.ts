@@ -40,7 +40,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         user_devices.authorization_status AS authorization_status,
         users.encrypted_data_2 AS encrypted_data_2,
         users.updated_at AS updated_at,
-        char_length(user_devices.device_public_key) > 0 AS has_device_public_key,
+        char_length(user_devices.device_public_key_2) > 0 AS has_device_public_key_2,
         users.allowed_to_export AS allowed_to_export,
         users.allowed_offline AS allowed_offline,
         user_devices.encrypted_password_backup_2

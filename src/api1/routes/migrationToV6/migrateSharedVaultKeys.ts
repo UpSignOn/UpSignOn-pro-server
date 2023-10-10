@@ -10,7 +10,7 @@ export const migrateSharedVaultKeys = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const newSharedVaultKeys = inputSanitizer.getAesKeyUpdates(req.body?.newSharedVaultKeys);
-    if(!newSharedVaultKeys) {
+    if (!newSharedVaultKeys) {
       return res.status(403).end();
     }
     if (newSharedVaultKeys && Array.isArray(newSharedVaultKeys)) {

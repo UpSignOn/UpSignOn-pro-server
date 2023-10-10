@@ -10,7 +10,7 @@ export const getSharedVaultKeysToMigrate = async (req: any, res: any) => {
 
     const mySharedVaults = await db.query(
       'SELECT shared_vault_id, encrypted_shared_vault_key FROM shared_vault_recipients WHERE user_id=$1 AND group_id=$2',
-      [basicAuth.userId, basicAuth.groupId]
+      [basicAuth.userId, basicAuth.groupId],
     );
     // Return res
     return res.status(200).json({

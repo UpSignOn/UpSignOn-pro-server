@@ -30,7 +30,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       `SELECT
         user_devices.id AS id,
         users.id AS userid,
-        user_devices.device_public_key AS device_public_key,
+        user_devices.device_public_key_2 AS device_public_key_2,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices
@@ -55,7 +55,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       deviceRes.rows[0].id,
       deviceRes.rows[0].session_auth_challenge_exp_time,
       deviceRes.rows[0].session_auth_challenge,
-      deviceRes.rows[0].device_public_key,
+      deviceRes.rows[0].device_public_key_2,
     );
     if (!isDeviceAuthorized) return res.status(401).end();
 

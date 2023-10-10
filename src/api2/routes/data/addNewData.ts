@@ -30,7 +30,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         char_length(u.encrypted_data_2) > 0 AS has_existing_data,
         u.id AS uid,
         ud.id AS did,
-        ud.device_public_key AS device_public_key,
+        ud.device_public_key_2 AS device_public_key_2,
         ud.session_auth_challenge AS session_auth_challenge,
         ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
       FROM user_devices AS ud
@@ -48,7 +48,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !selectRes ||
       selectRes.rowCount === 0 ||
       selectRes.rows[0].has_existing_data ||
-      !selectRes.rows[0].device_public_key ||
+      !selectRes.rows[0].device_public_key_2 ||
       !selectRes.rows[0].session_auth_challenge
     ) {
       return res.status(403).json({ error: 'conflict' });
@@ -67,7 +67,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     const hasPassedDeviceChallenge = await checkDeviceChallengeV2(
       selectRes.rows[0].session_auth_challenge,
       deviceChallengeResponse,
-      selectRes.rows[0].device_public_key,
+      selectRes.rows[0].device_public_key_2,
     );
 
     if (!hasPassedDeviceChallenge) {
