@@ -43,7 +43,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         char_length(user_devices.device_public_key) > 0 AS has_device_public_key,
         users.allowed_to_export AS allowed_to_export,
         users.allowed_offline AS allowed_offline,
-        user_devices.encrypted_password_backup
+        user_devices.encrypted_password_backup_2
       FROM user_devices
       INNER JOIN users ON user_devices.user_id = users.id
       WHERE
@@ -84,7 +84,9 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       allowedToExport: dbRes.rows[0].allowed_to_export,
       allowedOffline: dbRes.rows[0].allowed_offline,
       sharedVaults,
-      needsPasswordBackup: !dbRes.rows[0].encrypted_password_backup || dbRes.rows[0].encrypted_password_backup.length == 512
+      needsPasswordBackup:
+        !dbRes.rows[0].encrypted_password_backup_2 ||
+        dbRes.rows[0].encrypted_password_backup_2.length == 512,
     });
 
     // Clean changed_emails table if necessary

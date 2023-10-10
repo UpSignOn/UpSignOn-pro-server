@@ -1,6 +1,9 @@
 import { db } from '../../../helpers/db';
 import { logError } from '../../../helpers/logger';
-import { checkDeviceRequestAuthorizationV2, createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
+import {
+  checkDeviceRequestAuthorizationV2,
+  createDeviceChallengeV2,
+} from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
@@ -30,18 +33,18 @@ export const revokeDevice = async (req: any, res: any) => {
       // Request DB
       const dbRes = await db.query(
         'SELECT ' +
-        'ud.id AS id, ' +
-        'users.id AS uid, ' +
-        'ud.device_public_key AS device_public_key, ' +
-        'ud.session_auth_challenge AS session_auth_challenge, ' +
-        'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
-        'FROM user_devices AS ud ' +
-        'INNER JOIN users ON ud.user_id = users.id ' +
-        'WHERE ' +
-        'users.email=$1 ' +
-        'AND ud.device_unique_id = $2 ' +
-        "AND ud.authorization_status = 'AUTHORIZED' " +
-        'AND users.group_id=$3',
+          'ud.id AS id, ' +
+          'users.id AS uid, ' +
+          'ud.device_public_key AS device_public_key, ' +
+          'ud.session_auth_challenge AS session_auth_challenge, ' +
+          'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
+          'FROM user_devices AS ud ' +
+          'INNER JOIN users ON ud.user_id = users.id ' +
+          'WHERE ' +
+          'users.email=$1 ' +
+          'AND ud.device_unique_id = $2 ' +
+          "AND ud.authorization_status = 'AUTHORIZED' " +
+          'AND users.group_id=$3',
         [userEmail, deviceId, groupId],
       );
 
@@ -82,7 +85,7 @@ export const revokeDevice = async (req: any, res: any) => {
     }
 
     await db.query(
-      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key=null, encrypted_password_backup='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key=null, encrypted_password_backup='', encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
       [new Date().toISOString(), deviceToDelete, userId, groupId],
     );
     // Return res

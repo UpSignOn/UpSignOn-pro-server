@@ -3,7 +3,6 @@ import { logError } from '../../../helpers/logger';
 import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
-import { createPasswordChallengeV1 } from '../../../api1/helpers/passwordChallengev1';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
@@ -24,7 +23,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         ud.id AS did,
         ud.authorization_status AS authorization_status,
         g.settings AS group_settings,
-        ud.encrypted_password_backup AS encrypted_password_backup
+        ud.encrypted_password_backup_2 AS encrypted_password_backup_2
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
       INNER JOIN groups AS g ON g.id = u.group_id
@@ -81,7 +80,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         derivationAlgorithm: passwordChallenge.derivationAlgorithm,
         cpuCost: passwordChallenge.cpuCost,
         memoryCost: passwordChallenge.memoryCost,
-        hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
+        hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup_2,
       });
     } else if (dbRes.rows[0].encrypted_data) {
       return res.status(403).json({ error: 'needs_migration' });

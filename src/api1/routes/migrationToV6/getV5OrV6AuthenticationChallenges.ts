@@ -78,28 +78,27 @@ export const getV5OrV6AuthenticationChallenges = async (req: any, res: any) => {
       return res.status(404).json({ error: 'empty_data', deviceChallenge });
     }
 
-    if(dbRes.rows[0].encrypted_data_2) {
-        const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
-        return res.status(200).json({
-            passwordChallenge: passwordChallenge.pwdChallengeBase64,
-            passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
-            deviceChallenge,
-            dataFormat: passwordChallenge.dataFormat,
-            derivationAlgorithm: passwordChallenge.derivationAlgorithm,
-            cpuCost: passwordChallenge.cpuCost,
-            memoryCost: passwordChallenge.memoryCost,
-            hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
-          });
+    if (dbRes.rows[0].encrypted_data_2) {
+      const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
+      return res.status(200).json({
+        passwordChallenge: passwordChallenge.pwdChallengeBase64,
+        passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+        deviceChallenge,
+        dataFormat: passwordChallenge.dataFormat,
+        derivationAlgorithm: passwordChallenge.derivationAlgorithm,
+        cpuCost: passwordChallenge.cpuCost,
+        memoryCost: passwordChallenge.memoryCost,
+        hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
+      });
     } else {
-        const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
-        return res.status(200).json({
-            passwordChallenge: passwordChallenge.pwdChallengeBase64,
-            passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
-            deviceChallenge,
-            hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
-          });
+      const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
+      return res.status(200).json({
+        passwordChallenge: passwordChallenge.pwdChallengeBase64,
+        passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+        deviceChallenge,
+        hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
+      });
     }
-
   } catch (e) {
     logError('getAuthenticationChallenges', e);
     return res.status(400).end();

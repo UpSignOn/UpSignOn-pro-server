@@ -62,7 +62,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     const existingRequestRes = await db.query(
       `
     SELECT
-      user_devices.encrypted_password_backup AS encrypted_password_backup,
+      user_devices.encrypted_password_backup_2 AS encrypted_password_backup_2,
       password_reset_request.id AS reset_request_id,
       password_reset_request.status AS reset_status,
       password_reset_request.reset_token AS reset_token,
@@ -98,8 +98,8 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       return res.status(401).json({ error: 'expired' });
     }
 
-    if(!resetRequest.encrypted_password_backup) {
-      return res.status(403).json({error: "backup_not_setup"});
+    if (!resetRequest.encrypted_password_backup_2) {
+      return res.status(403).json({ error: 'backup_not_setup' });
     }
 
     await db.query(
@@ -114,7 +114,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     // Return res
     return res
       .status(200)
-      .json({ encryptedPasswordBackup: resetRequest.encrypted_password_backup });
+      .json({ encryptedPasswordBackup: resetRequest.encrypted_password_backup_2 });
   } catch (e) {
     logError('getPasswordBackup', e);
     res.status(400).end();
