@@ -2,7 +2,7 @@
 
 exports.up = async function (db) {
   await db.query('ALTER TABLE user_devices ADD COLUMN encrypted_password_backup_2 TEXT');
-  await db.query('UDPATE user_devices SET encrypted_password_backup_2=encrypted_password_backup');
+  await db.query('UPDATE user_devices SET encrypted_password_backup_2=encrypted_password_backup');
 };
 
 exports.down = function (db) {
