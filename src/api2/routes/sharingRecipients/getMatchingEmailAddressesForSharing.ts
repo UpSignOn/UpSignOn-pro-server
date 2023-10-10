@@ -25,11 +25,13 @@ export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) =
     }
 
     const searchRes = await db.query(
-      'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key IS NOT NULL AND group_id=$2',
+      'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key_2 IS NOT NULL AND group_id=$2',
       [emailAddressSearch + '%', parseInt(req.params.groupId || 1)],
     );
     // Return res
-    return res.status(200).json({ emails: searchRes.rows.map((d) => d.email), searchSession: session });
+    return res
+      .status(200)
+      .json({ emails: searchRes.rows.map((d) => d.email), searchSession: session });
   } catch (e) {
     logError('getMatchingEmailAddressesForSharing2', e);
     return res.status(400).end();

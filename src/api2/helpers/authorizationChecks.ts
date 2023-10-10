@@ -15,15 +15,15 @@ export const checkBasicAuth2 = async (
   },
 ): Promise<
   | {
-    userEmail: string;
-    deviceUId: string;
-    userId: number;
-    sharingPublicKey: null | string;
-    encryptedData: null | string;
-    deviceId: null | number;
-    granted: true;
-    groupId: number;
-  }
+      userEmail: string;
+      deviceUId: string;
+      userId: number;
+      sharingPublicKey: null | string;
+      encryptedData: null | string;
+      deviceId: null | number;
+      granted: true;
+      groupId: number;
+    }
   | { granted: false }
 > => {
   const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
@@ -46,7 +46,7 @@ export const checkBasicAuth2 = async (
   }
 
   const publicKeySelect = options?.returningUserPublicKey
-    ? 'u.sharing_public_key AS sharing_public_key,'
+    ? 'u.sharing_public_key_2 AS sharing_public_key_2,'
     : '';
   const dataSelect = options?.returningData ? 'u.encrypted_data_2 AS encrypted_data_2,' : '';
   const deviceIdSelect = options?.returningDeviceId ? 'ud.id AS device_id,' : '';
@@ -55,12 +55,14 @@ export const checkBasicAuth2 = async (
     options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
       ? 'INNER JOIN shared_vault_recipients AS svr ON u.id = svr.user_id'
       : '';
-  const accountManagerOrRecipientWhere = options?.checkIsRecipientForVaultId || options?.checkIsManagerForVaultId
-    ? 'AND svr.shared_vault_id=$4'
-    : '';
-  const accountManagerOrRecipientParam = options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
-    ? [options.checkIsManagerForVaultId || options.checkIsRecipientForVaultId]
-    : [];
+  const accountManagerOrRecipientWhere =
+    options?.checkIsRecipientForVaultId || options?.checkIsManagerForVaultId
+      ? 'AND svr.shared_vault_id=$4'
+      : '';
+  const accountManagerOrRecipientParam =
+    options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
+      ? [options.checkIsManagerForVaultId || options.checkIsRecipientForVaultId]
+      : [];
   const accountRecipientWhere = options?.checkIsRecipientForVaultId
     ? 'AND svr.is_manager=true'
     : '';
@@ -93,7 +95,7 @@ export const checkBasicAuth2 = async (
     userEmail,
     deviceUId,
     userId: dbRes.rows[0].user_id,
-    sharingPublicKey: dbRes.rows[0].sharing_public_key,
+    sharingPublicKey: dbRes.rows[0].sharing_public_key_2,
     encryptedData: dbRes.rows[0].encrypted_data_2,
     deviceId: dbRes.rows[0].device_id,
     granted: true,

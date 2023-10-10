@@ -93,6 +93,7 @@ import { migrateSharedVaultKeys } from './api1/routes/migrationToV6/migrateShare
 import { updateDeviceAppVersion } from './api1/routes/updateDeviceAppVersion';
 import { markAllMigratedSharedItems } from './api1/routes/migrationToV6/markAllMigratedSharedItems';
 import { getV5OrV6AuthenticationChallenges } from './api1/routes/migrationToV6/getV5OrV6AuthenticationChallenges';
+import { updateSharingPubKey } from './api1/routes/updateSharingPubKey';
 
 const app = express();
 
@@ -271,6 +272,7 @@ app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], update
 
 // SHARING
 // SHARING CONTACTS
+app.post(['/:groupId/update-sharing-pub-key', '/update-sharing-pub-key'], updateSharingPubKey);
 app.post(['/:groupId/check-user-public-key', '/check-user-public-key'], checkUserPublicKey);
 app.post(
   [

@@ -13,7 +13,7 @@ export const getRecipientPublicKey = async (req: any, res: any) => {
     if (!basicAuth.granted) return res.status(401).end();
 
     const checkRes = await db.query(
-      'SELECT id, sharing_public_key FROM users WHERE email=$1 AND sharing_public_key IS NOT NULL AND group_id=$2',
+      'SELECT id, sharing_public_key_2 FROM users WHERE email=$1 AND sharing_public_key_2 IS NOT NULL AND group_id=$2',
       [emailAddress, basicAuth.groupId],
     );
     if (checkRes.rowCount == 0) {
@@ -22,7 +22,7 @@ export const getRecipientPublicKey = async (req: any, res: any) => {
     // Return res
     return res
       .status(200)
-      .json({ id: checkRes.rows[0]?.id, publicKey: checkRes.rows[0]?.sharing_public_key });
+      .json({ id: checkRes.rows[0]?.id, publicKey: checkRes.rows[0]?.sharing_public_key_2 });
   } catch (e) {
     logError('getRecipientPublicKey', e);
     return res.status(400).end();
