@@ -94,6 +94,7 @@ import { updateDeviceAppVersion } from './api1/routes/updateDeviceAppVersion';
 import { markAllMigratedSharedItems } from './api1/routes/migrationToV6/markAllMigratedSharedItems';
 import { getV5OrV6AuthenticationChallenges } from './api1/routes/migrationToV6/getV5OrV6AuthenticationChallenges';
 import { updateSharingPubKey } from './api1/routes/updateSharingPubKey';
+import { getV5Data } from './api1/routes/migrationToV6/getV5Data';
 
 const app = express();
 
@@ -156,6 +157,7 @@ app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], ge
 
 // DATA
 app.post(['/:groupId/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
+app.post(['/:groupId/api2/get-v5-vault-data', '/api2/get-v5-vault-data'], getV5Data);
 app.post(['/:groupId/api2/update-vault-data', '/api2/update-vault-data'], updateVaultData);
 app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 

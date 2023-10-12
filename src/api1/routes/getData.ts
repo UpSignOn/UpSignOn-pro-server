@@ -122,7 +122,7 @@ export const getSharedItems = async (
     encryptedAesKey: string;
     sharedFolderId: null | number;
     sharedFolderName: null | string;
-    isMigrated: boolean
+    isMigrated: boolean;
   }[]
 > => {
   const sharingRes = await db.query(
