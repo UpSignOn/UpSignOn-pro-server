@@ -31,7 +31,6 @@ export const getV5Data = async (req: any, res: any): Promise<void> => {
       ON sau.shared_account_id=sa.id
       LEFT JOIN shared_folders AS sf ON sf.id=sa.shared_folder_id
       WHERE sau.user_id=$1
-      AND sa.is_migrated = false
       AND sa.group_id=$2`,
       [basicAuth.userId, basicAuth.groupId],
     );
