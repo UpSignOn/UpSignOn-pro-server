@@ -30,6 +30,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const detailedUserAppVersions = await db.query(
       `SELECT
         users.id AS user_id,
+        users.email AS user_email,
         starts_with(users.encrypted_data, 'formatP001-') AS formatP001,
         starts_with(users.encrypted_data_2, 'formatP002-') AS formatP002,
         starts_with(users.encrypted_data_2, 'formatP003-') AS formatP003,
