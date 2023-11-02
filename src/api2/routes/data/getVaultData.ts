@@ -1,4 +1,5 @@
 import { db } from '../../../helpers/db';
+import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
 import { logError } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
@@ -42,10 +43,14 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         users.updated_at AS updated_at,
         char_length(user_devices.device_public_key_2) > 0 AS has_device_public_key_2,
         users.allowed_to_export AS allowed_to_export,
-        users.allowed_offline AS allowed_offline,
+        groups.settings AS group_settings,
+        users.allowed_offline_mobile AS allowed_offline_mobile,
+        users.allowed_offline_desktop AS allowed_offline_desktop,
+        user_devices.device_type AS device_type,
         user_devices.encrypted_password_backup_2
       FROM user_devices
       INNER JOIN users ON user_devices.user_id = users.id
+      INNER JOIN groups ON groups.id = users.group_id
       WHERE
         users.email=$1 AND
         user_devices.device_unique_id = $2 AND
@@ -77,12 +82,18 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
 
     const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupId);
 
+    const userResultingSetting = getDefaultSettingOrUserOverride(
+      dbRes.rows[0].group_settings,
+      dbRes.rows[0],
+      dbRes.rows[0].device_type,
+    );
+
     // Return res
     res.status(200).json({
       encryptedData: dbRes.rows[0].encrypted_data_2,
       lastUpdatedAt: dbRes.rows[0].updated_at,
-      allowedToExport: dbRes.rows[0].allowed_to_export,
-      allowedOffline: dbRes.rows[0].allowed_offline,
+      allowedToExport: userResultingSetting.allowed_to_export,
+      allowedOffline: userResultingSetting.allowed_offline,
       sharedVaults,
       needsPasswordBackup:
         !dbRes.rows[0].encrypted_password_backup_2 ||

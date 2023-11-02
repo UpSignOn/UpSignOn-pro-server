@@ -4,6 +4,7 @@ import { logError } from '../../../helpers/logger';
 import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
+import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData2 = async (req: any, res: any): Promise<void> => {
@@ -78,13 +79,24 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
-      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key_2)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at, allowed_offline',
+      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key_2)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
       [newEncryptedDataWithPasswordChallengeSecured, sharingPublicKey, userEmail, groupId],
     );
     if (updateRes.rowCount === 0) {
       // CONFLICT
       return res.status(403).end();
     }
+
+    const settingsRes = await db.query(
+      'SELECT device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
+      [deviceUId, groupId],
+    );
+
+    const resultSettings = getDefaultSettingOrUserOverride(
+      settingsRes.rows[0].settings,
+      null,
+      settingsRes.rows[0].device_type,
+    );
 
     // Set Session
     const deviceSession = await SessionStore.createSession({
@@ -96,7 +108,8 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     return res.status(200).json({
       lastUpdatedAt: updateRes.rows[0].updated_at,
       deviceSession,
-      allowedOffline: updateRes.rows[0].allowed_offline,
+      allowedOffline: resultSettings.allowed_offline,
+      allowedToExport: resultSettings.allowed_to_export,
     });
   } catch (e) {
     logError('addNewData2', e);
