@@ -5,7 +5,7 @@ import { accessCodeHash } from './accessCodeHash';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
-export const PREVENT_V1_API_WHEN_V2_DATA = false;
+export const PREVENT_V1_API_WHEN_V2_DATA = true;
 
 export const checkBasicAuth = async (
   req: any,
