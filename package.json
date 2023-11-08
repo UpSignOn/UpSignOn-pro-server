@@ -1,6 +1,6 @@
 {
   "name": "upsignon-pro-server",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
   "licence": "none",
   "scripts": {
