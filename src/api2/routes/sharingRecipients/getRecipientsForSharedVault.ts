@@ -20,17 +20,15 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
       [sharedVaultId, basicAuth.groupId],
     );
     // Return res
-    return res
-      .status(200)
-      .json({
-        recipients: dbRes.rows.map(r => ({
-          id: r.user_id,
-          email: r.email,
-          isManager: r.is_manager
-        }))
-      });
+    return res.status(200).json({
+      recipients: dbRes.rows.map((r) => ({
+        id: r.user_id,
+        email: r.email,
+        isManager: r.is_manager,
+      })),
+    });
   } catch (e) {
-    logError('getRecipientsForSharedVault', e);
+    logError(req.body?.userEmail, 'getRecipientsForSharedVault', e);
     return res.status(400).end();
   }
 };

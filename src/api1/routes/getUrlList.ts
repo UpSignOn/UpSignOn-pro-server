@@ -16,7 +16,7 @@ export const getUrlList = async (req: any, res: any): Promise<void> => {
     // Return res
     return res.status(200).json({ urlList: urlListRes.rows });
   } catch (e) {
-    logError('getUrlList', e);
+    logError(req.body?.userEmail, 'getUrlList', e);
     return res.status(400).end();
   }
 };

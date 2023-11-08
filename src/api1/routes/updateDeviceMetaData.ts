@@ -28,7 +28,7 @@ export const updateDeviceMetaData = async (req: any, res: any): Promise<void> =>
 
     return res.status(200).end();
   } catch (e) {
-    logError('updateDeviceMetaData', e);
+    logError(req.body?.userEmail, 'updateDeviceMetaData', e);
     return res.status(400).end();
   }
 };

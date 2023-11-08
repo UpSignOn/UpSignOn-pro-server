@@ -37,7 +37,7 @@ export const getContactsForSharedFolder = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contacts: contactRes.rows });
   } catch (e) {
-    logError('getContactsForSharedFolder', e);
+    logError(req.body?.userEmail, 'getContactsForSharedFolder', e);
     return res.status(400).end();
   }
 };

@@ -19,7 +19,7 @@ export const getContactsPublicKeys = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contactsPublicKeys: contactRes.rows });
   } catch (e) {
-    logError('getContactPublicKeys', e);
+    logError(req.body?.userEmail, 'getContactPublicKeys', e);
     return res.status(400).end();
   }
 };

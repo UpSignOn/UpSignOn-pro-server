@@ -88,7 +88,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
   } catch (e) {
-    logError('getAuthenticationChallenges2', e);
+    logError(req.body?.userEmail, 'getAuthenticationChallenges2', e);
     return res.status(400).end();
   }
 };

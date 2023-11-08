@@ -21,7 +21,7 @@ export const logUsage = async (req: any, res: any): Promise<void> => {
 
     return res.status(204).end();
   } catch (e) {
-    logError('logUsage', e);
+    logError(req.body?.userEmail, 'logUsage', e);
     return res.status(400).end();
   }
 };

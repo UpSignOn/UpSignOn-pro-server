@@ -25,7 +25,10 @@ export const updateData = async (req: any, res: any): Promise<void> => {
     // Update DB
     if (isNewData && !!basicAuth.encryptedData) {
       // a security to increase resilience in case the app contained a bug and tried to update the user's space with empty data
-      logError('updateData - Attempted to init user data where data already exists.');
+      logError(
+        req.body?.userEmail,
+        'updateData - Attempted to init user data where data already exists.',
+      );
       return res.status(400).end();
     }
     const hasDataV2Res = await db.query(
@@ -71,7 +74,7 @@ export const updateData = async (req: any, res: any): Promise<void> => {
       return res.status(200).json({ lastUpdateDate: updateRes.rows[0].updated_at });
     }
   } catch (e) {
-    logError('updateData', e);
+    logError(req.body?.userEmail, 'updateData', e);
     return res.status(400).end();
   }
 };

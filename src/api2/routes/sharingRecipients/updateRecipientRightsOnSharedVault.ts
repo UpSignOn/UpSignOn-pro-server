@@ -20,9 +20,12 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
 
     // Check we are not removing the last manager
     if (recipientId == basicAuth.userId) {
-      const checkRes = await db.query("SELECT count(*) AS count FROM shared_vault_recipients WHERE is_manager=true AND shared_vault_id=$1 AND group_id=$2", [sharedVaultId, basicAuth.groupId]);
+      const checkRes = await db.query(
+        'SELECT count(*) AS count FROM shared_vault_recipients WHERE is_manager=true AND shared_vault_id=$1 AND group_id=$2',
+        [sharedVaultId, basicAuth.groupId],
+      );
       if (checkRes.rows[0].count == 1) {
-        return res.status(403).json({ error: "last_manager_error" });
+        return res.status(403).json({ error: 'last_manager_error' });
       }
     }
 
@@ -32,7 +35,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
     );
     return res.status(204).end();
   } catch (e) {
-    logError('updateRecipientRightsOnSharedVault', e);
+    logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', e);
     return res.status(400).end();
   }
 };

@@ -44,7 +44,7 @@ export const makeMyselfSoleManagerOfSharedFolder = async (req: any, res: any): P
 
     res.status(200).end();
   } catch (e) {
-    logError('makeMyselfSoleManagerOfSharedFolder', e);
+    logError(req.body?.userEmail, 'makeMyselfSoleManagerOfSharedFolder', e);
     return res.status(400).end();
   }
 };

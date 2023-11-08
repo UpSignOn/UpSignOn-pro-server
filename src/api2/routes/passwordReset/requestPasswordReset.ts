@@ -139,10 +139,10 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         return res.status(200).json({ resetStatus: 'mail_sent' });
       }
     }
-    logError('requestPasswordReset unmet conditions');
+    logError(req.body?.userEmail, 'requestPasswordReset unmet conditions');
     res.status(400).end();
   } catch (e) {
-    logError('requestPasswordReset', e);
+    logError(req.body?.userEmail, 'requestPasswordReset', e);
     res.status(400).end();
   }
 };

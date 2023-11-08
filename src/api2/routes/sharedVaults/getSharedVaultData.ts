@@ -37,7 +37,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
     }));
     return res.status(200).json({ sharedVault: sharedVaultMap[0] });
   } catch (e) {
-    logError('getSharedVaultData', e);
+    logError(req.body?.userEmail, 'getSharedVaultData', e);
     return res.status(400).end();
   }
 };

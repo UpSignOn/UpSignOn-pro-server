@@ -46,7 +46,7 @@ export const updateSharedFolderIdForSharedItem = async (req: any, res: any): Pro
 
     return res.status(200).end();
   } catch (e) {
-    logError('updateSharedFolderIdForSharedItem', e);
+    logError(req.body?.userEmail, 'updateSharedFolderIdForSharedItem', e);
     return res.status(400).end();
   }
 };

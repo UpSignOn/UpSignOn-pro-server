@@ -10,12 +10,12 @@ export const getContactsSharingItemsWithMeV2 = async (req: any, res: any) => {
 
     const contactsSharingItemsWithUser = await db.query(
       'SELECT DISTINCT u.email AS email, array_agg(sau.shared_account_id) AS shared_account_ids ' +
-      'FROM users AS u INNER JOIN shared_account_users AS sau ON u.id=sau.user_id ' +
-      'INNER JOIN shared_account_users AS sau2 ON sau.shared_account_id=sau2.shared_account_id ' +
-      'INNER JOIN users AS u2 ON sau2.user_id = u2.id AND u2.email=$1 ' +
-      'WHERE u.email != $1 ' +
-      'AND u.group_id=$2 ' +
-      'GROUP BY u.email',
+        'FROM users AS u INNER JOIN shared_account_users AS sau ON u.id=sau.user_id ' +
+        'INNER JOIN shared_account_users AS sau2 ON sau.shared_account_id=sau2.shared_account_id ' +
+        'INNER JOIN users AS u2 ON sau2.user_id = u2.id AND u2.email=$1 ' +
+        'WHERE u.email != $1 ' +
+        'AND u.group_id=$2 ' +
+        'GROUP BY u.email',
       [basicAuth.userEmail, basicAuth.groupId],
     );
     // Return res
@@ -23,7 +23,7 @@ export const getContactsSharingItemsWithMeV2 = async (req: any, res: any) => {
       contacts: contactsSharingItemsWithUser.rows,
     });
   } catch (e) {
-    logError('getContactsSharingItemsWithMe', e);
+    logError(req.body?.userEmail, 'getContactsSharingItemsWithMe', e);
     return res.status(400).end();
   }
 };

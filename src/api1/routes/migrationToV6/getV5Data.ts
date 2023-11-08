@@ -53,7 +53,7 @@ export const getV5Data = async (req: any, res: any): Promise<void> => {
       sharedItems: sharedItems,
     });
   } catch (e) {
-    logError('getV5Data', e);
+    logError(req.body?.userEmail, 'getV5Data', e);
     return res.status(400).end();
   }
 };

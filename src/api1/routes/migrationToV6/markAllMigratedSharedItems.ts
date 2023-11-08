@@ -28,7 +28,7 @@ export const markAllMigratedSharedItems = async (req: any, res: any): Promise<vo
     }
     return res.status(200).end();
   } catch (e) {
-    logError('markAllMigratedSharedItems', e);
+    logError(req.body?.userEmail, 'markAllMigratedSharedItems', e);
     return res.status(400).end();
   }
 };

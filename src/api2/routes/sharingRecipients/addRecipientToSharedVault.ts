@@ -22,18 +22,12 @@ export const addRecipientToSharedVault = async (req: any, res: any): Promise<voi
 
     await db.query(
       'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, group_id) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING',
-      [
-        sharedVaultId,
-        recipientId,
-        encryptedSharedVaultKey,
-        isManager,
-        authRes.groupId,
-      ],
+      [sharedVaultId, recipientId, encryptedSharedVaultKey, isManager, authRes.groupId],
     );
 
     return res.status(204).json();
   } catch (e) {
-    logError('addRecipientToSharedVault', e);
+    logError(req.body?.userEmail, 'addRecipientToSharedVault', e);
     return res.status(400).end();
   }
 };

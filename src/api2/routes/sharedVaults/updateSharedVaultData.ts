@@ -101,7 +101,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
 
     return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].last_updated_at });
   } catch (e) {
-    logError('updateSharedVaultData', e);
+    logError(req.body?.userEmail, 'updateSharedVaultData', e);
     return res.status(400).end();
   }
 };

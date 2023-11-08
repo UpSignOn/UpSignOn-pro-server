@@ -53,7 +53,7 @@ export const updateContactSharedFolderRights = async (req: any, res: any): Promi
 
     return res.status(200).end();
   } catch (e) {
-    logError('updateContactSharedFolderRights', e);
+    logError(req.body?.userEmail, 'updateContactSharedFolderRights', e);
     return res.status(400).end();
   }
 };

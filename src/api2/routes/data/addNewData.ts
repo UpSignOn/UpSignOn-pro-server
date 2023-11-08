@@ -112,7 +112,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       allowedToExport: resultSettings.allowed_to_export,
     });
   } catch (e) {
-    logError('addNewData2', e);
+    logError(req.body?.userEmail, 'addNewData2', e);
     return res.status(400).end();
   }
 };

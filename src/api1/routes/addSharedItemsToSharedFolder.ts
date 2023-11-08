@@ -36,7 +36,7 @@ export const addSharedItemsToSharedFolder = async (req: any, res: any): Promise<
 
     res.status(200).end();
   } catch (e) {
-    logError('addSharedItemsToSharedFolder', e);
+    logError(req.body?.userEmail, 'addSharedItemsToSharedFolder', e);
     return res.status(400).end();
   }
 };

@@ -19,7 +19,7 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
 
     return res.status(204).end();
   } catch (e) {
-    logError('deleteSharedVault', e);
+    logError(req.body?.userEmail, 'deleteSharedVault', e);
     return res.status(400).end();
   }
 };

@@ -14,17 +14,17 @@ export const getAuthorizedDevices2 = async (req: any, res: any) => {
     );
     // Return res
     return res.status(200).json({
-      devices: devicesRes.rows.map(d => ({
+      devices: devicesRes.rows.map((d) => ({
         deviceName: d.device_name,
         deviceId: d.device_unique_id,
         createdAt: d.created_at,
         deviceType: d.device_type,
         osVersion: d.os_version,
-        appVersion: d.app_version
-      }))
+        appVersion: d.app_version,
+      })),
     });
   } catch (e) {
-    logError('getAuthorizedDevices', e);
+    logError(req.body?.userEmail, 'getAuthorizedDevices', e);
     return res.status(400).end();
   }
 };

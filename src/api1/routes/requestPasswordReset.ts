@@ -2,7 +2,10 @@ import { db } from '../../helpers/db';
 import { getExpirationDate, isExpired } from '../../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../../helpers/sendPasswordResetRequestEmail';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
+import {
+  checkDeviceRequestAuthorizationV1,
+  createDeviceChallengeV1,
+} from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { getRandomString } from '../../helpers/randomString';
 
@@ -140,10 +143,10 @@ export const requestPasswordReset = async (req: any, res: any) => {
         return res.status(200).json({ resetStatus: 'mail_sent' });
       }
     }
-    logError('requestPasswordReset unmet conditions');
+    logError(req.body?.userEmail, 'requestPasswordReset unmet conditions');
     res.status(400).end();
   } catch (e) {
-    logError('requestPasswordReset', e);
+    logError(req.body?.userEmail, 'requestPasswordReset', e);
     res.status(400).end();
   }
 };

@@ -34,7 +34,7 @@ export const createSharedFolder = async (req: any, res: any): Promise<void> => {
 
     res.status(200).json({ newSharedFolderId });
   } catch (e) {
-    logError('share', e);
+    logError(req.body?.userEmail, 'share', e);
     return res.status(400).end();
   }
 };

@@ -35,7 +35,7 @@ export const checkUserPublicKey = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ matchingKeys });
   } catch (e) {
-    logError('checkUserPublicKey', e);
+    logError(req.body?.userEmail, 'checkUserPublicKey', e);
     return res.status(400).end();
   }
 };

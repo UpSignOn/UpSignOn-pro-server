@@ -119,7 +119,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     }
   } catch (e) {
-    logError('updateData2', e);
+    logError(req.body?.userEmail, 'updateData2', e);
     return res.status(400).end();
   }
 };

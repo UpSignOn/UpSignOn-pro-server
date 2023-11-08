@@ -67,14 +67,18 @@ export const unshareItemsThatWereMovedFromSharedFolder = async (
             [sharedAccountUser.sharedAccountIds[j], sharedAccountUser.contactId, basicAuth.groupId],
           );
         } catch (e) {
-          logError('unshareItemsThatWereMovedFromSharedFolder errored in delete request', e);
+          logError(
+            req.body?.userEmail,
+            'unshareItemsThatWereMovedFromSharedFolder errored in delete request',
+            e,
+          );
         }
       }
     }
 
     return res.status(200).end();
   } catch (e) {
-    logError('unshareItemsThatWereMovedFromSharedFolder', e);
+    logError(req.body?.userEmail, 'unshareItemsThatWereMovedFromSharedFolder', e);
     return res.status(400).end();
   }
 };

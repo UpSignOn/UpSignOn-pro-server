@@ -15,7 +15,7 @@ export const getAuthorizedDevices = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ devices: devicesRes.rows });
   } catch (e) {
-    logError('getAuthorizedDevices', e);
+    logError(req.body?.userEmail, 'getAuthorizedDevices', e);
     return res.status(400).end();
   }
 };

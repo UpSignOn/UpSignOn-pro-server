@@ -145,7 +145,7 @@ export const requestAccess = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('requestAccess', e);
+    logError(req.body?.userEmail, 'requestAccess', e);
     res.status(400).end();
   }
 };

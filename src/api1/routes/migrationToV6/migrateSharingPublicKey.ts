@@ -21,7 +21,7 @@ export const migrateSharingPublicKey = async (req: any, res: any) => {
     ]);
     return res.status(204).end();
   } catch (e) {
-    logError('migrateSharingKey', e);
+    logError(req.body?.userEmail, 'migrateSharingKey', e);
     return res.status(400).end();
   }
 };

@@ -91,7 +91,7 @@ export const revokeDevice = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('revokeDevice', e);
+    logError(req.body?.userEmail, 'revokeDevice', e);
     return res.status(400).end();
   }
 };

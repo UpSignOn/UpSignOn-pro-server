@@ -133,7 +133,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ authorizationStatus: 'MAIL_SENT' });
   } catch (e) {
-    logError('requestDeviceAccess', e);
+    logError(req.body?.userEmail, 'requestDeviceAccess', e);
     res.status(400).end();
   }
 };

@@ -40,7 +40,7 @@ export const deleteSingledSharings = async (req: any, res: any): Promise<void> =
 
     return res.status(200).end();
   } catch (e) {
-    logError('deleteSingledSharings', e);
+    logError(req.body?.userEmail, 'deleteSingledSharings', e);
     return res.status(400).end();
   }
 };

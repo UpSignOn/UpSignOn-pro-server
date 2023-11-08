@@ -118,7 +118,7 @@ export const authenticate = async (req: any, res: any) => {
       }
     }
   } catch (e) {
-    logError('authenticate', e);
+    logError(req.body?.userEmail, 'authenticate', e);
     return res.status(400).end();
   }
 };

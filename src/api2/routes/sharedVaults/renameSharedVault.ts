@@ -22,7 +22,7 @@ export const renameSharedVault = async (req: any, res: any): Promise<void> => {
 
     return res.status(204).end();
   } catch (e) {
-    logError('renameSharedVault', e);
+    logError(req.body?.userEmail, 'renameSharedVault', e);
     return res.status(400).end();
   }
 };

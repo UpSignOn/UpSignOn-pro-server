@@ -38,7 +38,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
       sharedVaultId: creationRes.rows[0].id,
     });
   } catch (e) {
-    logError('createSharedVault', e);
+    logError(req.body?.userEmail, 'createSharedVault', e);
     return res.status(400).end();
   }
 };

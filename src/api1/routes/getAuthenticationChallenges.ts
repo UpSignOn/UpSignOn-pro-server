@@ -85,7 +85,7 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
       hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup,
     });
   } catch (e) {
-    logError('getAuthenticationChallenges', e);
+    logError(req.body?.userEmail, 'getAuthenticationChallenges', e);
     return res.status(400).end();
   }
 };

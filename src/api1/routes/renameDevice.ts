@@ -21,7 +21,7 @@ export const renameDevice = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('renameDevice', e);
+    logError(req.body?.userEmail, 'renameDevice', e);
     return res.status(400).end();
   }
 };

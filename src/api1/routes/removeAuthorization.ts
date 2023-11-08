@@ -1,6 +1,9 @@
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
+import {
+  checkDeviceRequestAuthorizationV1,
+  createDeviceChallengeV1,
+} from '../helpers/deviceChallengev1';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
@@ -31,19 +34,19 @@ export const removeAuthorization = async (req: any, res: any) => {
       // Request DB
       const dbRes = await db.query(
         'SELECT ' +
-        'ud.id AS id, ' +
-        'users.id AS uid, ' +
-        'ud.access_code_hash AS access_code_hash, ' +
-        'ud.device_public_key AS device_public_key, ' +
-        'ud.session_auth_challenge AS session_auth_challenge, ' +
-        'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
-        'FROM user_devices AS ud ' +
-        'INNER JOIN users ON ud.user_id = users.id ' +
-        'WHERE ' +
-        'users.email=$1 ' +
-        'AND ud.device_unique_id = $2 ' +
-        "AND ud.authorization_status = 'AUTHORIZED' " +
-        'AND users.group_id=$3',
+          'ud.id AS id, ' +
+          'users.id AS uid, ' +
+          'ud.access_code_hash AS access_code_hash, ' +
+          'ud.device_public_key AS device_public_key, ' +
+          'ud.session_auth_challenge AS session_auth_challenge, ' +
+          'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
+          'FROM user_devices AS ud ' +
+          'INNER JOIN users ON ud.user_id = users.id ' +
+          'WHERE ' +
+          'users.email=$1 ' +
+          'AND ud.device_unique_id = $2 ' +
+          "AND ud.authorization_status = 'AUTHORIZED' " +
+          'AND users.group_id=$3',
         [userEmail, deviceId, groupId],
       );
 
@@ -92,7 +95,7 @@ export const removeAuthorization = async (req: any, res: any) => {
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('removeAuthorization', e);
+    logError(req.body?.userEmail, 'removeAuthorization', e);
     return res.status(400).end();
   }
 };

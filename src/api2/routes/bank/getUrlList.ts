@@ -13,16 +13,18 @@ export const getUrlList2 = async (req: any, res: any): Promise<void> => {
       [basicAuth.groupId],
     );
 
-    const list = urlListRes.rows.filter(u => !!u.displayed_name).map(u => ({
-      name: u.displayed_name,
-      url: u.signin_url,
-      usesHTTPBasic: u.uses_basic_auth
-    }))
+    const list = urlListRes.rows
+      .filter((u) => !!u.displayed_name)
+      .map((u) => ({
+        name: u.displayed_name,
+        url: u.signin_url,
+        usesHTTPBasic: u.uses_basic_auth,
+      }));
 
     // Return res
     return res.status(200).json({ urlList: list });
   } catch (e) {
-    logError('getUrlList', e);
+    logError(req.body?.userEmail, 'getUrlList', e);
     return res.status(400).end();
   }
 };

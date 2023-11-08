@@ -45,7 +45,7 @@ export const sendStats = async (req: any, res: any): Promise<void> => {
 
     return res.status(200).end();
   } catch (e) {
-    logError('sendStats', e);
+    logError(req.body?.userEmail, 'sendStats', e);
     return res.status(400).end();
   }
 };

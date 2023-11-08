@@ -34,7 +34,7 @@ export const stopReceivingFolderSharing = async (req: any, res: any): Promise<vo
 
     return res.status(200).end();
   } catch (e) {
-    logError('stopReceivingSharing', e);
+    logError(req.body?.userEmail, 'stopReceivingSharing', e);
     return res.status(400).end();
   }
 };

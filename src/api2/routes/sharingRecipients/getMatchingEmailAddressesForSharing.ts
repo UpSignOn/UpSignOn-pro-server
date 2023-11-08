@@ -33,7 +33,7 @@ export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) =
       .status(200)
       .json({ emails: searchRes.rows.map((d) => d.email), searchSession: session });
   } catch (e) {
-    logError('getMatchingEmailAddressesForSharing2', e);
+    logError(req.body?.userEmail, 'getMatchingEmailAddressesForSharing2', e);
     return res.status(400).end();
   }
 };

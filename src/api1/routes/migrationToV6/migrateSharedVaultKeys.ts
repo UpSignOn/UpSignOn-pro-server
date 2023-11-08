@@ -26,7 +26,7 @@ export const migrateSharedVaultKeys = async (req: any, res: any) => {
     }
     return res.status(204).end();
   } catch (e) {
-    logError('migrateSharedvaultKeys', e);
+    logError(req.body?.userEmail, 'migrateSharedvaultKeys', e);
     return res.status(400).end();
   }
 };

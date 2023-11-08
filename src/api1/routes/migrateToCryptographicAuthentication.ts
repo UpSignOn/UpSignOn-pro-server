@@ -49,7 +49,7 @@ export const migrateToCryptographicAuthentication = async (req: any, res: any) =
     // Return res
     return res.status(204).end();
   } catch (e) {
-    logError('migrateToCryptographicAuthentication', e);
+    logError(req.body?.userEmail, 'migrateToCryptographicAuthentication', e);
     return res.status(400).end();
   }
 };

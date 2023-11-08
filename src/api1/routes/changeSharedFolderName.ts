@@ -33,7 +33,7 @@ export const changeSharedFolderName = async (req: any, res: any) => {
     await db.query('UPDATE shared_folders SET name=$1 WHERE id=$2', [newName, sharedFolderId]);
     return res.status(200).end();
   } catch (e) {
-    logError('changeSharedFolderName', e);
+    logError(req.body?.userEmail, 'changeSharedFolderName', e);
     return res.status(400).end();
   }
 };

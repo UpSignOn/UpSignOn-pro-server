@@ -113,7 +113,7 @@ if (!env.SESSION_SECRET) {
 SessionStore.init();
 
 app.use((req, res, next) => {
-  logInfo(req.url);
+  logInfo(req.body?.userEmail, req.url);
   if (!env.IS_PRODUCTION) {
     res.setHeader('Access-Control-Allow-Origin', '*');
   }

@@ -48,7 +48,7 @@ export const stopSharingFolderWithContact = async (req: any, res: any): Promise<
 
     return res.status(200).end();
   } catch (e) {
-    logError('stopSharingFolderWithContact', e);
+    logError(req.body?.userEmail, 'stopSharingFolderWithContact', e);
     return res.status(400).end();
   }
 };

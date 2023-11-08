@@ -103,7 +103,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     // Clean changed_emails table if necessary
     cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
   } catch (e) {
-    logError('getVaultData', e);
+    logError(req.body?.userEmail, 'getVaultData', e);
     return res.status(400).end();
   }
 };
@@ -182,6 +182,6 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
       }
     }
   } catch (e) {
-    logError('cleanChangedEmails:', e);
+    logError(req.body?.userEmail, 'cleanChangedEmails:', e);
   }
 };

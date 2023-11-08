@@ -100,7 +100,7 @@ export const getV5OrV6AuthenticationChallenges = async (req: any, res: any) => {
       });
     }
   } catch (e) {
-    logError('getAuthenticationChallenges', e);
+    logError(req.body?.userEmail, 'getAuthenticationChallenges', e);
     return res.status(400).end();
   }
 };

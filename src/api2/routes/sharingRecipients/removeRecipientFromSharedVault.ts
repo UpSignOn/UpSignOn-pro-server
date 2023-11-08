@@ -21,7 +21,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
     );
     return res.status(204).end();
   } catch (e) {
-    logError('removeRecipientFromSharedVault', e);
+    logError(req.body?.userEmail, 'removeRecipientFromSharedVault', e);
     return res.status(400).end();
   }
 };

@@ -22,7 +22,7 @@ export const getSharedVaultKeysToMigrate = async (req: any, res: any) => {
       }),
     });
   } catch (e) {
-    logError('getSharedVaultKeysToMigrate', e);
+    logError(req.body?.userEmail, 'getSharedVaultKeysToMigrate', e);
     return res.status(400).end();
   }
 };

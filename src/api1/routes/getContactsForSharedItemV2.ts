@@ -19,7 +19,7 @@ export const getContactsForSharedItemV2 = async (req: any, res: any) => {
     // Return res
     return res.status(200).json({ contacts: contactRes.rows });
   } catch (e) {
-    logError('getContactsForSharedItem', e);
+    logError(req.body?.userEmail, 'getContactsForSharedItem', e);
     return res.status(400).end();
   }
 };

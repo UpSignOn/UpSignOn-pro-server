@@ -86,7 +86,7 @@ export const checkDevice2 = async (req: any, res: any) => {
     );
     return res.status(200).end();
   } catch (e) {
-    logError('checkDevice2', e);
+    logError(req.body?.userEmail, 'checkDevice2', e);
     return res.status(400).end();
   }
 };

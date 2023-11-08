@@ -2,7 +2,10 @@ import crypto from 'crypto';
 import { db } from '../../helpers/db';
 import { isExpired } from '../../helpers/dateHelper';
 import { logError } from '../../helpers/logger';
-import { checkDeviceRequestAuthorizationV1, createDeviceChallengeV1 } from '../helpers/deviceChallengev1';
+import {
+  checkDeviceRequestAuthorizationV1,
+  createDeviceChallengeV1,
+} from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -49,16 +52,18 @@ export const getPasswordBackup = async (req: any, res: any) => {
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorizationV1(
-      null, null,
+      null,
+      null,
       deviceChallengeResponse,
       deviceRes.rows[0].id,
       deviceRes.rows[0].session_auth_challenge_exp_time,
       deviceRes.rows[0].session_auth_challenge,
       deviceRes.rows[0].device_public_key,
-      );
-      if (!isDeviceAuthorized) return res.status(401).end();
-      
-      const existingRequestRes = await db.query(`
+    );
+    if (!isDeviceAuthorized) return res.status(401).end();
+
+    const existingRequestRes = await db.query(
+      `
       SELECT
         user_devices.encrypted_password_backup AS encrypted_password_backup,
         password_reset_request.id AS reset_request_id,
@@ -82,7 +87,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
     if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
       return res.status(401).json({ error: 'not_admin_authorized' });
     }
-    
+
     const expectedToken = Buffer.from(resetRequest.reset_token, 'utf-8');
     const inputToken = Buffer.from(resetToken, 'utf-8');
     let tokenMatch = false;
@@ -109,7 +114,7 @@ export const getPasswordBackup = async (req: any, res: any) => {
       .status(200)
       .json({ encryptedPasswordBackup: resetRequest.encrypted_password_backup });
   } catch (e) {
-    logError('getPasswordBackup', e);
+    logError(req.body?.userEmail, 'getPasswordBackup', e);
     res.status(400).end();
   }
 };

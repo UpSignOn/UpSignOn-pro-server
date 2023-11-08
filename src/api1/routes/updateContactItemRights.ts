@@ -39,7 +39,7 @@ export const updateContactItemRights = async (req: any, res: any): Promise<void>
 
     return res.status(200).end();
   } catch (e) {
-    logError('updateContactRights', e);
+    logError(req.body?.userEmail, 'updateContactRights', e);
     return res.status(400).end();
   }
 };

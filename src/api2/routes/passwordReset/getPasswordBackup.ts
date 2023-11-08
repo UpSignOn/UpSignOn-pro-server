@@ -116,7 +116,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       .status(200)
       .json({ encryptedPasswordBackup: resetRequest.encrypted_password_backup_2 });
   } catch (e) {
-    logError('getPasswordBackup', e);
+    logError(req.body?.userEmail, 'getPasswordBackup', e);
     res.status(400).end();
   }
 };

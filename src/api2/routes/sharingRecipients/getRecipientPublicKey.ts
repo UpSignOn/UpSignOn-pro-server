@@ -24,7 +24,7 @@ export const getRecipientPublicKey = async (req: any, res: any) => {
       .status(200)
       .json({ id: checkRes.rows[0]?.id, publicKey: checkRes.rows[0]?.sharing_public_key_2 });
   } catch (e) {
-    logError('getRecipientPublicKey', e);
+    logError(req.body?.userEmail, 'getRecipientPublicKey', e);
     return res.status(400).end();
   }
 };

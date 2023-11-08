@@ -28,7 +28,7 @@ export const migrateDeviceAuthenticationKey = async (req: any, res: any) => {
     }
     return res.status(204).end();
   } catch (e) {
-    logError('migrateDeviceAuthenticationKey', e);
+    logError(req.body?.userEmail, 'migrateDeviceAuthenticationKey', e);
     return res.status(400).end();
   }
 };

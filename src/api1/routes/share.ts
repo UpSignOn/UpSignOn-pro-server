@@ -139,7 +139,7 @@ export const share = async (req: any, res: any): Promise<void> => {
 
     res.status(200).json({ errors, newSharedItemIdsMap });
   } catch (e) {
-    logError('share', e);
+    logError(req.body?.userEmail, 'share', e);
     return res.status(400).end();
   }
 };
