@@ -18,7 +18,9 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     const vaultStats = inputSanitizer.getVaultStats(req.body?.vaultStats);
     if (!vaultStats) return res.status(403).end();
 
-    const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    // TODO revert this when fixed in the app
+    // const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    const authRes = await checkBasicAuth2(req);
     if (!authRes.granted) return res.status(401).end();
 
     const contentDetails = inputSanitizer.getSharedVaultDetails(req.body?.contentDetails);
