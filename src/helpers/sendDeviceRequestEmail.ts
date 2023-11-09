@@ -37,6 +37,6 @@ export const sendDeviceRequestEmail = async (
       html: `<body><p>Bonjour,</p><p>Pour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeDeviceOS}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :</p><p style="font-family:monospace;font-size: 20px; font-weight: bold; margin: 20px 0;">${safeRequestToken}</p><p>Ce code est valable jusqu'au ${expDate}.</p><p>Bonne journée,<br/>UpSignOn</p></body>`,
     });
   } catch (e) {
-    logError(req.body?.userEmail, 'ERROR sending email:', e);
+    logError('ERROR sending email:', e);
   }
 };

@@ -27,6 +27,6 @@ export const sendPasswordResetRequestEmail = async (
       html: `<body><p>Bonjour,</p><p>Vous avez effectué une demande de réinitialisation de votre mot de passe depuis votre appareil "${safeDeviceName}".</p><p>Pour réinitiliaser votre mot de passe UpSignOn PRO, saisissez le code suivant :</p><p style="font-family:monospace;font-size: 20px; font-weight: bold; margin: 20px 0;">${safeRequestToken}</p><p>Attention, ce code n'est valide que pour l'appareil "${safeDeviceName}" et expirera à ${expirationTime}.</p><p>Bonne journée,<br/>UpSignOn</p></body>`,
     });
   } catch (e) {
-    logError(req.body?.userEmail, 'ERROR sending password reset email:', e);
+    logError('ERROR sending password reset email:', e);
   }
 };
