@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -7,9 +7,15 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
-    if (sharedVaultId == null) return res.status(403).end();
+    if (sharedVaultId == null) {
+      logError(req.body?.userEmail, 'getSharedVaultData', 'sharedVaultId was null');
+      return res.status(403).end();
+    }
     const authRes = await checkBasicAuth2(req, { checkIsRecipientForVaultId: sharedVaultId });
-    if (!authRes.granted) return res.status(401).end();
+    if (!authRes.granted) {
+      logError(req.body?.userEmail, 'getSharedVaultData', 'auth not granted');
+      return res.status(401).end();
+    }
 
     const sharedVaultRes = await db.query(
       `SELECT
@@ -35,6 +41,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
       encryptedKey: s.encrypted_shared_vault_key,
       isManager: s.is_manager,
     }));
+    logInfo(req.body?.userEmail, 'getSharedVaultData', 'success');
     return res.status(200).json({ sharedVault: sharedVaultMap[0] });
   } catch (e) {
     logError(req.body?.userEmail, 'getSharedVaultData', e);

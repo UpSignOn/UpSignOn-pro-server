@@ -15,7 +15,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
     const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!basicAuth.granted) return res.status(401).end();
 
-    const dbRes = await db.query(
+    await db.query(
       'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND group_id=$3',
       [sharedVaultId, recipientId, basicAuth.groupId],
     );

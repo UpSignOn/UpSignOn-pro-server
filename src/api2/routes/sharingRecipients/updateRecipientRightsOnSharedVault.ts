@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -10,14 +10,22 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
     if (sharedVaultId == null) return res.status(403).end();
 
     const recipientId = inputSanitizer.getNumberOrNull(req.body?.recipientId);
-    if (recipientId == null) return res.status(403).end();
+    if (recipientId == null) {
+      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'recipientId was null');
+      return res.status(403).end();
+    }
 
     const willBeManager = inputSanitizer.getBoolean(req.body?.willBeManager);
-    if (willBeManager == null) return res.status(403).end();
+    if (willBeManager == null) {
+      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'willBeManager was null');
+      return res.status(403).end();
+    }
 
     const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
-    if (!basicAuth.granted) return res.status(401).end();
-
+    if (!basicAuth.granted) {
+      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'auth not granted');
+      return res.status(401).end();
+    }
     // Check we are not removing the last manager
     if (recipientId == basicAuth.userId) {
       const checkRes = await db.query(
@@ -25,14 +33,16 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
         [sharedVaultId, basicAuth.groupId],
       );
       if (checkRes.rows[0].count == 1) {
+        logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'last_manager_error');
         return res.status(403).json({ error: 'last_manager_error' });
       }
     }
 
-    const dbRes = await db.query(
+    await db.query(
       'UPDATE shared_vault_recipients SET is_manager=$1 WHERE shared_vault_id=$2 AND user_id=$3 AND group_id=$4',
       [willBeManager, sharedVaultId, recipientId, basicAuth.groupId],
     );
+    logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'success');
     return res.status(204).end();
   } catch (e) {
     logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', e);
