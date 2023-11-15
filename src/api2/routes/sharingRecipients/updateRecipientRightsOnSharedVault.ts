@@ -17,16 +17,13 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
 
     const recipientId = inputSanitizer.getNumberOrNull(req.body?.recipientId);
     if (recipientId == null) {
-      logError(
-        req.body?.userEmail,
-        'updateRecipientRightsOnSharedVault fail: recipientId was null',
-      );
+      logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault fail: recipientId was null');
       return res.status(403).end();
     }
 
     const willBeManager = inputSanitizer.getBoolean(req.body?.willBeManager);
     if (willBeManager == null) {
-      logError(
+      logInfo(
         req.body?.userEmail,
         'updateRecipientRightsOnSharedVault fail: willBeManager was null',
       );
@@ -35,7 +32,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
 
     const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!basicAuth.granted) {
-      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault fail: auth not granted');
+      logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault fail: auth not granted');
       return res.status(401).end();
     }
     // Check we are not removing the last manager
@@ -45,10 +42,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
         [sharedVaultId, basicAuth.groupId],
       );
       if (checkRes.rows[0].count == 1) {
-        logError(
-          req.body?.userEmail,
-          'updateRecipientRightsOnSharedVault fail: last_manager_error',
-        );
+        logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault fail: last_manager_error');
         return res.status(403).json({ error: 'last_manager_error' });
       }
     }
