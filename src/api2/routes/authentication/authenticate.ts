@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { checkDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { checkPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
@@ -15,6 +15,7 @@ export const authenticate2 = async (req: any, res: any) => {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     if (!userEmail || !deviceUId || !passwordChallengeResponse || !deviceChallengeResponse) {
+      logInfo(req.body?.userEmail, 'authenticate2 fail: some parameter was missing');
       return res.status(403).end();
     }
 
@@ -38,7 +39,13 @@ export const authenticate2 = async (req: any, res: any) => {
       [userEmail, deviceUId, groupId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
+    if (!dbRes || dbRes.rowCount === 0) {
+      logInfo(
+        req.body?.userEmail,
+        'authenticate2 fail: no matching authorized device for this user',
+      );
+      return res.status(401).end();
+    }
     const {
       did,
       device_public_key_2,
@@ -50,13 +57,17 @@ export const authenticate2 = async (req: any, res: any) => {
     } = dbRes.rows[0];
 
     // 1 - check device uses the new cryptographic authentication mechanism
-    if (!device_public_key_2) return res.status(401).end();
+    if (!device_public_key_2) {
+      logInfo(req.body?.userEmail, 'authenticate2 fail: device_public_key_2 not found');
+      return res.status(401).end();
+    }
 
     // 2 - check that the user is not temporarily blocked
     if (
       password_challenge_blocked_until &&
       password_challenge_blocked_until.getTime() > Date.now()
     ) {
+      logInfo(req.body?.userEmail, 'authenticate2 fail: user is temporarily blocked');
       return res.status(401).json({
         error: 'blocked',
         nextRetryDate: password_challenge_blocked_until.toISOString(),
@@ -68,6 +79,7 @@ export const authenticate2 = async (req: any, res: any) => {
       !session_auth_challenge ||
       session_auth_challenge_exp_time.getTime() < Date.now()
     ) {
+      logInfo(req.body?.userEmail, 'authenticate2 fail: auth challenged has expired');
       return res.status(403).json({ error: 'expired' });
     }
 
@@ -98,20 +110,24 @@ export const authenticate2 = async (req: any, res: any) => {
         deviceUniqueId: deviceUId,
         userEmail,
       });
+      logInfo(req.body?.userEmail, 'authenticate2 OK');
       return res.status(200).json({
         success,
         deviceSession,
       });
     } else {
       if (blockedUntil) {
+        logInfo(req.body?.userEmail, 'authenticate2 fail: user blocked case 2');
         return res.status(401).json({
           error: 'blocked',
           nextRetryDate: blockedUntil.toISOString(),
         });
       } else {
         if (!hasPassedDeviceChallenge) {
+          logInfo(req.body?.userEmail, 'authenticate2 fail: device authentication failed');
           return res.status(401).json({ error: 'bad_device_challenge_response' });
         } else {
+          logInfo(req.body?.userEmail, 'authenticate2 fail: password authentication failed');
           return res.status(401).json({ error: 'bad_password' });
         }
       }

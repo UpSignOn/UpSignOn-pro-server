@@ -3,7 +3,7 @@ import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
 } from '../../helpers/deviceChallengev2';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -18,11 +18,26 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     const osVersion = inputSanitizer.getString(req.body?.osVersion);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
-    if (!userEmail) return res.status(403).end();
-    if (!deviceUId) return res.status(403).end();
-    if (!deviceName) return res.status(403).end();
-    if (!osVersion) return res.status(403).end();
-    if (!appVersion) return res.status(403).end();
+    if (!userEmail) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing user email');
+      return res.status(403).end();
+    }
+    if (!deviceUId) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing deviceUID');
+      return res.status(403).end();
+    }
+    if (!deviceName) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing deviceName');
+      return res.status(403).end();
+    }
+    if (!osVersion) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing osVersion');
+      return res.status(403).end();
+    }
+    if (!appVersion) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing appVersion');
+      return res.status(403).end();
+    }
 
     // Request DB
     const dbRes = await db.query(
@@ -42,11 +57,13 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: device deleted');
       return res.status(401).end();
     }
 
     if (!deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].id);
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: sending device challenge');
       return res.status(403).json({ deviceChallenge });
     }
 
@@ -57,13 +74,16 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
       dbRes.rows[0].session_auth_challenge,
       dbRes.rows[0].device_public_key_2,
     );
-    if (!isDeviceAuthorized) return res.status(401).end();
+    if (!isDeviceAuthorized) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: device auth failed');
+      return res.status(401).end();
+    }
 
     await db.query(
       'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
       [deviceName, osVersion, appVersion, dbRes.rows[0].id, groupId],
     );
-
+    logInfo(req.body?.userEmail, 'updateDeviceMetaData2 OK');
     return res.status(200).end();
   } catch (e) {
     logError(req.body?.userEmail, 'updateDeviceMetaData2', e);

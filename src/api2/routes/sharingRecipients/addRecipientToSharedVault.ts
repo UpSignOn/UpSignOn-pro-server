@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -7,24 +7,37 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const addRecipientToSharedVault = async (req: any, res: any): Promise<void> => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
-    if (sharedVaultId == null) return res.status(403).end();
+    if (sharedVaultId == null) {
+      logInfo(req.body?.userEmail, 'addRecipientToSharedVault fail: sharedVaultId null');
+      return res.status(403).end();
+    }
 
     const encryptedSharedVaultKey = inputSanitizer.getString(req.body?.encryptedSharedVaultKey);
-    if (!encryptedSharedVaultKey) return res.status(403).end();
+    if (!encryptedSharedVaultKey) {
+      logInfo(req.body?.userEmail, 'addRecipientToSharedVault fail: encryptedSharedVaultKey null');
+      return res.status(403).end();
+    }
 
     const recipientId = inputSanitizer.getNumberOrNull(req.body?.recipientId);
-    if (recipientId == null) return res.status(403).end();
+    if (recipientId == null) {
+      logInfo(req.body?.userEmail, 'addRecipientToSharedVault fail: recipientId null');
+      return res.status(403).end();
+    }
 
     const isManager = inputSanitizer.getBoolean(req.body?.isManager);
 
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
-    if (!authRes.granted) return res.status(401).end();
+    if (!authRes.granted) {
+      logInfo(req.body?.userEmail, 'addRecipientToSharedVault fail: auth not granted');
+      return res.status(401).end();
+    }
 
     await db.query(
       'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, group_id) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING',
       [sharedVaultId, recipientId, encryptedSharedVaultKey, isManager, authRes.groupId],
     );
 
+    logInfo(req.body?.userEmail, 'addRecipientToSharedVault OK');
     return res.status(204).json();
   } catch (e) {
     logError(req.body?.userEmail, 'addRecipientToSharedVault', e);

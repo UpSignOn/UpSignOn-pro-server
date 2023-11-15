@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { isExpired } from '../../../helpers/dateHelper';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
@@ -20,9 +20,18 @@ export const checkDevice2 = async (req: any, res: any) => {
     const deviceValidationCode = inputSanitizer.getString(req.body?.deviceValidationCode);
 
     // Check params
-    if (!userEmail) return res.status(403).end();
-    if (!deviceId) return res.status(403).end();
-    if (!deviceValidationCode) return res.status(403).end();
+    if (!userEmail) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: missing userEmail');
+      return res.status(403).end();
+    }
+    if (!deviceId) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: missing deviceId');
+      return res.status(403).end();
+    }
+    if (!deviceValidationCode) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: missing deviceValidationCode');
+      return res.status(403).end();
+    }
 
     // Request DB
     const dbRes = await db.query(
@@ -47,14 +56,17 @@ export const checkDevice2 = async (req: any, res: any) => {
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: device deleted');
       return res.status(403).json({ error: 'revoked' });
     }
 
     if (dbRes.rows[0].authorization_status !== 'PENDING') {
+      logInfo(req.body?.userEmail, 'checkDevice2 OK (already authorized)');
       return res.status(200).end();
     }
     if (!deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].id);
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: sending deviceChallenge');
       return res.status(401).json({ deviceChallenge });
     }
 
@@ -65,7 +77,10 @@ export const checkDevice2 = async (req: any, res: any) => {
       dbRes.rows[0].session_auth_challenge,
       dbRes.rows[0].device_public_key_2,
     );
-    if (!isDeviceAuthorized) return res.status(401).end();
+    if (!isDeviceAuthorized) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: device authentication failed');
+      return res.status(401).end();
+    }
 
     const deviceValidationCodeBuffer = Buffer.from(deviceValidationCode, 'utf-8');
     const expectedAuthCodeBuffer = Buffer.from(dbRes.rows[0].authorization_code, 'utf-8');
@@ -74,9 +89,11 @@ export const checkDevice2 = async (req: any, res: any) => {
       codeMatch = libsodium.memcmp(deviceValidationCodeBuffer, expectedAuthCodeBuffer);
     } catch (e) {}
     if (!codeMatch) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: bad code');
       return res.status(403).json({ error: 'bad_code' });
     }
     if (isExpired(dbRes.rows[0].auth_code_expiration_date)) {
+      logInfo(req.body?.userEmail, 'checkDevice2 fail: code expired');
       return res.status(403).json({ error: 'expired_code' });
     }
 
@@ -84,6 +101,7 @@ export const checkDevice2 = async (req: any, res: any) => {
       "UPDATE user_devices SET (authorization_status, authorization_code, auth_code_expiration_date) = ('AUTHORIZED', null, null) WHERE id=$1",
       [dbRes.rows[0].id],
     );
+    logInfo(req.body?.userEmail, 'checkDevice2 OK');
     return res.status(200).end();
   } catch (e) {
     logError(req.body?.userEmail, 'checkDevice2', e);

@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -7,10 +7,16 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const backupPassword2 = async (req: any, res: any) => {
   try {
     const backups = inputSanitizer.getArrayOfBackups(req.body?.backups);
-    if (!backups) return res.status(403).end();
+    if (!backups) {
+      logInfo(req.body?.userEmail, 'backupPassword2 fail: missing backups param');
+      return res.status(403).end();
+    }
 
     const basicAuth = await checkBasicAuth2(req);
-    if (!basicAuth.granted) return res.status(401).end();
+    if (!basicAuth.granted) {
+      logInfo(req.body?.userEmail, 'backupPassword2 fail: auth not granted');
+      return res.status(401).end();
+    }
 
     await Promise.all(
       backups.map((backup) =>
@@ -20,6 +26,7 @@ export const backupPassword2 = async (req: any, res: any) => {
         ),
       ),
     );
+    logInfo(req.body?.userEmail, 'backupPassword2 OK');
     // Return res
     return res.status(204).end();
   } catch (e) {

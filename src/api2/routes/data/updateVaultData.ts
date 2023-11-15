@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
@@ -11,11 +11,20 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
 
     // Check params
-    if (!newEncryptedData) return res.status(403).end();
-    if (!lastUpdatedAt) return res.status(403).end();
+    if (!newEncryptedData) {
+      logInfo(req.body?.userEmail, 'updateVaultData fail: missing newEncryptedData');
+      return res.status(403).end();
+    }
+    if (!lastUpdatedAt) {
+      logInfo(req.body?.userEmail, 'updateVaultData fail: missing lastUpdatedAt');
+      return res.status(403).end();
+    }
 
     const basicAuth = await checkBasicAuth2(req, {});
-    if (!basicAuth.granted) return res.status(401).end();
+    if (!basicAuth.granted) {
+      logInfo(req.body?.userEmail, 'updateVaultData fail: auth not granted');
+      return res.status(401).end();
+    }
 
     const newEncryptedDataWithPasswordChallengeSecured =
       hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
@@ -65,6 +74,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
         ],
       );
       if (updateRes.rowCount === 0) {
+        logInfo(req.body?.userEmail, 'updateVaultData fail: outdated data');
         // CONFLICT
         return res.status(409).json({ error: 'outdated' });
       }
@@ -93,7 +103,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
           basicAuth.groupId,
         ],
       );
-
+      logInfo(req.body?.userEmail, 'updateVaultData OK');
       return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     } else {
       const updateRes = await db.query(
@@ -112,10 +122,11 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
         ],
       );
       if (updateRes.rowCount === 0) {
+        logInfo(req.body?.userEmail, 'updateVaultData fail: outdated data');
         // CONFLICT
         return res.status(409).json({ error: 'outdated' });
       }
-
+      logInfo(req.body?.userEmail, 'updateVaultData OK');
       return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     }
   } catch (e) {

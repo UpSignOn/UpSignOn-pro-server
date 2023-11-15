@@ -7,10 +7,16 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const checkUserPublicKey2 = async (req: any, res: any) => {
   try {
     const publicKey = inputSanitizer.getString(req.body?.publicKey);
-    if (!publicKey) return res.status(403).end();
+    if (!publicKey) {
+      logInfo(req.body?.userEmail, 'checkUserPublicKey2 fail: missing publicKey');
+      return res.status(403).end();
+    }
 
     const basicAuth = await checkBasicAuth2(req, { returningUserPublicKey: true });
-    if (!basicAuth.granted) return res.status(401).end();
+    if (!basicAuth.granted) {
+      logInfo(req.body?.userEmail, 'checkUserPublicKey2 fail: auth not granted');
+      return res.status(401).end();
+    }
 
     let matchingKeys = true;
     if (basicAuth.sharingPublicKey !== publicKey) {
@@ -25,9 +31,10 @@ export const checkUserPublicKey2 = async (req: any, res: any) => {
       ]);
     }
     // Return res
+    logInfo(req.body?.userEmail, 'checkUserPublicKey2 OK');
     return res.status(200).json({ matchingKeys });
   } catch (e) {
-    logError(req.body?.userEmail, 'checkUserPublicKey', e);
+    logError(req.body?.userEmail, 'checkUserPublicKey2', e);
     return res.status(400).end();
   }
 };

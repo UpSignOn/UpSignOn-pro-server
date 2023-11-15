@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { checkDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
@@ -23,8 +23,10 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !sharingPublicKey ||
       !userEmail ||
       !deviceUId
-    )
+    ) {
+      logInfo(req.body?.userEmail, 'addNewData2 fail: some missing parameter');
       return res.status(403).end();
+    }
 
     const selectRes = await db.query(
       `SELECT
@@ -52,6 +54,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !selectRes.rows[0].device_public_key_2 ||
       !selectRes.rows[0].session_auth_challenge
     ) {
+      logInfo(req.body?.userEmail, 'addNewData2 fail: conflict');
       return res.status(403).json({ error: 'conflict' });
     }
 
@@ -61,6 +64,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       !selectRes.rows[0].session_auth_challenge ||
       selectRes.rows[0].session_auth_challenge_exp_time.getTime() < Date.now()
     ) {
+      logInfo(req.body?.userEmail, 'addNewData2 fail: auth challenge expired');
       return res.status(403).json({ error: 'expired' });
     }
 
@@ -72,6 +76,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     );
 
     if (!hasPassedDeviceChallenge) {
+      logInfo(req.body?.userEmail, 'addNewData2 fail: device authentication failed');
       return res.status(401).end();
     }
 
@@ -83,6 +88,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       [newEncryptedDataWithPasswordChallengeSecured, sharingPublicKey, userEmail, groupId],
     );
     if (updateRes.rowCount === 0) {
+      logInfo(req.body?.userEmail, 'addNewData2 fail: database update failed');
       // CONFLICT
       return res.status(403).end();
     }
@@ -104,7 +110,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       deviceUniqueId: deviceUId,
       userEmail,
     });
-
+    logInfo(req.body?.userEmail, 'addNewData2 OK');
     return res.status(200).json({
       lastUpdatedAt: updateRes.rows[0].updated_at,
       deviceSession,

@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -11,10 +11,16 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
     const encryptedSharedVaultKey = inputSanitizer.getString(req.body?.encryptedSharedVaultKey);
 
     // 0 - Check params
-    if (!encryptedData || !name) return res.status(403).end();
+    if (!encryptedData || !name) {
+      logInfo(req.body?.userEmail, 'createSharedVault fail: missing encryptedData or name');
+      return res.status(403).end();
+    }
 
     const authRes = await checkBasicAuth2(req);
-    if (!authRes.granted) return res.status(401).end();
+    if (!authRes.granted) {
+      logInfo(req.body?.userEmail, 'createSharedVault fail: auth not granted');
+      return res.status(401).end();
+    }
 
     const creationRes = await db.query(
       `INSERT INTO shared_vaults
@@ -32,7 +38,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
     `,
       [authRes.groupId, creationRes.rows[0].id, authRes.userId, encryptedSharedVaultKey],
     );
-
+    logInfo(req.body?.userEmail, 'createSharedVault OK');
     return res.status(200).json({
       lastUpdatedAt: creationRes.rows[0].last_updated_at,
       sharedVaultId: creationRes.rows[0].id,

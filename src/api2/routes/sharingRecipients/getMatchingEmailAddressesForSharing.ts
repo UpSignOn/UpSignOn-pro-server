@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -10,7 +10,13 @@ let contactSearchSessions: { session: string; expirationTimestamp: number }[] = 
 export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) => {
   try {
     const emailAddressSearch = inputSanitizer.getString(req.body?.emailAddressSearch);
-    if (!emailAddressSearch || emailAddressSearch.length < 3) return res.status(403).end();
+    if (!emailAddressSearch || emailAddressSearch.length < 3) {
+      logInfo(
+        req.body?.userEmail,
+        'getMatchingEmailAddressesForSharing2 fail: search missing or too short',
+      );
+      return res.status(403).end();
+    }
 
     let session = inputSanitizer.getString(req.body?.searchSession);
     contactSearchSessions = contactSearchSessions.filter((s) => s.expirationTimestamp < Date.now());
@@ -19,7 +25,10 @@ export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) =
       sessionDict.expirationTimestamp += 10000;
     } else {
       const basicAuth = await checkBasicAuth2(req);
-      if (!basicAuth.granted) return res.status(401).end();
+      if (!basicAuth.granted) {
+        logInfo(req.body?.userEmail, 'getMatchingEmailAddressesForSharing2 fail: auth not granted');
+        return res.status(401).end();
+      }
       session = uuidv4();
       contactSearchSessions.push({ session, expirationTimestamp: Date.now() + 10000 });
     }
@@ -28,6 +37,7 @@ export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) =
       'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key_2 IS NOT NULL AND group_id=$2',
       [emailAddressSearch + '%', parseInt(req.params.groupId || 1)],
     );
+    logInfo(req.body?.userEmail, 'getMatchingEmailAddressesForSharing2 OK');
     // Return res
     return res
       .status(200)

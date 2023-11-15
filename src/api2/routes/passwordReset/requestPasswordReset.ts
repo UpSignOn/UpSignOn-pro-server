@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
 import { getExpirationDate, isExpired } from '../../../helpers/dateHelper';
 import { sendPasswordResetRequestEmail } from '../../../helpers/sendPasswordResetRequestEmail';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
@@ -20,8 +20,14 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
 
     // Check params
-    if (!userEmail) return res.status(403).end();
-    if (!deviceId) return res.status(403).end();
+    if (!userEmail) {
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: missing userEmail');
+      return res.status(403).end();
+    }
+    if (!deviceId) {
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: missing deviceId');
+      return res.status(403).end();
+    }
 
     // Request DB
     const authDbRes = await db.query(
@@ -42,9 +48,13 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       [userEmail, deviceId, groupId],
     );
 
-    if (!authDbRes || authDbRes.rowCount === 0) return res.status(401).end();
+    if (!authDbRes || authDbRes.rowCount === 0) {
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: no such authorized device');
+      return res.status(401).end();
+    }
     if (!deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallengeV2(authDbRes.rows[0].did);
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: sending device challenge');
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
@@ -54,7 +64,10 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       authDbRes.rows[0].session_auth_challenge,
       authDbRes.rows[0].device_public_key_2,
     );
-    if (!isDeviceAuthorized) return res.status(401).end();
+    if (!isDeviceAuthorized) {
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: device auth failed');
+      return res.status(401).end();
+    }
 
     // Request DB
     const dbRes = await db.query(
@@ -108,6 +121,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         randomAuthorizationCode,
         expirationDate,
       );
+      logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset mail sent)');
       return res.status(200).json({ resetStatus: 'mail_sent' });
     } else {
       // MANUAL VALIDATION IS ENABLED
@@ -120,6 +134,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           `,
           [resetRequest.device_id, groupId],
         );
+        logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request created)');
         // TODO notify admin
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (
@@ -131,15 +146,18 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           `UPDATE password_reset_request SET status='PENDING_ADMIN_CHECK', reset_token=null, reset_token_expiration_date=null WHERE id=$1 AND group_id=$2`,
           [resetRequest.reset_request_id, groupId],
         );
+        logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request updated)');
         // TODO notify admin
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
+        logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request still pending)');
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (resetRequest.reset_status === 'ADMIN_AUTHORIZED') {
+        logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (mail sent)');
         return res.status(200).json({ resetStatus: 'mail_sent' });
       }
     }
-    logError(req.body?.userEmail, 'requestPasswordReset unmet conditions');
+    logError(req.body?.userEmail, 'requestPasswordReset fail: unmet conditions');
     res.status(400).end();
   } catch (e) {
     logError(req.body?.userEmail, 'requestPasswordReset', e);

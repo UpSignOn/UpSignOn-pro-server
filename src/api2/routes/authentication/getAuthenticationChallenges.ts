@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
@@ -12,6 +12,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     if (!userEmail || !deviceId) {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
       return res.status(403).end();
     }
 
@@ -42,15 +43,19 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         [userEmail, groupId],
       );
       if (emailChangeRes.rowCount === 0) {
+        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device deleted');
         return res.status(403).json({ error: 'revoked' });
       } else {
+        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: email address updated');
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by user');
       return res.status(403).json({ error: 'revoked' });
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN') {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by admin');
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
 
@@ -58,20 +63,29 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       dbRes.rows[0].group_settings?.IS_TESTING &&
       new Date(dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE) < new Date()
     ) {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: test expired');
       return res.status(403).json({ error: 'test_expired' });
     }
 
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
+    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') {
+      logInfo(
+        req.body?.userEmail,
+        'getAuthenticationChallenges2 fail: device status',
+        dbRes.rows[0].authorization_status,
+      );
+
       return res.status(403).json({
         error: 'other_authorization_status',
         authorizationStatus: dbRes.rows[0].authorization_status,
       });
+    }
 
     const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].did);
 
     if (dbRes.rows[0].encrypted_data_2) {
       const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
 
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 OK');
       return res.status(200).json({
         passwordChallenge: passwordChallenge.pwdChallengeBase64,
         passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
@@ -83,8 +97,10 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup_2,
       });
     } else if (dbRes.rows[0].encrypted_data) {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: needs migration');
       return res.status(403).json({ error: 'needs_migration' });
     } else {
+      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: empty data');
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
   } catch (e) {

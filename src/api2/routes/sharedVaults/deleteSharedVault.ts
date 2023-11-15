@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -7,16 +7,23 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
-    if (sharedVaultId == null) return res.status(403).end();
+    if (sharedVaultId == null) {
+      logInfo(req.body?.userEmail, 'deleteSharedVault fail: missing sharedVaultId');
+      return res.status(403).end();
+    }
 
     const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
-    if (!authRes.granted) return res.status(401).end();
+    if (!authRes.granted) {
+      logInfo(req.body?.userEmail, 'deleteSharedVault fail: auth not granted');
+      return res.status(401).end();
+    }
 
     await db.query('DELETE FROM shared_vaults WHERE id=$1 AND group_id=$2', [
       sharedVaultId,
       authRes.groupId,
     ]);
 
+    logInfo(req.body?.userEmail, 'deleteSharedVault OK');
     return res.status(204).end();
   } catch (e) {
     logError(req.body?.userEmail, 'deleteSharedVault', e);

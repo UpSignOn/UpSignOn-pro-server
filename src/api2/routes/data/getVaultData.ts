@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 
@@ -23,16 +23,28 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
 
     // Check params
-    if (!userEmail) return res.status(403).end();
-    if (!deviceId) return res.status(403).end();
-    if (!deviceSession) return res.status(401).end();
+    if (!userEmail) {
+      logInfo(req.body?.userEmail, 'getVaultData fail: missing userEmail');
+      return res.status(403).end();
+    }
+    if (!deviceId) {
+      logInfo(req.body?.userEmail, 'getVaultData fail: missing deviceId');
+      return res.status(403).end();
+    }
+    if (!deviceSession) {
+      logInfo(req.body?.userEmail, 'getVaultData fail: missing deviceSession');
+      return res.status(401).end();
+    }
 
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceId,
       groupId,
     });
-    if (!isSessionOK) return res.status(401).end();
+    if (!isSessionOK) {
+      logInfo(req.body?.userEmail, 'getVaultData fail: session not valid');
+      return res.status(401).end();
+    }
 
     // Request DB
     const dbRes = await db.query(
@@ -65,20 +77,26 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         [userEmail, groupId],
       );
       if (emailChangeRes.rowCount === 0) {
+        logInfo(req.body?.userEmail, 'getVaultData fail: device deleted');
         return res.status(403).json({ error: 'revoked' });
       } else {
+        logInfo(req.body?.userEmail, 'getVaultData fail: email address changed');
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
+      logInfo(req.body?.userEmail, 'getVaultData fail: revoked by user');
       return res.status(403).json({ error: 'revoked' });
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN') {
+      logInfo(req.body?.userEmail, 'getVaultData fail: revoked by admin');
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
 
-    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED')
+    if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') {
+      logInfo(req.body?.userEmail, 'getVaultData fail: status', dbRes.rows[0].authorization_status);
       return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
+    }
 
     const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupId);
 
@@ -102,6 +120,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
 
     // Clean changed_emails table if necessary
     cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
+    logInfo(req.body?.userEmail, 'getVaultData OK');
   } catch (e) {
     logError(req.body?.userEmail, 'getVaultData', e);
     return res.status(400).end();

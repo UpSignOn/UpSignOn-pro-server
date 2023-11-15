@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
@@ -7,10 +7,16 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const getRecipientsForSharedVault = async (req: any, res: any) => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
-    if (sharedVaultId == null) return res.status(403).end();
+    if (sharedVaultId == null) {
+      logInfo(req.body?.userEmail, 'getRecipientsForSharedVault fail: sharedVaultId missing');
+      return res.status(403).end();
+    }
 
     const basicAuth = await checkBasicAuth2(req);
-    if (!basicAuth.granted) return res.status(401).end();
+    if (!basicAuth.granted) {
+      logInfo(req.body?.userEmail, 'getRecipientsForSharedVault fail: auth not granted');
+      return res.status(401).end();
+    }
 
     const dbRes = await db.query(
       `SELECT svr.user_id, users.email, svr.is_manager
@@ -19,6 +25,7 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
           WHERE shared_vault_id=$1 AND svr.group_id=$2`,
       [sharedVaultId, basicAuth.groupId],
     );
+    logInfo(req.body?.userEmail, 'getRecipientsForSharedVault OK');
     // Return res
     return res.status(200).json({
       recipients: dbRes.rows.map((r) => ({

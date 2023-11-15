@@ -8,12 +8,12 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
     if (sharedVaultId == null) {
-      logError(req.body?.userEmail, 'getSharedVaultData', 'sharedVaultId was null');
+      logInfo(req.body?.userEmail, 'getSharedVaultData fail: sharedVaultId was null');
       return res.status(403).end();
     }
     const authRes = await checkBasicAuth2(req, { checkIsRecipientForVaultId: sharedVaultId });
     if (!authRes.granted) {
-      logError(req.body?.userEmail, 'getSharedVaultData', 'auth not granted');
+      logInfo(req.body?.userEmail, 'getSharedVaultData fail: auth not granted');
       return res.status(401).end();
     }
 
@@ -41,7 +41,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
       encryptedKey: s.encrypted_shared_vault_key,
       isManager: s.is_manager,
     }));
-    logInfo(req.body?.userEmail, 'getSharedVaultData', 'success');
+    logInfo(req.body?.userEmail, 'getSharedVaultData OK');
     return res.status(200).json({ sharedVault: sharedVaultMap[0] });
   } catch (e) {
     logError(req.body?.userEmail, 'getSharedVaultData', e);

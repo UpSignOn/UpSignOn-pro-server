@@ -7,23 +7,35 @@ import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => {
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
-    if (sharedVaultId == null) return res.status(403).end();
+    if (sharedVaultId == null) {
+      logInfo(
+        req.body?.userEmail,
+        'updateRecipientRightsOnSharedVault fail: missing sharedVaultId',
+      );
+      return res.status(403).end();
+    }
 
     const recipientId = inputSanitizer.getNumberOrNull(req.body?.recipientId);
     if (recipientId == null) {
-      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'recipientId was null');
+      logError(
+        req.body?.userEmail,
+        'updateRecipientRightsOnSharedVault fail: recipientId was null',
+      );
       return res.status(403).end();
     }
 
     const willBeManager = inputSanitizer.getBoolean(req.body?.willBeManager);
     if (willBeManager == null) {
-      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'willBeManager was null');
+      logError(
+        req.body?.userEmail,
+        'updateRecipientRightsOnSharedVault fail: willBeManager was null',
+      );
       return res.status(403).end();
     }
 
     const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     if (!basicAuth.granted) {
-      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'auth not granted');
+      logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault fail: auth not granted');
       return res.status(401).end();
     }
     // Check we are not removing the last manager
@@ -33,7 +45,10 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
         [sharedVaultId, basicAuth.groupId],
       );
       if (checkRes.rows[0].count == 1) {
-        logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'last_manager_error');
+        logError(
+          req.body?.userEmail,
+          'updateRecipientRightsOnSharedVault fail: last_manager_error',
+        );
         return res.status(403).json({ error: 'last_manager_error' });
       }
     }
@@ -42,7 +57,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
       'UPDATE shared_vault_recipients SET is_manager=$1 WHERE shared_vault_id=$2 AND user_id=$3 AND group_id=$4',
       [willBeManager, sharedVaultId, recipientId, basicAuth.groupId],
     );
-    logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', 'success');
+    logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault OK');
     return res.status(204).end();
   } catch (e) {
     logError(req.body?.userEmail, 'updateRecipientRightsOnSharedVault', e);

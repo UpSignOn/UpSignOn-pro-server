@@ -1,12 +1,15 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getUrlList2 = async (req: any, res: any): Promise<void> => {
   try {
     const basicAuth = await checkBasicAuth2(req);
-    if (!basicAuth.granted) return res.status(401).end();
+    if (!basicAuth.granted) {
+      logInfo(req.body?.userEmail, 'getUrlList2 fail: auth not granted');
+      return res.status(401).end();
+    }
 
     const urlListRes = await db.query(
       'SELECT * FROM url_list WHERE group_id=$1 ORDER BY displayed_name ASC',
@@ -21,6 +24,7 @@ export const getUrlList2 = async (req: any, res: any): Promise<void> => {
         usesHTTPBasic: u.uses_basic_auth,
       }));
 
+    logInfo(req.body?.userEmail, 'getUrlList2 OK');
     // Return res
     return res.status(200).json({ urlList: list });
   } catch (e) {

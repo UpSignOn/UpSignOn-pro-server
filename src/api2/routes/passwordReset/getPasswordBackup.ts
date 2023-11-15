@@ -1,6 +1,6 @@
 import { db } from '../../../helpers/db';
 import { isExpired } from '../../../helpers/dateHelper';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
@@ -15,15 +15,24 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    if (!userEmail) return res.status(403).end();
+    if (!userEmail) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: missing userEmail');
+      return res.status(403).end();
+    }
 
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const resetToken = inputSanitizer.getString(req.body?.resetToken);
 
     // Check params
-    if (!deviceId) return res.status(403).end();
-    if (!resetToken) return res.status(403).end();
+    if (!deviceId) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: missing deviceId');
+      return res.status(403).end();
+    }
+    if (!resetToken) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: missing resetToken');
+      return res.status(403).end();
+    }
 
     // Request DB
     const deviceRes = await db.query(
@@ -44,10 +53,14 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       [userEmail, deviceId, groupId],
     );
 
-    if (!deviceRes || deviceRes.rowCount === 0) return res.status(401).end();
+    if (!deviceRes || deviceRes.rowCount === 0) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: no such authorized device');
+      return res.status(401).end();
+    }
 
     if (!deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallengeV2(deviceRes.rows[0].id);
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: sending device challenge');
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
@@ -57,7 +70,10 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       deviceRes.rows[0].session_auth_challenge,
       deviceRes.rows[0].device_public_key_2,
     );
-    if (!isDeviceAuthorized) return res.status(401).end();
+    if (!isDeviceAuthorized) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: device auth failed');
+      return res.status(401).end();
+    }
 
     const existingRequestRes = await db.query(
       `
@@ -80,9 +96,11 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
 
     const resetRequest = existingRequestRes.rows[0];
     if (!resetRequest) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: no reset request found');
       return res.status(401).json({ error: 'no_request' });
     }
     if (resetRequest.reset_status !== 'ADMIN_AUTHORIZED') {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: reset request not admin authorized');
       return res.status(401).json({ error: 'not_admin_authorized' });
     }
 
@@ -93,12 +111,15 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       tokenMatch = libsodium.memcmp(expectedToken, inputToken);
     } catch (e) {}
     if (!tokenMatch) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: bad token');
       return res.status(401).json({ error: 'bad_token' });
     } else if (isExpired(resetRequest.reset_token_expiration_date)) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: token expired');
       return res.status(401).json({ error: 'expired' });
     }
 
     if (!resetRequest.encrypted_password_backup_2) {
+      logInfo(req.body?.userEmail, 'getPasswordBackup2 fail: backup not setup');
       return res.status(403).json({ error: 'backup_not_setup' });
     }
 
@@ -110,7 +131,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
       [deviceId, groupId],
     );
-
+    logInfo(req.body?.userEmail, 'getPasswordBackup2 OK');
     // Return res
     return res
       .status(200)

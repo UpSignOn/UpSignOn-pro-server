@@ -1,7 +1,7 @@
 import { db } from '../../../helpers/db';
 import { getExpirationDate, isExpired } from '../../../helpers/dateHelper';
 import { sendDeviceRequestEmail } from '../../../helpers/sendDeviceRequestEmail';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
 
@@ -27,7 +27,10 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+).([a-zA-Z]{2,5})$/g;
-    if (!userEmail || !emailRegex.test(userEmail)) return res.status(400).end();
+    if (!userEmail || !emailRegex.test(userEmail)) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: not a valid email');
+      return res.status(400).end();
+    }
 
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const devicePublicKey = inputSanitizer.getString(req.body?.devicePublicKey);
@@ -37,11 +40,26 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
     // Check params
-    if (!deviceId) return res.status(400).json({ error: 'missing_deviceId' });
-    if (!deviceName) return res.status(400).json({ error: 'missing_deviceName' });
-    if (!deviceType) return res.status(400).json({ error: 'missing_deviceType' });
-    if (!deviceOS) return res.status(400).json({ error: 'missing_deviceOS' });
-    if (!devicePublicKey) return res.status(400).json({ error: 'missing_devicePublicKey' });
+    if (!deviceId) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceId');
+      return res.status(400).json({ error: 'missing_deviceId' });
+    }
+    if (!deviceName) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceName');
+      return res.status(400).json({ error: 'missing_deviceName' });
+    }
+    if (!deviceType) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceType');
+      return res.status(400).json({ error: 'missing_deviceType' });
+    }
+    if (!deviceOS) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceOS');
+      return res.status(400).json({ error: 'missing_deviceOS' });
+    }
+    if (!devicePublicKey) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing devicePublicKey');
+      return res.status(400).json({ error: 'missing_devicePublicKey' });
+    }
 
     // Request DB
     let userRes = await db.query('SELECT id FROM users WHERE email=$1 AND group_id=$2', [
@@ -61,8 +79,10 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
             return userEmail === emailPattern.pattern;
           }
         })
-      )
+      ) {
+        logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: email address not allowed');
         return res.status(403).json({ error: 'email_address_not_allowed' });
+      }
       userRes = await db.query('INSERT INTO users (email, group_id) VALUES ($1,$2) RETURNING id', [
         userEmail,
         groupId,
@@ -76,6 +96,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     );
 
     if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'AUTHORIZED') {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 OK (device already authorized)');
       return res.status(200).json({ authorizationStatus: 'AUTHORIZED' });
     } else if (
       deviceRes.rowCount > 0 &&
@@ -91,6 +112,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         deviceRes.rows[0].authorization_code,
         deviceRes.rows[0].auth_code_expiration_date,
       );
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 OK (email resent)');
       return res.status(200).json({ authorizationStatus: 'PENDING' });
     }
 
@@ -130,6 +152,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       new Date(expirationDate),
     );
 
+    logInfo(req.body?.userEmail, 'requestDeviceAccess2 OK (email sent with new code)');
     // Return res
     return res.status(200).json({ authorizationStatus: 'MAIL_SENT' });
   } catch (e) {

@@ -8,25 +8,25 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
   try {
     const sharedVaultId = inputSanitizer.getNumberOrNull(req.body?.sharedVaultId);
     if (sharedVaultId == null) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'sharedVaultId was null');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: sharedVaultId was null');
       return res.status(403).end();
     }
 
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     if (!newEncryptedData) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'newEncryptedData was null');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: newEncryptedData was null');
       return res.status(403).end();
     }
 
     const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
     if (!lastUpdatedAt) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'lastUpdatedAt was null');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: lastUpdatedAt was null');
       return res.status(403).end();
     }
 
     const vaultStats = inputSanitizer.getVaultStats(req.body?.vaultStats);
     if (!vaultStats) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'vaultStats was null');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: vaultStats was null');
       return res.status(403).end();
     }
 
@@ -34,7 +34,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     // const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
     const authRes = await checkBasicAuth2(req);
     if (!authRes.granted) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'auth not granted');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: auth not granted');
       return res.status(401).end();
     }
 
@@ -85,7 +85,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     );
 
     if (updateRes.rowCount === 0) {
-      logError(req.body?.userEmail, 'updateSharedVaultData', 'attempted update on outdated data');
+      logInfo(req.body?.userEmail, 'updateSharedVaultData fail: outdated data');
       // CONFLICT
       return res.status(409).json({ error: 'outdated' });
     }
@@ -114,7 +114,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
         authRes.groupId,
       ],
     );
-    logInfo(req.body?.userEmail, 'updateSharedVaultData', 'success');
+    logInfo(req.body?.userEmail, 'updateSharedVaultData OK');
     return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].last_updated_at });
   } catch (e) {
     logError(req.body?.userEmail, 'updateSharedVaultData', e);

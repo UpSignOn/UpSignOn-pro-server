@@ -1,5 +1,5 @@
 import { db } from '../../../helpers/db';
-import { logError } from '../../../helpers/logger';
+import { logError, logInfo } from '../../../helpers/logger';
 import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
@@ -22,13 +22,16 @@ export const revokeDevice = async (req: any, res: any) => {
     if (deviceId === deviceToDelete) {
       // Get params
       const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-      if (!userEmail) return res.status(403).end();
+      if (!userEmail) {
+        logInfo(req.body?.userEmail, 'revokeDevice self fail: missing user email');
+        return res.status(403).end();
+      }
 
+      if (!deviceId) {
+        logInfo(req.body?.userEmail, 'revokeDevice self fail: missing deviceId');
+        return res.status(403).end();
+      }
       const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
-
-      // Check params
-      if (!userEmail) return res.status(403).end();
-      if (!deviceId) return res.status(403).end();
 
       // Request DB
       const dbRes = await db.query(
@@ -49,6 +52,7 @@ export const revokeDevice = async (req: any, res: any) => {
       );
 
       if (!dbRes || dbRes.rowCount === 0) {
+        logInfo(req.body?.userEmail, 'revokeDevice self fail: no such authorized device found');
         return res.status(401).end();
       }
 
@@ -64,6 +68,7 @@ export const revokeDevice = async (req: any, res: any) => {
       if (!deviceSession || !isSessionAuthenticated) {
         if (!deviceChallengeResponse) {
           const deviceChallenge = await createDeviceChallengeV2(dbRes.rows[0].id);
+          logInfo(req.body?.userEmail, 'revokeDevice self fail: sending device challenge');
           return res.status(403).json({ deviceChallenge });
         }
         const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
@@ -73,14 +78,20 @@ export const revokeDevice = async (req: any, res: any) => {
           dbRes.rows[0].session_auth_challenge,
           dbRes.rows[0].device_public_key_2,
         );
-        if (!isDeviceAuthorized) return res.status(401).end();
+        if (!isDeviceAuthorized) {
+          logInfo(req.body?.userEmail, 'revokeDevice self fail: device not authenticated');
+          return res.status(401).end();
+        }
       }
 
       userId = dbRes.rows[0].uid;
     } else {
       // DEVICE CAN ONLY REVOKE OTHER DEVICES WITH FULL SESSION
       const basicAuth = await checkBasicAuth2(req);
-      if (!basicAuth.granted) return res.status(401).end();
+      if (!basicAuth.granted) {
+        logInfo(req.body?.userEmail, 'revokeDevice fail: auth not granted');
+        return res.status(401).end();
+      }
       userId = basicAuth.userId;
     }
 
@@ -88,6 +99,7 @@ export const revokeDevice = async (req: any, res: any) => {
       "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup='', encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
       [new Date().toISOString(), deviceToDelete, userId, groupId],
     );
+    logInfo(req.body?.userEmail, 'revokeDevice OK');
     // Return res
     return res.status(204).end();
   } catch (e) {
