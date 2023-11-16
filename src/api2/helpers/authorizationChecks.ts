@@ -63,9 +63,7 @@ export const checkBasicAuth2 = async (
     options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
       ? [options.checkIsManagerForVaultId || options.checkIsRecipientForVaultId]
       : [];
-  const accountRecipientWhere = options?.checkIsRecipientForVaultId
-    ? 'AND svr.is_manager=true'
-    : '';
+  const accountRecipientWhere = options?.checkIsManagerForVaultId ? 'AND svr.is_manager=true' : '';
 
   // Request DB
   const dbRes = await db.query(
