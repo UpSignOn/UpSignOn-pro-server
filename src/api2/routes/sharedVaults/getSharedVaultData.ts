@@ -13,7 +13,10 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
     }
     const authRes = await checkBasicAuth2(req, { checkIsRecipientForVaultId: sharedVaultId });
     if (!authRes.granted) {
-      logInfo(req.body?.userEmail, 'getSharedVaultData fail: auth not granted');
+      logInfo(
+        req.body?.userEmail,
+        'getSharedVaultData fail: auth not granted for sharedVaultId ' + sharedVaultId,
+      );
       return res.status(401).end();
     }
 
