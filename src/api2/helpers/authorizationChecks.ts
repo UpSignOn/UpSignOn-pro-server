@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '../../helpers/db';
+import { logInfo } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 
@@ -32,9 +33,18 @@ export const checkBasicAuth2 = async (
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
   const deviceUId = inputSanitizer.getString(req.body?.deviceId);
 
-  if (!userEmail) return { granted: false };
-  if (!deviceUId) return { granted: false };
-  if (!deviceSession) return { granted: false };
+  if (!userEmail) {
+    logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: missing userEmail');
+    return { granted: false };
+  }
+  if (!deviceUId) {
+    logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: missing deviceId');
+    return { granted: false };
+  }
+  if (!deviceSession) {
+    logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: missing deviceSession');
+    return { granted: false };
+  }
 
   if (deviceSession) {
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
@@ -42,7 +52,10 @@ export const checkBasicAuth2 = async (
       deviceUniqueId: deviceUId,
       groupId,
     });
-    if (!isSessionOK) return { granted: false };
+    if (!isSessionOK) {
+      logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: invalid session');
+      return { granted: false };
+    }
   }
 
   const publicKeySelect = options?.returningUserPublicKey
@@ -65,29 +78,34 @@ export const checkBasicAuth2 = async (
       : [];
   const accountRecipientWhere = options?.checkIsManagerForVaultId ? 'AND svr.is_manager=true' : '';
 
+  const query = `SELECT
+  ${publicKeySelect}
+  ${dataSelect}
+  ${deviceIdSelect}
+  u.id AS user_id,
+  char_length(ud.device_public_key) > 0 AS has_device_public_key
+FROM user_devices AS ud
+INNER JOIN users AS u ON ud.user_id = u.id
+${accountManagerOrRecipientJoin}
+WHERE
+  u.email=$1
+  AND ud.device_unique_id = $2
+  AND ud.authorization_status='AUTHORIZED'
+  AND u.group_id=$3
+  ${accountManagerOrRecipientWhere}
+  ${accountRecipientWhere}
+  `;
+  const params = [userEmail, deviceUId, groupId, ...accountManagerOrRecipientParam];
   // Request DB
-  const dbRes = await db.query(
-    `SELECT
-      ${publicKeySelect}
-      ${dataSelect}
-      ${deviceIdSelect}
-      u.id AS user_id,
-      char_length(ud.device_public_key) > 0 AS has_device_public_key
-    FROM user_devices AS ud
-    INNER JOIN users AS u ON ud.user_id = u.id
-    ${accountManagerOrRecipientJoin}
-    WHERE
-      u.email=$1
-      AND ud.device_unique_id = $2
-      AND ud.authorization_status='AUTHORIZED'
-      AND u.group_id=$3
-      ${accountManagerOrRecipientWhere}
-      ${accountRecipientWhere}
-      `,
-    [userEmail, deviceUId, groupId, ...accountManagerOrRecipientParam],
-  );
+  const dbRes = await db.query(query, params);
 
-  if (!dbRes || dbRes.rowCount === 0) return { granted: false };
+  if (!dbRes || dbRes.rowCount === 0) {
+    logInfo(
+      req.body?.userEmail,
+      `checkBasicAuth2 fail: (not found) - request = ${query} - params = ${params}`,
+    );
+    return { granted: false };
+  }
 
   return {
     userEmail,
