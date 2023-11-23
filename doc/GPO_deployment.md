@@ -2,39 +2,9 @@
 
 ## Déploiement de l'application pour windows
 
-> Attention, cette méthode de déploiement ne permet pas à l'application de se mettre à jour automatiquement. Pour avoir les mises-à-jour automatiques, vous devez passer par le Microsoft Store ou le Microsoft Store pour Entreprises.
+> Attention, cette méthode de déploiement ne permet pas pour l'instant à l'application de se mettre à jour automatiquement. Pour avoir les mises-à-jour automatiques, vous devez passer par le Microsoft Store.
 
-- Téléchargez le dossier [https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest](https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest)
-
-- Il s'agit d'un dossier zip. Ajoutez-lui l'extension .zip pour pouvoir extraire son contenu.
-
-- Vous pouvez alors déployer ce dossier par GPO et lancer le script d'installation qui y est inclus par GPO pour installer l'application chez tous vos collaborateurs.
-
-> Attention, la GPO doit être appliquée à l'utilisateur et non à l'ordinateur.
-
-## Déploiement du module UpSignOnHelper (pour windows uniquement)
-
-Pour permettre aux extensions de navigateur de communiquer avec l'application sur windows, vous aller devoir:
-
-- télécharger UpSignOnHelper ici : [https://app.upsignon.eu/UpSignOnHelper.zip](https://app.upsignon.eu/UpSignOnHelper.zip)
-- déployer le dossier UpSignOnHelper dézippé sur les postes de vos utilisateurs, à n'importe quel emplacement, par exemple C:\Program Files\UpSignOnHelper
-- vérifiez dans les propriétés du fichier UpSignOnHelper.exe, dans l'onglet général, que son exécution n'est pas bloquée.
-- exécuter le programme UpSignOnHelper.exe avec les droits administrateurs pour mettre à jour le registre. Vous pouvez également configurer directement le registre avec les clés suivantes selon les navigateurs utilisés et en adpatant les valeurs à l'emplacement que vous avez choisi :
-
-  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Mozilla\NativeMessagingHosts\eu.datasmine.upsignon
-
-    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingMozilla.json
-
-  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\eu.datasmine.upsignon
-
-    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingEdge.json
-
-  - Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Google\Chrome\NativeMessagingHosts\eu.datasmine.upsignon
-    - (Default) - REG_SZ = C:\Program Files\UpSignOnHelper\Assets\nativeMessagingChrome.json
-
-Notez que si vous déplacez le dossier UpSignOnHelper par la suite, vous devrez relancer UpSignOnHelper.exe avec les droits administrateurs, ou mettre manuellement à jour les valeurs du registre.
-
-Vous pouvez ensuite tester que l'extension de navigateur est désormais capable de lister automatiquement les espaces UpSignOn PRO et PERSO de l'application et de les déverrouiller, y compris avec la biométrie si elle a été configurée dans l'application.
+Le fichier d'installation msi est disponible sur le lien suivant: [https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi](https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi);
 
 ## Déploiement des extensions de navigateur
 
