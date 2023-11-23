@@ -18,10 +18,22 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
       return res.status(403).end();
     }
 
-    const basicAuth = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    const basicAuth = await checkBasicAuth2(req);
     if (!basicAuth.granted) {
       logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: auth not granted');
       return res.status(401).end();
+    }
+
+    if (basicAuth.userId !== recipientId) {
+      // if not removing himself, check if is owner
+      const ownershipCheck = await db.query(
+        'SELECT is_manager FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND group_id=3',
+        [sharedVaultId, basicAuth.userId, basicAuth.groupId],
+      );
+      if (!ownershipCheck.rows[0]?.is_manager) {
+        logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: not owner');
+        return res.status(403).end();
+      }
     }
 
     await db.query(
