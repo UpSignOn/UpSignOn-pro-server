@@ -2,9 +2,23 @@
 
 ## Déploiement de l'application pour windows
 
+### Package msi
+
 > Attention, cette méthode de déploiement ne permet pas pour l'instant à l'application de se mettre à jour automatiquement. Pour avoir les mises-à-jour automatiques, vous devez passer par le Microsoft Store.
 
 Le fichier d'installation msi est disponible sur le lien suivant: [https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi](https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi);
+
+### Script d'installation
+
+Cette méthode vous permet d'installer le package provenant du Microsoft Store (donc signé par Microsoft) même si l'application Microsoft Store n'est pas disponible.
+
+- Téléchargez le dossier [https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest](https://app.upsignon.eu/windows-sideloading-gpo/UpSignOn_latest)
+
+- Il s'agit d'un dossier zip. Ajoutez-lui l'extension .zip pour pouvoir extraire son contenu.
+
+- Vous pouvez alors déployer ce dossier par GPO et lancer le script d'installation par GPO pour installer l'application chez tous vos collaborateurs.
+
+> Attention, la GPO doit être appliquée à l'utilisateur et non à l'ordinateur.
 
 ## Déploiement des extensions de navigateur
 
