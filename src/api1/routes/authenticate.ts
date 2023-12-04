@@ -4,6 +4,7 @@ import { logError } from '../../helpers/logger';
 import { checkPasswordChallengeV1 } from '../helpers/passwordChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { checkDeviceChallengeV2 } from '../../api2/helpers/deviceChallengev2';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const authenticate = async (req: any, res: any) => {
@@ -86,11 +87,20 @@ export const authenticate = async (req: any, res: any) => {
     );
 
     // 5 - check Device challenge
-    const hasPassedDeviceChallenge = await checkDeviceChallengeV1(
-      session_auth_challenge,
-      deviceChallengeResponse,
-      device_public_key,
-    );
+    let hasPassedDeviceChallenge = false;
+    if (device_public_key.length > 50) {
+      hasPassedDeviceChallenge = await checkDeviceChallengeV1(
+        session_auth_challenge,
+        deviceChallengeResponse,
+        device_public_key,
+      );
+    } else {
+      hasPassedDeviceChallenge = await checkDeviceChallengeV2(
+        session_auth_challenge,
+        deviceChallengeResponse,
+        device_public_key,
+      );
+    }
 
     const success = hasPassedPasswordChallenge && hasPassedDeviceChallenge;
     if (success) {
