@@ -3,6 +3,7 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import { createPasswordChallengeV1 } from '../../../api1/helpers/passwordChallengev1';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
@@ -10,6 +11,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const isMigration = !!req.body?.isMigration;
 
     if (!userEmail || !deviceId) {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
@@ -97,8 +99,18 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup_2,
       });
     } else if (dbRes.rows[0].encrypted_data) {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: needs migration');
-      return res.status(403).json({ error: 'needs_migration' });
+      if (isMigration) {
+        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 OK: with migration');
+        const passwordChallenge = createPasswordChallengeV1(dbRes.rows[0].encrypted_data);
+        return res.status(200).json({
+          deviceChallenge,
+          passwordChallenge: passwordChallenge.pwdChallengeBase64,
+          passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
+        });
+      } else {
+        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: needs migration');
+        return res.status(403).json({ error: 'needs_migration' });
+      }
     } else {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: empty data');
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
