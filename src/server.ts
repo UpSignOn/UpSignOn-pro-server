@@ -32,7 +32,6 @@ import { updateContactItemRights } from './api1/routes/updateContactItemRights';
 import { stopSharingWithContact } from './api1/routes/stopSharingWithContact';
 import { checkUserPublicKey } from './api1/routes/checkUserPublicKey';
 import { updateDeviceMetaData } from './api1/routes/updateDeviceMetaData';
-import { logUsage } from './api1/routes/logUsage';
 import { getMatchingEmailAddressesForSharing } from './api1/routes/getMatchingEmailAddressesForSharing';
 import { getContactsSharingItemsWithMe } from './api1/routes/getContactsSharingItemsWithMe';
 import { deleteSharing } from './api1/routes/deleteSharing';
@@ -268,7 +267,10 @@ app.post(['/:groupId/rename-device', '/rename-device'], renameDevice);
 app.post(['/:groupId/remove-authorization', '/remove-authorization'], removeAuthorization);
 
 // LOGS
-app.post(['/:groupId/log-usage', '/log-usage'], logUsage);
+// TODO remove this in march 2024
+app.post(['/:groupId/log-usage', '/log-usage'], (req, res) => {
+  res.status(204).end();
+});
 app.post(['/:groupId/send-stats', '/send-stats'], sendStats);
 app.post(['/:groupId/update-device-metadata', '/update-device-metadata'], updateDeviceMetaData);
 

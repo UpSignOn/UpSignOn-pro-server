@@ -39,7 +39,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
               't', device_type,
               'os', os_version,
               'v', app_version,
-              'last', (SELECT TO_CHAR(date :: DATE, 'yyyy-mm-dd') FROM usage_logs WHERE log_type='SESSION' AND device_id=user_devices.id ORDER BY date DESC LIMIT 1)
+              'last', TO_CHAR(last_sync_date :: DATE, 'yyyy-mm-dd')
             )
           )
           FROM user_devices WHERE user_devices.user_id = users.id
