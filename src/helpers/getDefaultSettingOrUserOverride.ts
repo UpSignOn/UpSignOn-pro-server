@@ -1,7 +1,7 @@
 type GROUP_SETTINGS = {
   DISABLE_OFFLINE_MODE_DEFAULT_DESKTOP?: boolean | null;
   DISABLE_OFFLINE_MODE_DEFAULT_MOBILE?: boolean | null;
-  DISABLE_CSV_EXPORT?: boolean | null;
+  ALLOWED_TO_EXPORT?: boolean | null;
 } | null;
 
 type USER_OVERRIDE = {
@@ -22,7 +22,7 @@ export const getDefaultSettingOrUserOverride = (
 ): RESULTING_USER_SETTINGS => {
   const allowed_to_export =
     userOverride?.allowed_to_export == null
-      ? !defaultSettings?.DISABLE_CSV_EXPORT
+      ? !defaultSettings?.ALLOWED_TO_EXPORT
       : userOverride?.allowed_to_export;
 
   const isDesktop =
