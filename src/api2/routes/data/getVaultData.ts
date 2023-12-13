@@ -50,6 +50,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const dbRes = await db.query(
       `SELECT
         users.id AS user_id,
+        user_devices.id AS device_primary_id,
         user_devices.authorization_status AS authorization_status,
         users.encrypted_data_2 AS encrypted_data_2,
         users.updated_at AS updated_at,
@@ -118,6 +119,11 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         dbRes.rows[0].encrypted_password_backup_2.length == 512,
     });
 
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+      new Date().toISOString(),
+      dbRes.rows[0].device_primary_id,
+      groupId,
+    ]);
     // Clean changed_emails table if necessary
     cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
     logInfo(req.body?.userEmail, 'getVaultData OK');

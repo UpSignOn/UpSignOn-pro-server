@@ -20,7 +20,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       return res.status(403).end();
     }
 
-    const basicAuth = await checkBasicAuth2(req, {});
+    const basicAuth = await checkBasicAuth2(req, { returningDeviceId: true });
     if (!basicAuth.granted) {
       logInfo(req.body?.userEmail, 'updateVaultData fail: auth not granted');
       return res.status(401).end();
@@ -104,7 +104,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
         ],
       );
       logInfo(req.body?.userEmail, 'updateVaultData OK');
-      return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
+      res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     } else {
       const updateRes = await db.query(
         `UPDATE users
@@ -127,8 +127,13 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
         return res.status(409).json({ error: 'outdated' });
       }
       logInfo(req.body?.userEmail, 'updateVaultData OK');
-      return res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
+      res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     }
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+      new Date().toISOString(),
+      basicAuth.deviceId,
+      basicAuth.groupId,
+    ]);
   } catch (e) {
     logError(req.body?.userEmail, 'updateData2', e);
     return res.status(400).end();

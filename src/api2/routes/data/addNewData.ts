@@ -93,6 +93,12 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       return res.status(403).end();
     }
 
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+      new Date().toISOString(),
+      selectRes.rows[0].did,
+      groupId,
+    ]);
+
     const settingsRes = await db.query(
       'SELECT device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
       [deviceUId, groupId],
