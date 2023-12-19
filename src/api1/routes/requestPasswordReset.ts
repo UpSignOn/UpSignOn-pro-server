@@ -29,6 +29,7 @@ export const requestPasswordReset = async (req: any, res: any) => {
       `SELECT
         users.id AS uid,
         user_devices.id AS did,
+        user_devices.device_name AS device_name,
         user_devices.access_code_hash AS access_code_hash,
         user_devices.device_public_key AS device_public_key,
         user_devices.session_auth_challenge AS session_auth_challenge,
@@ -63,19 +64,17 @@ export const requestPasswordReset = async (req: any, res: any) => {
     // Request DB
     const dbRes = await db.query(
       `SELECT
-        user_devices.id AS device_id,
-        user_devices.device_name AS device_name,
         password_reset_request.id AS reset_request_id,
         password_reset_request.status AS reset_status,
         password_reset_request.reset_token_expiration_date AS reset_token_expiration_date
-      FROM user_devices
-        LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
+      FROM password_reset_request
       WHERE
-        user_devices.user_id=$1
-        AND user_devices.device_unique_id = $2
-        AND user_devices.group_id=$3
+        password_reset_request.device_id=$1
+        AND password_reset_request.group_id=$2
+        AND password_reset_request.status != 'COMPLETED'
+      ORDER BY password_reset_request.created_at DESC
       LIMIT 1`,
-      [authDbRes.rows[0].uid, deviceId, groupId],
+      [authDbRes.rows[0].did, groupId],
     );
 
     const resetRequest = dbRes.rows[0];
@@ -88,13 +87,13 @@ export const requestPasswordReset = async (req: any, res: any) => {
       // MANUAL VALIDATION IS DISABLED
       const expirationDate = getExpirationDate();
       const randomAuthorizationCode = getRandomString(8);
-      if (!resetRequest.reset_request_id) {
+      if (!resetRequest) {
         await db.query(
           `INSERT INTO password_reset_request
               (device_id, status, reset_token, reset_token_expiration_date, group_id)
             VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4)
           `,
-          [resetRequest.device_id, randomAuthorizationCode, expirationDate, groupId],
+          [authDbRes.rows[0].did, randomAuthorizationCode, expirationDate, groupId],
         );
       } else {
         await db.query(
@@ -108,26 +107,26 @@ export const requestPasswordReset = async (req: any, res: any) => {
       }
       await sendPasswordResetRequestEmail(
         userEmail,
-        resetRequest.device_name,
+        authDbRes.rows[0].device_name,
         randomAuthorizationCode,
         expirationDate,
       );
       return res.status(200).json({ resetStatus: 'mail_sent' });
     } else {
       // MANUAL VALIDATION IS ENABLED
-      if (!resetRequest.reset_request_id) {
+      if (!resetRequest) {
         await db.query(
           `INSERT INTO password_reset_request
               (device_id, status, group_id)
             VALUES
               ($1, 'PENDING_ADMIN_CHECK', $2)
           `,
-          [resetRequest.device_id, groupId],
+          [authDbRes.rows[0].did, groupId],
         );
         // TODO notify admin
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (
-        !!resetRequest.reset_token_expiration_date &&
+        !resetRequest.reset_token_expiration_date ||
         isExpired(resetRequest.reset_token_expiration_date)
       ) {
         // Start a new request
