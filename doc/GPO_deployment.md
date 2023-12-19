@@ -2,13 +2,15 @@
 
 ## Déploiement de l'application pour windows
 
-### Package msi
+### Méthode 1 : Package msi
 
 > Attention, cette méthode de déploiement ne permet pas pour l'instant à l'application de se mettre à jour automatiquement. Pour avoir les mises-à-jour automatiques, vous devez passer par le Microsoft Store.
 
-Le fichier d'installation msi est disponible sur le lien suivant: [https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi](https://app.upsignon.eu/UpSignOn-7.0.14-installer.msi);
+Le fichier d'installation msi est disponible sur le lien suivant: [https://app.upsignon.eu/UpSignOn-7.1.1-silent-installer.msi](https://app.upsignon.eu/UpSignOn-7.1.1-silent-installer.msi);
 
-### Script d'installation
+### Méthode 2 : Script d'installation (déprécié)
+
+**ATTENTION, cette méthode d'installation ne doit pas être utilisée pour les nouveaux clients.**
 
 Cette méthode vous permet d'installer le package provenant du Microsoft Store (donc signé par Microsoft) même si l'application Microsoft Store n'est pas disponible.
 
