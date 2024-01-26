@@ -56,7 +56,7 @@ async function exportDb() {
         admins: admins.rows,
         admin_groups: admin_groups.rows,
         allowed_emails: allowed_emails.rows,
-        data_stats: data_stats.rows,
+        // data_stats: data_stats.rows,
         // password_reset_request: password_reset_request.rows,
         shared_vault_recipients: shared_vault_recipients.rows,
         shared_vaults: shared_vaults.rows,
