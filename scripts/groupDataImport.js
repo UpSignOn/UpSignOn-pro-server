@@ -110,16 +110,16 @@ async function importFunction() {
         return sau;
       }
     });
-    data.data_stats = data.data_stats.map((row) => {
-      if (row.user_id === u.id) {
-        return {
-          ...row,
-          newUserId: newId,
-        };
-      } else {
-        return row;
-      }
-    });
+    // data.data_stats = data.data_stats.map((row) => {
+    //   if (row.user_id === u.id) {
+    //     return {
+    //       ...row,
+    //       newUserId: newId,
+    //     };
+    //   } else {
+    //     return row;
+    //   }
+    // });
     data.shared_vault_recipients = data.shared_vault_recipients.map((row) => {
       if (row.user_id === u.id) {
         return {
@@ -255,16 +255,16 @@ async function importFunction() {
         return svr;
       }
     });
-    data.data_stats = data.data_stats.map((ds) => {
-      if (ds.shared_vault_id === sv.id) {
-        return {
-          ...ds,
-          newSharedVaultId: newId,
-        };
-      } else {
-        return ds;
-      }
-    });
+    // data.data_stats = data.data_stats.map((ds) => {
+    //   if (ds.shared_vault_id === sv.id) {
+    //     return {
+    //       ...ds,
+    //       newSharedVaultId: newId,
+    //     };
+    //   } else {
+    //     return ds;
+    //   }
+    // });
   }
 
   // SHARED VAULT RECIPIENTS
@@ -284,43 +284,44 @@ async function importFunction() {
   }
 
   // DATA STATS
-  for (var i = 0; i < data.data_stats.length; i++) {
-    const row = data.data_stats[i];
-    await db.query(
-      `INSERT INTO data_stats (
-        user_id,
-        date,
-        nb_accounts,
-        nb_codes,
-        nb_accounts_strong,
-        nb_accounts_medium,
-        nb_accounts_weak,
-        nb_accounts_with_duplicated_password,
-        nb_accounts_with_no_password,
-        nb_accounts_red,
-        nb_accounts_orange,
-        nb_accounts_green,
-        group_id,
-        shared_vault_id
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
-      [
-        row.newUserId,
-        row.date,
-        row.nb_accounts,
-        row.nb_codes,
-        row.nb_accounts_strong,
-        row.nb_accounts_medium,
-        row.nb_accounts_weak,
-        row.nb_accounts_with_duplicated_password,
-        row.nb_accounts_with_no_password,
-        row.nb_accounts_red,
-        row.nb_accounts_orange,
-        row.nb_accounts_green,
-        groupId,
-        row.newSharedVaultId,
-      ],
-    );
-  }
+  // let's drop this import since the curve will change from before due to potential missing refrences for deleted users and shared_vaults
+  // for (var i = 0; i < data.data_stats.length; i++) {
+  //   const row = data.data_stats[i];
+  //   await db.query(
+  //     `INSERT INTO data_stats (
+  //       user_id,
+  //       date,
+  //       nb_accounts,
+  //       nb_codes,
+  //       nb_accounts_strong,
+  //       nb_accounts_medium,
+  //       nb_accounts_weak,
+  //       nb_accounts_with_duplicated_password,
+  //       nb_accounts_with_no_password,
+  //       nb_accounts_red,
+  //       nb_accounts_orange,
+  //       nb_accounts_green,
+  //       group_id,
+  //       shared_vault_id
+  //     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+  //     [
+  //       row.newUserId,
+  //       row.date,
+  //       row.nb_accounts,
+  //       row.nb_codes,
+  //       row.nb_accounts_strong,
+  //       row.nb_accounts_medium,
+  //       row.nb_accounts_weak,
+  //       row.nb_accounts_with_duplicated_password,
+  //       row.nb_accounts_with_no_password,
+  //       row.nb_accounts_red,
+  //       row.nb_accounts_orange,
+  //       row.nb_accounts_green,
+  //       groupId,
+  //       row.newSharedVaultId,
+  //     ],
+  //   );
+  // }
 
   await db.release();
 }

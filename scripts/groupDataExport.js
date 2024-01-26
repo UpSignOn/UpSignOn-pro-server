@@ -25,7 +25,7 @@ async function exportDb() {
     const allowed_emails = await db.query('SELECT * FROM allowed_emails WHERE group_id=$1', [
       groupId,
     ]);
-    const data_stats = await db.query('SELECT * FROM data_stats WHERE group_id=$1', [groupId]);
+    // const data_stats = await db.query('SELECT * FROM data_stats WHERE group_id=$1', [groupId]);
     // const password_reset_request = await db.query(
     //   'SELECT * FROM password_reset_request WHERE group_id=$1',
     //   [groupId],
