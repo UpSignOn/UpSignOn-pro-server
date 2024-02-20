@@ -22,7 +22,7 @@ export const getDefaultSettingOrUserOverride = (
 ): RESULTING_USER_SETTINGS => {
   const allowed_to_export =
     userOverride?.allowed_to_export == null
-      ? !defaultSettings?.ALLOWED_TO_EXPORT
+      ? defaultSettings?.ALLOWED_TO_EXPORT || false
       : userOverride?.allowed_to_export;
 
   const isDesktop =
