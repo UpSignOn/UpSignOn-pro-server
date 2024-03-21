@@ -16,6 +16,7 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const deviceName = inputSanitizer.getString(req.body?.deviceName);
     const osVersion = inputSanitizer.getString(req.body?.osVersion);
+    const installType = inputSanitizer.getString(req.body?.installType);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
     if (!userEmail) {
@@ -80,8 +81,8 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     }
 
     await db.query(
-      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
-      [deviceName, osVersion, appVersion, dbRes.rows[0].id, groupId],
+      'UPDATE user_devices SET device_name=$1, os_version=$2, install_type=$3, app_version=$4 WHERE id=$5 AND group_id=$6',
+      [deviceName, osVersion, installType, appVersion, dbRes.rows[0].id, groupId],
     );
     logInfo(req.body?.userEmail, 'updateDeviceMetaData2 OK');
     return res.status(200).end();

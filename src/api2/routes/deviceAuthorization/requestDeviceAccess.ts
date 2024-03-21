@@ -36,6 +36,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const devicePublicKey = inputSanitizer.getString(req.body?.devicePublicKey);
     const deviceName = inputSanitizer.getString(req.body?.deviceName);
     const deviceType = inputSanitizer.getString(req.body?.deviceType);
+    const installType = inputSanitizer.getString(req.body?.installType);
     const deviceOS = inputSanitizer.getString(req.body?.osVersion);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
@@ -120,11 +121,12 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
       await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_type, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+        'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
         [
           userId,
           deviceName,
           deviceType,
+          installType,
           deviceOS,
           appVersion,
           deviceId,
