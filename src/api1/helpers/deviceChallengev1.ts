@@ -3,7 +3,7 @@ import { db } from '../../helpers/db';
 import { accessCodeHash } from './accessCodeHash';
 import { checkDeviceChallengeV2 } from '../../api2/helpers/deviceChallengev2';
 
-export const createDeviceChallengeV1 = async (deviceId: Number): Promise<string> => {
+export const createDeviceChallengeV1 = async (deviceId: number): Promise<string> => {
   const deviceChallenge = crypto.randomBytes(16).toString('base64');
   const updateRes = await db.query(
     "UPDATE user_devices SET session_auth_challenge=$1, session_auth_challenge_exp_time=current_timestamp(0)+interval '3 minutes' WHERE id=$2",
@@ -21,7 +21,7 @@ export const checkDeviceChallengeV1 = async (
   devicePublicKey: string,
 ): Promise<boolean> => {
   try {
-    if(devicePublicKey.length == 44) {
+    if (devicePublicKey.length == 44) {
       return checkDeviceChallengeV2(challenge, challengeResponse, devicePublicKey);
     }
     const publicKey = Buffer.from(devicePublicKey, 'base64');

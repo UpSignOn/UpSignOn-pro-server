@@ -100,14 +100,14 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     ]);
 
     const settingsRes = await db.query(
-      'SELECT device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
+      'SELECT os_family, device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
       [deviceUId, groupId],
     );
 
     const resultSettings = getDefaultSettingOrUserOverride(
       settingsRes.rows[0].settings,
       null,
-      settingsRes.rows[0].device_type,
+      settingsRes.rows[0].os_family || settingsRes.rows[0].device_type, // fallback to device_type which used to be where we stored os_family
     );
 
     // Set Session

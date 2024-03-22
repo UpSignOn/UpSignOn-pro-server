@@ -34,34 +34,35 @@ export const checkPasswordChallengeV1 = async (
   deviceId: string,
   groupId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
-  if ((!!encryptedData && !encryptedData?.startsWith('formatP001-')) && !encryptedData2) {
+  if (!!encryptedData && !encryptedData?.startsWith('formatP001-') && !encryptedData2) {
     return { hasPassedPasswordChallenge: true }; // This would be the case when the NONE fallback were sent as the password challenge
   }
   let hasPassedPasswordChallenge = false;
 
-  if(encryptedData) {
+  if (encryptedData) {
     // data = ['formatP001-' | passwordDerivationKeySalt(44chars) | challengeBase64(24 chars) | challengeHashBase64(44 chars) | cipherSignatureBase64(44 chars) | ivBase64(24 chars) | cipherBase64(?)]
     const expectedPwdChallengeResult = Buffer.from(encryptedData!.substring(79, 123), 'base64');
     const passwordChallengeResponseBuffer = crypto
-    .createHash('sha256')
-    .update(passwordChallengeResponse, 'base64')
-    .digest();
-    
-    
+      .createHash('sha256')
+      .update(passwordChallengeResponse, 'base64')
+      .digest();
+
     try {
       hasPassedPasswordChallenge = crypto.timingSafeEqual(
         expectedPwdChallengeResult,
         passwordChallengeResponseBuffer,
-        );
+      );
     } catch (e) {}
     if (hasPassedPasswordChallenge) {
       return { hasPassedPasswordChallenge: true };
     }
   }
-  if(!hasPassedPasswordChallenge && encryptedData2){
+  if (!hasPassedPasswordChallenge && encryptedData2) {
     const parts = encryptedData2.split('-');
-    const hashedPwdChallengeResponse = libsodium.crypto_generichash(libsodium.crypto_generichash_BYTES, fromBase64(passwordChallengeResponse));
-
+    const hashedPwdChallengeResponse = libsodium.crypto_generichash(
+      libsodium.crypto_generichash_BYTES,
+      fromBase64(passwordChallengeResponse),
+    );
 
     hasPassedPasswordChallenge = libsodium.memcmp(fromBase64(parts[6]), hashedPwdChallengeResponse);
 

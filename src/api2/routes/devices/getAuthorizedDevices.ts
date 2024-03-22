@@ -12,7 +12,7 @@ export const getAuthorizedDevices2 = async (req: any, res: any) => {
     }
 
     const devicesRes = await db.query(
-      "SELECT device_name, device_unique_id, created_at, device_type, os_version, app_version FROM user_devices WHERE authorization_status='AUTHORIZED' AND user_id=$1 AND group_id=$2",
+      "SELECT device_name, device_unique_id, created_at, device_type, os_family, os_version, install_type, app_version FROM user_devices WHERE authorization_status='AUTHORIZED' AND user_id=$1 AND group_id=$2",
       [basicAuth.userId, basicAuth.groupId],
     );
     logInfo(req.body?.userEmail, 'getAuthorizedDevices2 OK');
@@ -23,7 +23,10 @@ export const getAuthorizedDevices2 = async (req: any, res: any) => {
         deviceId: d.device_unique_id,
         createdAt: d.created_at,
         deviceType: d.device_type,
-        osVersion: d.os_version,
+        osFamily: d.os_family,
+        osNameAndVersion: d.os_version,
+        osVersion: d.os_version, // deprecated
+        installType: d.install_type,
         appVersion: d.app_version,
       })),
     });

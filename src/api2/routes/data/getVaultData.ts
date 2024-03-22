@@ -60,6 +60,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         users.allowed_offline_mobile AS allowed_offline_mobile,
         users.allowed_offline_desktop AS allowed_offline_desktop,
         user_devices.device_type AS device_type,
+        user_devices.os_family AS os_family,
         user_devices.encrypted_password_backup_2
       FROM user_devices
       INNER JOIN users ON user_devices.user_id = users.id
@@ -104,7 +105,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const userResultingSetting = getDefaultSettingOrUserOverride(
       dbRes.rows[0].group_settings,
       dbRes.rows[0],
-      dbRes.rows[0].device_type,
+      dbRes.rows[0].os_family || dbRes.rows[0].device_type, // fallback to device_type which used to be where we stored os_family
     );
 
     // Return res

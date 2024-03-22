@@ -15,7 +15,11 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const deviceName = inputSanitizer.getString(req.body?.deviceName);
-    const osVersion = inputSanitizer.getString(req.body?.osVersion);
+    const osFamily = inputSanitizer.getString(req.body?.osFamily);
+    const osNameAndVersion = inputSanitizer.getString(
+      req.body?.osNameAndVersion || req.body?.osVersion,
+    );
+    const deviceType = inputSanitizer.getString(req.body?.deviceType);
     const installType = inputSanitizer.getString(req.body?.installType);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
@@ -31,8 +35,8 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
       logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing deviceName');
       return res.status(403).end();
     }
-    if (!osVersion) {
-      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing osVersion');
+    if (!osNameAndVersion) {
+      logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: missing osNameAndVersion');
       return res.status(403).end();
     }
     if (!appVersion) {
@@ -81,9 +85,16 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     }
 
     await db.query(
-      'UPDATE user_devices SET device_name=$1, os_version=$2, install_type=$3, app_version=$4 WHERE id=$5 AND group_id=$6',
-      [deviceName, osVersion, installType, appVersion, dbRes.rows[0].id, groupId],
+      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
+      [deviceName, osNameAndVersion, appVersion, dbRes.rows[0].id, groupId],
     );
+    if (osFamily && deviceType && installType) {
+      // sent after version 7.5 of the app
+      await db.query(
+        'UPDATE user_devices SET os_family=$1, device_type=$2, install_type=$3 WHERE id=$4 AND group_id=$5',
+        [osFamily, deviceType, installType, dbRes.rows[0].id, groupId],
+      );
+    }
     logInfo(req.body?.userEmail, 'updateDeviceMetaData2 OK');
     return res.status(200).end();
   } catch (e) {

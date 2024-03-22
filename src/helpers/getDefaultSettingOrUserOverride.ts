@@ -18,7 +18,7 @@ type RESULTING_USER_SETTINGS = {
 export const getDefaultSettingOrUserOverride = (
   defaultSettings: GROUP_SETTINGS,
   userOverride: USER_OVERRIDE,
-  deviceType: string,
+  osFamily: string,
 ): RESULTING_USER_SETTINGS => {
   const allowed_to_export =
     userOverride?.allowed_to_export == null
@@ -26,7 +26,13 @@ export const getDefaultSettingOrUserOverride = (
       : userOverride?.allowed_to_export;
 
   const isDesktop =
-    deviceType === 'Windows.Desktop' || deviceType === 'Mac' || deviceType === 'Linux';
+    osFamily.toLowerCase() === 'windows' ||
+    osFamily.toLowerCase() === 'mac' ||
+    osFamily.toLowerCase() === 'linux' ||
+    // for backwards compat
+    osFamily.indexOf('Windows') === 0 ||
+    osFamily.indexOf('Mac') === 0 ||
+    osFamily.indexOf('Linux') === 0;
 
   const allowed_offline_desktop =
     userOverride?.allowed_offline_desktop == null

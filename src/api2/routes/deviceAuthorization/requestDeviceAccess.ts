@@ -37,7 +37,11 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const deviceName = inputSanitizer.getString(req.body?.deviceName);
     const deviceType = inputSanitizer.getString(req.body?.deviceType);
     const installType = inputSanitizer.getString(req.body?.installType);
-    const deviceOS = inputSanitizer.getString(req.body?.osVersion);
+    const osFamily = inputSanitizer.getString(req.body?.osFamily);
+    // fallback to req.body.osVersion for backwards compatibility
+    const osNameAndVersion = inputSanitizer.getString(
+      req.body?.osNameAndVersion || req.body?.osVersion,
+    );
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
     // Check params
@@ -53,9 +57,9 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceType');
       return res.status(400).json({ error: 'missing_deviceType' });
     }
-    if (!deviceOS) {
-      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceOS');
-      return res.status(400).json({ error: 'missing_deviceOS' });
+    if (!osNameAndVersion) {
+      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing osNameAndVersion');
+      return res.status(400).json({ error: 'missing_osNameAndVersion' });
     }
     if (!devicePublicKey) {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing devicePublicKey');
@@ -109,7 +113,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         userEmail,
         deviceName,
         deviceType,
-        deviceOS,
+        osNameAndVersion,
         deviceRes.rows[0].authorization_code,
         deviceRes.rows[0].auth_code_expiration_date,
       );
@@ -121,13 +125,14 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
       await db.query(
-        'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',
+        'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',
         [
           userId,
           deviceName,
           deviceType,
           installType,
-          deviceOS,
+          osFamily,
+          osNameAndVersion,
           appVersion,
           deviceId,
           devicePublicKey,
@@ -149,7 +154,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       userEmail,
       deviceName,
       deviceType,
-      deviceOS,
+      osNameAndVersion,
       randomAuthorizationCode,
       new Date(expirationDate),
     );
