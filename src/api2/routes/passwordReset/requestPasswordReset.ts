@@ -8,6 +8,7 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
+import { sendPasswordResetRequestNotificationToAdmins } from '../../../helpers/sendPasswordResetRequestNotificationToAdmins';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset2 = async (req: any, res: any) => {
@@ -35,6 +36,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         users.id AS uid,
         user_devices.id AS did,
         user_devices.device_name AS device_name,
+        user_devices.os_version AS os_version,
         user_devices.device_public_key_2 AS device_public_key_2,
         user_devices.session_auth_challenge AS session_auth_challenge,
         user_devices.session_auth_challenge_exp_time AS session_auth_challenge_exp_time
@@ -134,7 +136,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           [authDbRes.rows[0].did, groupId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request created)');
-        // TODO notify admin
+        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (
         !resetRequest.reset_token_expiration_date ||
@@ -146,7 +148,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           [resetRequest.reset_request_id, groupId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request updated)');
-        // TODO notify admin
+        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request still pending)');
