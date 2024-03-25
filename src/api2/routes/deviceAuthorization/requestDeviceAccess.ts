@@ -4,6 +4,11 @@ import { sendDeviceRequestEmail } from '../../../helpers/sendDeviceRequestEmail'
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
+import {
+  GROUP_SETTINGS,
+  USER_SETTINGS_OVERRIDE,
+} from '../../../helpers/getDefaultSettingOrUserOverride';
+import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -67,10 +72,15 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     }
 
     // Request DB
-    let userRes = await db.query('SELECT id FROM users WHERE email=$1 AND group_id=$2', [
-      userEmail,
-      groupId,
-    ]);
+    let userRes = await db.query(
+      `SELECT
+        users.id AS id,
+        users.settings_override AS settings_override,
+        groups.settings AS group_settings
+      FROM users INNER JOIN groups ON groups.id = users.group_id
+      WHERE users.email=$1 AND users.group_id=$2`,
+      [userEmail, groupId],
+    );
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
       const emailRes = await db.query('SELECT pattern FROM allowed_emails WHERE group_id=$1', [
@@ -95,6 +105,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     }
     const userId = userRes.rows[0].id;
 
+    // CHECK SECOND REQUESTS FOR SAME DEVICE
     const deviceRes = await db.query(
       'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND group_id=$3',
       [userId, deviceId, groupId],
@@ -124,6 +135,20 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const randomAuthorizationCode = getRandomString(8);
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
+      // BEFORE CREATING THE REQUEST, CHECK SOME SECURITY SETTINGS
+      const userAllowedOnPlatform = isAllowedOnPlatform(
+        osFamily || osNameAndVersion || deviceType,
+        userRes.rows[0].group_settings as GROUP_SETTINGS,
+        userRes.rows[0].settings_override as USER_SETTINGS_OVERRIDE,
+      );
+      if (!userAllowedOnPlatform) {
+        logInfo(
+          req.body?.userEmail,
+          `requestDeviceAccess2 KO (not allowed on platform ${osFamily})`,
+        );
+        return res.status(403).json({ error: 'os_not_allowed' });
+      }
+
       await db.query(
         'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',
         [

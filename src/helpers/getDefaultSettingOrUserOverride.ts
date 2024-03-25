@@ -1,7 +1,12 @@
-type GROUP_SETTINGS = {
+export type GROUP_SETTINGS = {
   DISABLE_OFFLINE_MODE_DEFAULT_DESKTOP?: boolean | null;
   DISABLE_OFFLINE_MODE_DEFAULT_MOBILE?: boolean | null;
   ALLOWED_TO_EXPORT?: boolean | null;
+  ALLOWED_WINDOWS?: boolean | null;
+  ALLOWED_IOS?: boolean | null;
+  ALLOWED_ANDROID?: boolean | null;
+  ALLOWED_MACOS?: boolean | null;
+  ALLOWED_LINUX?: boolean | null;
 } | null;
 
 type USER_OVERRIDE = {
@@ -9,6 +14,14 @@ type USER_OVERRIDE = {
   allowed_offline_desktop?: boolean | null;
   allowed_offline_mobile?: boolean | null;
 } | null;
+
+export type USER_SETTINGS_OVERRIDE = {
+  ALLOWED_WINDOWS?: boolean | null;
+  ALLOWED_IOS?: boolean | null;
+  ALLOWED_ANDROID?: boolean | null;
+  ALLOWED_MACOS?: boolean | null;
+  ALLOWED_LINUX?: boolean | null;
+};
 
 type RESULTING_USER_SETTINGS = {
   allowed_to_export: boolean;
