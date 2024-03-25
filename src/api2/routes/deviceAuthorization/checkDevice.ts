@@ -7,6 +7,7 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import libsodium from 'libsodium-wrappers';
+import { sendDeviceRequestAdminEmail } from '../../../helpers/sendDeviceRequestEmail';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice2 = async (req: any, res: any) => {
@@ -35,23 +36,34 @@ export const checkDevice2 = async (req: any, res: any) => {
 
     // Request DB
     const dbRes = await db.query(
-      'SELECT ' +
-        'ud.id AS id, ' +
-        'users.id AS user_id, ' +
-        'ud.authorization_code AS authorization_code, ' +
-        'ud.authorization_status AS authorization_status, ' +
-        'ud.auth_code_expiration_date AS auth_code_expiration_date, ' +
-        'ud.device_public_key_2 AS device_public_key_2, ' +
-        'ud.session_auth_challenge AS session_auth_challenge, ' +
-        'ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time ' +
-        'FROM user_devices AS ud ' +
-        'INNER JOIN users ON ud.user_id = users.id ' +
-        'WHERE ' +
-        'users.email=$1 ' +
-        'AND ud.device_unique_id = $2 ' +
-        "AND ud.authorization_status != 'REVOKED_BY_ADMIN' " +
-        "AND ud.authorization_status != 'REVOKED_BY_USER' " +
-        'AND users.group_id=$3',
+      `SELECT
+        ud.id AS id,
+        users.id AS user_id,
+        ud.authorization_code AS authorization_code,
+        ud.authorization_status AS authorization_status,
+        ud.auth_code_expiration_date AS auth_code_expiration_date,
+        ud.device_public_key_2 AS device_public_key_2,
+        ud.session_auth_challenge AS session_auth_challenge,
+        ud.session_auth_challenge_exp_time AS session_auth_challenge_exp_time,
+        (SELECT COUNT(*) FROM user_devices AS ud2
+          WHERE
+            ud2.user_id=users.id AND
+            (ud2.authorization_status = 'AUTHORIZED' OR
+              ud2.authorization_status = 'PENDING' OR
+              ud2.authorization_status = 'AUTHORIZED_PENDING_ADMIN_CHECK'
+            )
+        ) AS device_count,
+        groups.settings AS group_settings
+        FROM user_devices AS ud
+        INNER JOIN users ON ud.user_id = users.id
+        INNER JOIN groups ON groups.id = users.group_id
+        WHERE
+          users.email=$1
+          AND ud.device_unique_id = $2
+          AND ud.authorization_status != 'REVOKED_BY_ADMIN'
+          AND ud.authorization_status != 'REVOKED_BY_USER'
+          AND users.group_id=$3
+      `,
       [userEmail, deviceId, groupId],
     );
 
@@ -60,7 +72,10 @@ export const checkDevice2 = async (req: any, res: any) => {
       return res.status(403).json({ error: 'revoked' });
     }
 
-    if (dbRes.rows[0].authorization_status !== 'PENDING') {
+    if (
+      dbRes.rows[0].authorization_status === 'AUTHORIZED' ||
+      dbRes.rows[0].authorization_status === 'AUTHORIZED_PENDING_ADMIN_CHECK'
+    ) {
       logInfo(req.body?.userEmail, 'checkDevice2 OK (already authorized)');
       return res.status(200).end();
     }
@@ -97,9 +112,30 @@ export const checkDevice2 = async (req: any, res: any) => {
       return res.status(403).json({ error: 'expired_code' });
     }
 
+    let nextAuthorizationStatus = 'AUTHORIZED';
+    let requireAdminCheck = false;
+    if (
+      dbRes.rows[0]?.device_count != null &&
+      dbRes.rows[0].device_count > 0 &&
+      dbRes.rows[0].group_settings != null &&
+      dbRes.rows[0].group_settings.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
+    ) {
+      nextAuthorizationStatus = 'AUTHORIZED_PENDING_ADMIN_CHECK';
+      requireAdminCheck = true;
+    }
+
+    if (requireAdminCheck) {
+      await sendDeviceRequestAdminEmail(userEmail, groupId);
+      logInfo(
+        req.body?.userEmail,
+        'checkDevice OK (waiting for admin check - email sent to admin)',
+      );
+      // NB : this does not prevent the user from completing his device authorization.
+      // the user will be blocked when trying to fetch data
+    }
     await db.query(
-      "UPDATE user_devices SET (authorization_status, authorization_code, auth_code_expiration_date) = ('AUTHORIZED', null, null) WHERE id=$1",
-      [dbRes.rows[0].id],
+      'UPDATE user_devices SET (authorization_status, authorization_code, auth_code_expiration_date) = ($1, null, null) WHERE id=$2',
+      [nextAuthorizationStatus, dbRes.rows[0].id],
     );
     logInfo(req.body?.userEmail, 'checkDevice2 OK');
     return res.status(200).end();

@@ -60,6 +60,13 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by admin');
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
+    if (dbRes.rows[0].authorization_status === 'AUTHORIZED_PENDING_ADMIN_CHECK') {
+      logInfo(
+        req.body?.userEmail,
+        'getAuthenticationChallenges2 fail: device still pending admin check',
+      );
+      return res.status(403).json({ error: 'pending_admin_authorization' });
+    }
 
     if (
       dbRes.rows[0].group_settings?.IS_TESTING &&

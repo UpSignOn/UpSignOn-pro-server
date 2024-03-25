@@ -46,7 +46,6 @@ export const revokeDevice = async (req: any, res: any) => {
           'WHERE ' +
           'users.email=$1 ' +
           'AND ud.device_unique_id = $2 ' +
-          "AND ud.authorization_status = 'AUTHORIZED' " +
           'AND users.group_id=$3',
         [userEmail, deviceId, groupId],
       );
