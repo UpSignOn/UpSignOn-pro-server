@@ -50,7 +50,7 @@ export const checkDevice2 = async (req: any, res: any) => {
             ud2.user_id=users.id AND
             (ud2.authorization_status = 'AUTHORIZED' OR
               ud2.authorization_status = 'PENDING' OR
-              ud2.authorization_status = 'AUTHORIZED_PENDING_ADMIN_CHECK'
+              ud2.authorization_status = 'USER_VERIFIED_PENDING_ADMIN_CHECK'
             )
         ) AS device_count,
         groups.settings AS group_settings
@@ -74,7 +74,7 @@ export const checkDevice2 = async (req: any, res: any) => {
 
     if (
       dbRes.rows[0].authorization_status === 'AUTHORIZED' ||
-      dbRes.rows[0].authorization_status === 'AUTHORIZED_PENDING_ADMIN_CHECK'
+      dbRes.rows[0].authorization_status === 'USER_VERIFIED_PENDING_ADMIN_CHECK'
     ) {
       logInfo(req.body?.userEmail, 'checkDevice2 OK (already authorized)');
       return res.status(200).end();
@@ -120,7 +120,7 @@ export const checkDevice2 = async (req: any, res: any) => {
       dbRes.rows[0].group_settings != null &&
       dbRes.rows[0].group_settings.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
     ) {
-      nextAuthorizationStatus = 'AUTHORIZED_PENDING_ADMIN_CHECK';
+      nextAuthorizationStatus = 'USER_VERIFIED_PENDING_ADMIN_CHECK';
       requireAdminCheck = true;
     }
 
