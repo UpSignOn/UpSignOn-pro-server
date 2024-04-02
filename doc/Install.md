@@ -43,17 +43,19 @@ Machine pour le serveur de base de données (si architecture type 2)
 
 | Origine                              | Destination                                        | PORT             |
 | ------------------------------------ | -------------------------------------------------- | ---------------- |
-| Client lourd (application UpSignOn)  | Serveur UpSignOn PRO                               | 443              |
 | Let's Encrypt (optionnel)            | Machine du serveur UpSignOn PRO                    | 80               |
-| Navigateur                           | Serveur d'administration                           | 443              |
 | Let's Encrypt (optionnel)            | Machine du serveur d'administration                | 80               |
 | Serveur UpSignOn PRO                 | Base de données                                    | 5432             |
-| Serveur d'administration             | Base de données                                    | 5432             |
-| Serveur UpSignOn PRO via Postfix     | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
-| Serveur d'administration via Postfix | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
 | Serveur UpSignOn PRO                 | app.upsignon.eu                                    | 443              |
 | Serveur UpSignOn PRO                 | internet (pour l'installation et les mises à jour) | 443              |
+| Serveur UpSignOn PRO via Postfix     | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
+| Serveur d'administration             | Base de données                                    | 5432             |
+| Serveur d'administration via Postfix | internet (pour l'envoi de mails)                   | 25 ou 587 ou 465 |
 | Serveur d'administration             | internet (pour l'installation et les mises à jour) | 443              |
+| Navigateur                           | Serveur d'administration                           | 443              |
+| Client lourd (application UpSignOn)  | Serveur UpSignOn PRO                               | 443              |
+| Client lourd (application UpSignOn)  | app.upsignon.eu                                    | 443              |
+| Client lourd (application UpSignOn)  | \*.sentry.io                                       | 443              |
 
 # Avant de commencer l'installation
 
