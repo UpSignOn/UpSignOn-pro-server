@@ -25,9 +25,10 @@ export const checkEmailAddressForSharing = async (req: any, res: any) => {
       [emailAddress, basicAuth.groupId],
     );
     // Return res
-    return res
-      .status(200)
-      .json({ valid: checkRes.rowCount > 0, publicKey: checkRes.rows[0]?.sharing_public_key });
+    return res.status(200).json({
+      valid: checkRes.rowCount != null ? checkRes.rowCount > 0 : false,
+      publicKey: checkRes.rows[0]?.sharing_public_key,
+    });
   } catch (e) {
     logError(req.body?.userEmail, 'checkEmailAddressForSharing', e);
     return res.status(400).end();
