@@ -229,9 +229,23 @@ const getStatsByGroup = async () => {
 const getHasDailyBackup = () => {
   if (!env.DB_BACKUP_DIR) return false;
   const yesterday = new Date();
+  if (yesterday.getDay() === 0) {
+    // sunday
+    yesterday.setDate(yesterday.getDate() - 1);
+  }
+  if (yesterday.getDay() === 6) {
+    // saturday
+    yesterday.setDate(yesterday.getDate() - 2);
+  }
   yesterday.setDate(yesterday.getDate() - 1);
-  const folderName = `${yesterday.toISOString().split('T')[0]}-daily`;
-  return fs.existsSync(path.join(env.DB_BACKUP_DIR, folderName));
+  const folderNameDaily = `${yesterday.toISOString().split('T')[0]}-daily`;
+  const folderNameWeekly = `${yesterday.toISOString().split('T')[0]}-weekly`;
+  const folderNameMonthly = `${yesterday.toISOString().split('T')[0]}-monthly`;
+  return (
+    fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameDaily)) ||
+    fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameWeekly)) ||
+    fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameMonthly))
+  );
 };
 
 const isCertificateChainComplete = async (): Promise<boolean> => {
