@@ -169,7 +169,7 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
       'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND group_id=$2',
       [userId, groupId],
     );
-    if (changedEmails.rowCount > 0) {
+    if (changedEmails.rowCount != null && changedEmails.rowCount > 0) {
       // get all devices for this user
       const devices = await db.query(
         'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1 AND group_id=$2',

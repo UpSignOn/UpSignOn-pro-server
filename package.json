@@ -2,7 +2,7 @@
   "name": "upsignon-pro-server",
   "version": "1.10.0",
   "repository": "git@github.com:UpSignOn/UpSignOn-pro-server.git",
-  "licence": "none",
+  "license": "Unlicense",
   "scripts": {
     "build": "rm -rf compiled && tsc -p .",
     "start": "pm2 startOrReload ecosystem.config.js --only upsignon-pro-server",
@@ -34,5 +34,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.0",
     "typescript": "^4.9.3"
+  },
+  "resolutions": {
+    "@types/mime": "3.0.4"
   }
 }

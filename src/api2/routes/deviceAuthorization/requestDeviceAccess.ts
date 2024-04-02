@@ -111,10 +111,15 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       [userId, deviceId, groupId],
     );
 
-    if (deviceRes.rowCount > 0 && deviceRes.rows[0].authorization_status === 'AUTHORIZED') {
+    if (
+      deviceRes.rowCount != null &&
+      deviceRes.rowCount > 0 &&
+      deviceRes.rows[0].authorization_status === 'AUTHORIZED'
+    ) {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 OK (device already authorized)');
       return res.status(200).json({ authorizationStatus: 'AUTHORIZED' });
     } else if (
+      deviceRes.rowCount != null &&
       deviceRes.rowCount > 0 &&
       deviceRes.rows[0].authorization_status === 'PENDING' &&
       !isExpired(deviceRes.rows[0].auth_code_expiration_date)

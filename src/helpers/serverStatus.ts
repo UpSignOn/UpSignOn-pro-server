@@ -114,13 +114,18 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
   });
 
   // Then get the continuous list of days
-  const startDay = rawStats.rows[0].day;
-  let endDay = rawStats.rows[rawStats.rowCount - 1].day;
-  endDay = new Date(endDay);
-  endDay.setDate(endDay.getDate() + 1);
-  endDay.setHours(0, 0, 0, 0);
-  endDay = endDay.toISOString();
-  const days = getDaysArray(startDay, endDay);
+  let days: string[];
+  if (rawStats.rowCount == null) {
+    days = [];
+  } else {
+    const startDay = rawStats.rows[0].day;
+    let endDay = rawStats.rows[rawStats.rowCount - 1].day;
+    endDay = new Date(endDay);
+    endDay.setDate(endDay.getDate() + 1);
+    endDay.setHours(0, 0, 0, 0);
+    endDay = endDay.toISOString();
+    days = getDaysArray(startDay, endDay);
+  }
 
   // Init chart data object
   const chartDataObjet: any = {};
