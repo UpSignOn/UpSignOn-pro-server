@@ -6,6 +6,7 @@ import childProcess from 'child_process';
 import https from 'https';
 import http from 'http';
 import { logError } from './logger';
+import { checkServerCertificateChain } from './certificateChainChecker';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
@@ -16,6 +17,12 @@ export const sendStatusUpdate = async (): Promise<void> => {
         resolve(stdout?.toString().trim() || 'unknown');
       });
     });
+    const nodeVersion = await new Promise((resolve) => {
+      childProcess.exec('node --version', (error, stdout) => {
+        resolve(stdout?.toString().trim() || 'unknown');
+      });
+    });
+
     const lastMigrationResult = await db.query(
       'SELECT name FROM migrations ORDER BY name desc limit 1',
     );
@@ -35,6 +42,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       GROUP BY users.id`,
     );
     const stats: { def: string[]; data: number[] } = await getStats();
+    const isCertChainComplete = await isCertificateChainComplete();
     const hasDailyBackup = getHasDailyBackup();
     const serverStatus = {
       serverUrl: env.API_PUBLIC_HOSTNAME,
@@ -47,6 +55,8 @@ export const sendStatusUpdate = async (): Promise<void> => {
       statsByGroup,
       detailedUserAppVersions: JSON.stringify(detailedUserAppVersions.rows),
       hasDailyBackup,
+      isCertChainComplete,
+      nodeVersion,
     };
 
     sendToUpSignOn(serverStatus);
@@ -222,4 +232,23 @@ const getHasDailyBackup = () => {
   yesterday.setDate(yesterday.getDate() - 1);
   const folderName = `${yesterday.toISOString().split('T')[0]}-daily`;
   return fs.existsSync(path.join(env.DB_BACKUP_DIR, folderName));
+};
+
+const isCertificateChainComplete = async (): Promise<boolean> => {
+  try {
+    const settingsRes = await db.query(
+      "SELECT value FROM settings WHERE key='PRO_SERVER_URL_CONFIG'",
+    );
+    if (settingsRes.rowCount === 0) {
+      return false;
+    }
+
+    const isCertificateChainComplete = await checkServerCertificateChain(
+      new URL(settingsRes.rows[0]?.value?.url).host,
+    );
+    return isCertificateChainComplete;
+  } catch (e) {
+    logError('isCertificateChainComplete error:', e);
+    return false;
+  }
 };
