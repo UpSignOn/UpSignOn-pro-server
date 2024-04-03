@@ -136,18 +136,18 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const expirationDate = getExpirationDate();
     if (deviceRes.rowCount === 0) {
       // BEFORE CREATING THE REQUEST, CHECK SOME SECURITY SETTINGS
-      const userAllowedOnPlatform = isAllowedOnPlatform(
-        osFamily + osNameAndVersion + deviceType,
-        userRes.rows[0].group_settings as GROUP_SETTINGS,
-        userRes.rows[0].settings_override as USER_SETTINGS_OVERRIDE,
-      );
-      if (!userAllowedOnPlatform) {
-        logInfo(
-          req.body?.userEmail,
-          `requestDeviceAccess2 KO (not allowed on platform ${osFamily})`,
-        );
-        return res.status(403).json({ error: 'os_not_allowed' });
-      }
+      // const userAllowedOnPlatform = isAllowedOnPlatform(
+      //   osFamily + osNameAndVersion + deviceType,
+      //   userRes.rows[0].group_settings as GROUP_SETTINGS,
+      //   userRes.rows[0].settings_override as USER_SETTINGS_OVERRIDE,
+      // );
+      // if (!userAllowedOnPlatform) {
+      //   logInfo(
+      //     req.body?.userEmail,
+      //     `requestDeviceAccess2 KO (not allowed on platform ${osFamily})`,
+      //   );
+      //   return res.status(403).json({ error: 'os_not_allowed' });
+      // }
 
       await db.query(
         'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',
