@@ -137,7 +137,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     if (deviceRes.rowCount === 0) {
       // BEFORE CREATING THE REQUEST, CHECK SOME SECURITY SETTINGS
       const userAllowedOnPlatform = isAllowedOnPlatform(
-        osFamily || osNameAndVersion || deviceType,
+        osFamily + osNameAndVersion + deviceType,
         userRes.rows[0].group_settings as GROUP_SETTINGS,
         userRes.rows[0].settings_override as USER_SETTINGS_OVERRIDE,
       );
