@@ -9,6 +9,7 @@ import {
   USER_SETTINGS_OVERRIDE,
 } from '../../../helpers/getDefaultSettingOrUserOverride';
 import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
+import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -83,18 +84,8 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     );
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
-      const emailRes = await db.query('SELECT pattern FROM allowed_emails WHERE group_id=$1', [
-        groupId,
-      ]);
-      if (
-        !emailRes.rows.some((emailPattern) => {
-          if (emailPattern.pattern.indexOf('*@') === 0) {
-            return userEmail.split('@')[1] === emailPattern.pattern.replace('*@', '');
-          } else {
-            return userEmail === emailPattern.pattern;
-          }
-        })
-      ) {
+      const emailAuthStatus = await getEmailAuthorizationStatus(userEmail, groupId);
+      if (emailAuthStatus === 'UNAUTHORIZED') {
         logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: email address not allowed');
         return res.status(403).json({ error: 'email_address_not_allowed' });
       }
