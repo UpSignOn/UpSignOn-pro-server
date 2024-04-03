@@ -101,8 +101,8 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       if (!resetRequest) {
         await db.query(
           `INSERT INTO password_reset_request
-              (device_id, status, reset_token, reset_token_expiration_date, group_id)
-            VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4)
+              (device_id, status, reset_token, reset_token_expiration_date, group_id, granted_by)
+            VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4, 'configuration')
           `,
           [authDbRes.rows[0].did, randomAuthorizationCode, expirationDate, groupId],
         );
@@ -111,7 +111,8 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           `UPDATE password_reset_request SET
             status='ADMIN_AUTHORIZED',
             reset_token=$1,
-            reset_token_expiration_date=$2
+            reset_token_expiration_date=$2,
+            granted_by='configuration'
           WHERE id=$3 AND group_id=$4`,
           [randomAuthorizationCode, expirationDate, resetRequest.reset_request_id, groupId],
         );
