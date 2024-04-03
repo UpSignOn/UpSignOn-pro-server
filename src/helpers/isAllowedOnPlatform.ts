@@ -38,12 +38,17 @@ const _settingResultForUser = (
   groupSettings: GROUP_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
   settingName: keyof USER_SETTINGS_OVERRIDE,
+  defaultResult: boolean,
 ): boolean => {
-  return userSettings[settingName] != null
-    ? !!userSettings[settingName]
-    : groupSettings != null && groupSettings[settingName] != null
-    ? !!groupSettings[settingName]
-    : false;
+  const userParam = userSettings?.[settingName];
+  const groupParam = groupSettings?.[settingName];
+  if (userParam === true) return true;
+  if (userParam === false) return false;
+  // userParam is null or undefined
+  if (groupParam === true) return true;
+  if (groupParam === false) return false;
+  // groupParam is also null or undefined
+  return defaultResult;
 };
 
 export const isAllowedOnPlatform = (
@@ -51,16 +56,17 @@ export const isAllowedOnPlatform = (
   groupSettings: GROUP_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
 ): boolean => {
+  const defaultAllowed = true;
   if (isWindows(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_WINDOWS');
+    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_WINDOWS', defaultAllowed);
   } else if (isIos(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_IOS');
+    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_IOS', defaultAllowed);
   } else if (isAndroid(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_ANDROID');
+    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_ANDROID', defaultAllowed);
   } else if (isMacos(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_MACOS');
+    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_MACOS', defaultAllowed);
   } else if (isLinux(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_LINUX');
+    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_LINUX', defaultAllowed);
   } else {
     console.error('isAllowedOnPlatform - unknown osFamily: ', osFamily);
     return false;
