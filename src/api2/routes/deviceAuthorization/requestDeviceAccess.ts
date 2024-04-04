@@ -10,6 +10,7 @@ import {
 } from '../../../helpers/getDefaultSettingOrUserOverride';
 import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
+import { MicrosoftGraph } from '../../../helpers/microsoftGraph';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -84,15 +85,16 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     );
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
-      const emailAuthStatus = await getEmailAuthorizationStatus(userEmail, groupId);
+      const userMSEntraId = await MicrosoftGraph.getUserId(groupId, userEmail);
+      const emailAuthStatus = await getEmailAuthorizationStatus(userEmail, userMSEntraId, groupId);
       if (emailAuthStatus === 'UNAUTHORIZED') {
         logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: email address not allowed');
         return res.status(403).json({ error: 'email_address_not_allowed' });
       }
-      userRes = await db.query('INSERT INTO users (email, group_id) VALUES ($1,$2) RETURNING id', [
-        userEmail,
-        groupId,
-      ]);
+      userRes = await db.query(
+        'INSERT INTO users (email, ms_entra_id, group_id) VALUES ($1,$2,$3) RETURNING id',
+        [userEmail, userMSEntraId, groupId],
+      );
     }
     const userId = userRes.rows[0].id;
 
