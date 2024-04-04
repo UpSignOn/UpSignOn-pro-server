@@ -22,18 +22,11 @@ export const getEmailAuthorizationStatus = async (
   if (isAuthorizedByPattern) return 'PATTERN_AUTHORIZED';
 
   // CHECK MICROSOFT ENTRA
-  const entraConfigRes = await db.query('SELECT ms_entra_config FROM groups WHERE id=$1', [
-    groupId,
-  ]);
-  if (entraConfigRes.rowCount != null && entraConfigRes.rowCount > 0) {
-    const entraConfig = entraConfigRes.rows[0].ms_entra_config;
-    const graph = MicrosoftGraph.initInstance(groupId, entraConfig);
-    try {
-      const isEntraAuthorized = await graph.isUserAuthorizedForUpSignOn(userEmail);
-      if (isEntraAuthorized) return 'MS_ENTRA_AUTHORIZED';
-    } catch (e) {
-      console.error(e);
-    }
+  try {
+    const isEntraAuthorized = await MicrosoftGraph.isUserAuthorizedForUpSignOn(groupId, userEmail);
+    if (isEntraAuthorized) return 'MS_ENTRA_AUTHORIZED';
+  } catch (e) {
+    console.error(e);
   }
 
   return 'UNAUTHORIZED';
