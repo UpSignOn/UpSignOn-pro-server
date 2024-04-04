@@ -23,6 +23,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         u.id AS uid,
         u.encrypted_data AS encrypted_data,
         u.encrypted_data_2 AS encrypted_data_2,
+        u.deactivated AS deactivated,
         ud.id AS did,
         ud.authorization_status AS authorization_status,
         g.settings AS group_settings,
@@ -61,8 +62,11 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by user');
       return res.status(403).json({ error: 'revoked' });
     }
-    if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN') {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by admin');
+    if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' || dbRes.rows[0].deactivated) {
+      logInfo(
+        req.body?.userEmail,
+        'getAuthenticationChallenges2 fail: device revoked by admin or deactivated',
+      );
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
     if (dbRes.rows[0].authorization_status === 'USER_VERIFIED_PENDING_ADMIN_CHECK') {

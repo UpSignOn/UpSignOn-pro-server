@@ -77,12 +77,16 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     let userRes = await db.query(
       `SELECT
         users.id AS id,
+        users.deactivated AS deactivated,
         users.settings_override AS settings_override,
         groups.settings AS group_settings
       FROM users INNER JOIN groups ON groups.id = users.group_id
       WHERE users.email=$1 AND users.group_id=$2`,
       [userEmail, groupId],
     );
+    if (userRes.rows[0]?.deactivated) {
+      return res.status(403).json({ error: 'user_deactivated' });
+    }
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
       const userMSEntraId = await MicrosoftGraph.getUserId(groupId, userEmail);

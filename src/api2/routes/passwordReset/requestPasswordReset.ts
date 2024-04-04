@@ -34,6 +34,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
     const authDbRes = await db.query(
       `SELECT
         users.id AS uid,
+        users.deactivated AS deactivated,
         user_devices.id AS did,
         user_devices.device_name AS device_name,
         user_devices.os_version AS os_version,
@@ -51,7 +52,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       [userEmail, deviceId, groupId],
     );
 
-    if (!authDbRes || authDbRes.rowCount === 0) {
+    if (!authDbRes || authDbRes.rowCount === 0 || authDbRes.rows[0].deactivated) {
       logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: no such authorized device');
       return res.status(401).end();
     }

@@ -83,6 +83,7 @@ export const checkBasicAuth2 = async (
   ${dataSelect}
   ${deviceIdSelect}
   u.id AS user_id,
+  u.deactivated AS deactivated,
   char_length(ud.device_public_key) > 0 AS has_device_public_key
 FROM user_devices AS ud
 INNER JOIN users AS u ON ud.user_id = u.id
@@ -99,7 +100,7 @@ WHERE
   // Request DB
   const dbRes = await db.query(query, params);
 
-  if (!dbRes || dbRes.rowCount === 0) {
+  if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
     logInfo(
       req.body?.userEmail,
       `checkBasicAuth2 fail: (not found) - request = ${query} - params = ${params}`,
