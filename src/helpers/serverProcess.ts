@@ -5,6 +5,7 @@ import fs from 'fs';
 import { logInfo } from './logger';
 import { sendStatusUpdate } from './serverStatus';
 import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
+import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -50,6 +51,8 @@ export const startServer = (app: any, then: any): void => {
   cronjob(0);
   // Add status update every day and avoid all calls at the same time by randomizing the interval
   setInterval(() => cronjob(60 * 5 * Math.random() * 1000), 24 * 3600 * 1000);
+
+  syncPeriodicallyWithMicrosoftEntra();
 };
 
 const listenForGracefulShutdown = (server: any) => {

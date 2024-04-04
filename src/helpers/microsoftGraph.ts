@@ -2,6 +2,7 @@ import { ClientSecretCredential } from '@azure/identity';
 import { Client, ClientOptions } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
 import { db } from './db';
+import { logError } from './logger';
 
 // Necessary permissions are listed here
 // Création de l'application: App Registrations > New
@@ -39,17 +40,56 @@ export class MicrosoftGraph {
   static _instances: { [groupId: number]: _MicrosoftGraph } = {};
   static _groupConfig: { [groupId: number]: EntraConfig | null } = {};
 
-  static async isUserAuthorizedForUpSignOn(groupId: number, userEmail: string): Promise<boolean> {
-    const graph = await MicrosoftGraph._getInstance(groupId);
+  // NB: do not try catch requests to Microsoft Graph to avoid deactivating users due to throttling limit
+
+  static async getUserId(groupId: number, userEmail: string): Promise<string | null> {
+    const graph = await MicrosoftGraph._getInstance(groupId, true);
     if (graph) {
-      const isAuthorized = await graph.isUserAuthorizedForUpSignOn(userEmail);
+      const userId = await graph.getUserIdFromEmail(userEmail);
+      return userId;
+    }
+    return null;
+  }
+  static async isUserAuthorizedForUpSignOn(groupId: number, uid: string): Promise<boolean> {
+    const graph = await MicrosoftGraph._getInstance(groupId, false);
+    if (graph) {
+      const isAuthorized = await graph.isUserAuthorizedForUpSignOn(uid);
       return isAuthorized;
     }
     return false;
   }
+  static async getAllUsersAssignedToUpSignOn(
+    groupId: number,
+    withoutConfigRefresh: boolean,
+  ): Promise<string[]> {
+    const graph = await MicrosoftGraph._getInstance(groupId, withoutConfigRefresh);
+    if (graph) {
+      const allUsers = await graph.getAllUsersAssignedToUpSignOn();
+      return allUsers;
+    }
+    return [];
+  }
 
+  static async getGroupsForUser(groupId: number, uid: string): Promise<EntraGroup[]> {
+    try {
+      const graph = await MicrosoftGraph._getInstance(groupId, false);
+      if (graph) {
+        const groups = await graph.getGroupsForUser(uid);
+        return groups;
+      }
+    } catch (e) {
+      logError(e);
+    }
+    return [];
+  }
 
-  static async _getInstance(groupId: number): Promise<_MicrosoftGraph | null> {
+  static async _getInstance(
+    groupId: number,
+    withoutConfigRefresh: boolean,
+  ): Promise<_MicrosoftGraph | null> {
+    if (!withoutConfigRefresh && MicrosoftGraph._instances[groupId]) {
+      return MicrosoftGraph._instances[groupId];
+    }
     const entraConfigRes = await db.query('SELECT ms_entra_config FROM groups WHERE id=$1', [
       groupId,
     ]);
@@ -127,7 +167,7 @@ class _MicrosoftGraph {
    * @param email
    * @returns the id if such a user exists, null otherwise
    */
-  async _getUserIdFromEmail(email: string): Promise<string | null> {
+  async getUserIdFromEmail(email: string): Promise<string | null> {
     if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
       throw 'Email is malformed';
     }
@@ -143,16 +183,132 @@ class _MicrosoftGraph {
     return userId;
   }
 
-  async isUserAuthorizedForUpSignOn(email: string): Promise<boolean> {
-    const userId = await this._getUserIdFromEmail(email);
-    if (!userId) return false;
-
+  async isUserAuthorizedForUpSignOn(uid: string): Promise<boolean> {
     // PERMISSION = AppRoleAssignment.ReadWrite.All ou Directory.Read.All
+    // may actually need Directory.Read.All since we act as an app (https://learn.microsoft.com/en-us/graph/api/user-list-approleassignments?view=graph-rest-1.0&tabs=http)
     const appRoleAssignments = await this.msGraph
-      .api(`/users/${userId}/appRoleAssignments`)
+      .api(`/users/${uid}/appRoleAssignments`)
       .header('ConsistencyLevel', 'eventual')
       .filter(`resourceId eq ${this.appResourceId}`)
       .get();
     return appRoleAssignments.value.length > 0;
   }
+
+  async getAllUsersAssignedToUpSignOn(): Promise<string[]> {
+    // PERMISSION: Application.Read.All
+    // PERMISSION: Directory.Read.All
+    const allPrincipalsRes = await this.msGraph
+      .api(`/servicePrincipals/${this.appResourceId}/appRoleAssignedTo`)
+      .header('ConsistencyLevel', 'eventual')
+      .select(['principalType', 'principalId'])
+      .get();
+    const allUsersId: string[] = allPrincipalsRes.value
+      .filter((u: any) => u.principalType === 'User')
+      .map((u: any) => u.principalId);
+    const allGroups = allPrincipalsRes.value.filter((u: any) => u.principalType === 'Group');
+    for (let i = 0; i < allGroups.length; i++) {
+      const g = allGroups[i];
+      const allGroupUsersRes = await this.msGraph
+        .api(`/groups/${g.id}/members/microsoft.graph.user`)
+        .header('ConsistencyLevel', 'eventual')
+        .select(['id'])
+        .get();
+      allUsersId.push(allGroupUsersRes.value.map((u: any) => u.id));
+    }
+    return allUsersId;
+  }
+
+  /**
+   * Returns all groups (and associated groups) that this user belongs to
+   * To be used for sharing to teams ?
+   * This would suppose a user can only shared to teams to which it belongs ?
+   * @param email
+   * @returns
+   */
+  async getGroupsForUser(uid: string): Promise<{ id: string; displayName: string }[]> {
+    // https://learn.microsoft.com/en-us/graph/api/associatedteaminfo-list?view=graph-rest-1.0&tabs=http
+    // PERMISSION = User.Read.All
+    const groups = await this.msGraph
+      // .api(`/users/${userId}/memberOf`) // pour tout avoir
+      // .api(`/users/${userId}/memberOf/microsoft.graph.administrativeUnit`) // pour avoir tous les administrativeUnit
+      .api(`/users/${uid}/memberOf/microsoft.graph.group`) // pour avoir tous les groupes
+      .header('ConsistencyLevel', 'eventual')
+      .select(['id', 'displayName'])
+      .get();
+
+    return groups.value;
+  }
+
+  /**
+   * Returns all members of a group
+   * @returns
+   */
+  async listGroupMembers(groupId: string): Promise<{ id: string; displayName: string }[]> {
+    // PERMISSION = GroupMember.Read.All
+    const groupMembers = await this.msGraph
+      .api(`/groups/${groupId}/members/microsoft.graph.user/`) // https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http
+      .header('ConsistencyLevel', 'eventual')
+      .select(['id', 'mail', 'displayName'])
+      .get();
+
+    console.log(groupMembers);
+    return groupMembers.value;
+  }
+
+  async checkGroupMembers(groupIds: string[]) {
+    // PERMISSION = GroupMember.Read.All
+    const allGroups = await this.msGraph
+      .api(`/groups`)
+      .header('ConsistencyLevel', 'eventual')
+      .filter(`id in ('${groupIds.join("', '")}')`)
+      .expand('members($select=id, displayName, mail')
+      .select(['id'])
+      .get();
+    // When sharing to a group, there should be a check that verifies nex users in that group and removed users from that group to adapt sharing
+  }
+
+  // /**
+  //  * Returns all members of an administrative unit
+  //  * @returns
+  //  */
+  // async listAdministrativeUnitMembers(
+  //   groupId: string,
+  // ): Promise<{ id: string; displayName: string }[]> {
+  //   // AdministrativeUnit.Read.All
+  //   const groupMembers = await this.msGraph
+  //     .api(`/administrativeUnits/${groupId}/members/microsoft.graph.user/`) // https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http
+  //     .header('ConsistencyLevel', 'eventual')
+  //     .filter('')
+  //     .select(['id', 'mail', 'displayName'])
+  //     .get();
+
+  //   console.log(groupMembers);
+  //   return groupMembers.value;
+  // }
+
+  // async isDeviceAuthorizedForUser(email: string, deviceId: string): Promise<boolean> {
+  //   const userId = await this.getUserIdFromEmail(email);
+  //   if (!userId) return false;
+  //   // TODO make sure deviceId has been validated
+  //   const userDevices = await this.msGraph
+  //     .api(`/deviceManagement/managedDevices`) // https://learn.microsoft.com/en-us/graph/api/intune-devices-manageddevice-get?view=graph-rest-1.0&tabs=http
+  //     .header('ConsistencyLevel', 'eventual')
+  //     .filter(`userId eq '${userId}'`)
+  //     .select([
+  //       'id',
+  //       'userId',
+  //       'osVersion',
+  //       'model',
+  //       'jailBroken',
+  //       'easDeviceId',
+  //       'emailAddress',
+  //       'deviceName',
+  //       'imei',
+  //       'serialNumber',
+  //     ])
+  //     .get();
+
+  //   console.log(userDevices);
+  //   return userDevices.value;
+  // }
 }
