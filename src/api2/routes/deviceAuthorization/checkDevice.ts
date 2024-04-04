@@ -39,6 +39,7 @@ export const checkDevice2 = async (req: any, res: any) => {
       `SELECT
         ud.id AS id,
         users.id AS user_id,
+        users.deactivated AS deactivated,
         ud.authorization_code AS authorization_code,
         ud.authorization_status AS authorization_status,
         ud.auth_code_expiration_date AS auth_code_expiration_date,
@@ -67,7 +68,7 @@ export const checkDevice2 = async (req: any, res: any) => {
       [userEmail, deviceId, groupId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) {
+    if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
       logInfo(req.body?.userEmail, 'checkDevice2 fail: device deleted');
       return res.status(403).json({ error: 'revoked' });
     }

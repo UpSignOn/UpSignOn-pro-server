@@ -22,6 +22,7 @@ export const authenticate2 = async (req: any, res: any) => {
     const dbRes = await db.query(
       `SELECT
         u.encrypted_data_2 AS encrypted_data_2,
+        u.deactivated AS deactivated,
         ud.id AS did,
         ud.password_challenge_blocked_until AS password_challenge_blocked_until,
         ud.password_challenge_error_count AS password_challenge_error_count,
@@ -39,7 +40,7 @@ export const authenticate2 = async (req: any, res: any) => {
       [userEmail, deviceUId, groupId],
     );
 
-    if (!dbRes || dbRes.rowCount === 0) {
+    if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
       logInfo(
         req.body?.userEmail,
         'authenticate2 fail: no matching authorized device for this user',
