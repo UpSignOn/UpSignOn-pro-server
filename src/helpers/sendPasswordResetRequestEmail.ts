@@ -1,4 +1,3 @@
-import { extractTime } from './dateHelper';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
@@ -18,7 +17,11 @@ export const sendPasswordResetRequestEmail = async (
     const safeDeviceName = inputSanitizer.cleanForHTMLInjections(deviceName);
     const safeRequestToken = inputSanitizer.cleanForHTMLInjections(requestToken);
 
-    const expirationTime = extractTime(expirationDate);
+    const expirationTime = new Date(expirationDate)
+      .toLocaleTimeString()
+      .split(':')
+      .slice(0, 2)
+      .join(':');
     transporter.sendMail({
       from: emailConfig.EMAIL_SENDING_ADDRESS,
       to: safeEmailAddress,

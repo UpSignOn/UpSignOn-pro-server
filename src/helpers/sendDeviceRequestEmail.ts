@@ -14,14 +14,8 @@ export const sendDeviceRequestEmail = async (
   try {
     const emailConfig = await getEmailConfig();
     const transporter = getMailTransporter(emailConfig, { debug: false });
-    const expDate =
-      expirationDate.getDate() +
-      '/' +
-      (expirationDate.getMonth() + 1) +
-      ' à ' +
-      expirationDate.getHours() +
-      ':' +
-      expirationDate.getMinutes();
+    const expDate = expirationDate.toLocaleDateString();
+    const expTime = expirationDate.toLocaleTimeString().split(':').slice(0, 2).join(':');
 
     // prevent HTML injections
     const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
@@ -34,8 +28,8 @@ export const sendDeviceRequestEmail = async (
       from: emailConfig.EMAIL_SENDING_ADDRESS,
       to: safeEmailAddress,
       subject: "Nouvelle demande d'accès à votre espace UpSignOn PRO",
-      text: `Bonjour,\nPour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeOSNameAndVersion}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :\n\n${safeRequestToken}\n\nCe code est valable jusqu'au ${expDate}.\n\nBonne journée,\nUpSignOn`,
-      html: `<body><p>Bonjour,</p><p>Pour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeOSNameAndVersion}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :</p><p style="font-family:monospace;font-size: 20px; font-weight: bold; margin: 20px 0;">${safeRequestToken}</p><p>Ce code est valable jusqu'au ${expDate}.</p><p>Bonne journée,<br/>UpSignOn</p></body>`,
+      text: `Bonjour,\nPour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeOSNameAndVersion}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :\n\n${safeRequestToken}\n\nCe code est valable jusqu'au ${expDate} à ${expTime}.\n\nBonne journée,\nUpSignOn`,
+      html: `<body><p>Bonjour,</p><p>Pour autoriser votre appareil "${safeDeviceName}" (${safeDeviceType} ${safeOSNameAndVersion}) à accéder à votre espace confidentiel UpSignOn PRO, saisissez le code suivant :</p><p style="font-family:monospace;font-size: 20px; font-weight: bold; margin: 20px 0;">${safeRequestToken}</p><p>Ce code est valable jusqu'au ${expDate} à ${expTime}.</p><p>Bonne journée,<br/>UpSignOn</p></body>`,
     });
   } catch (e) {
     logError('ERROR sending email:', e);
