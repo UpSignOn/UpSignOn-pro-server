@@ -41,6 +41,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       FROM users
       GROUP BY users.id`,
     );
+    const adminEmailsRes = await db.query('SELECT email FROM admins');
     const stats: { def: string[]; data: number[] } = await getStats();
     const isCertChainComplete = await isCertificateChainComplete();
     const hasDailyBackup = getHasDailyBackup();
@@ -57,6 +58,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       hasDailyBackup,
       isCertChainComplete,
       nodeVersion,
+      adminEmails: adminEmailsRes.rows.map((a) => a.email),
     };
 
     sendToUpSignOn(serverStatus);
