@@ -1,5 +1,7 @@
 #!/bin/bash
-~/.npm-global/bin/yarn install
-~/.npm-global/bin/yarn build
-~/.npm-global/bin/pm2 stop upsignon-pro-server
-~/.npm-global/bin/pm2 start ecosystem.config.js --update-env
+
+scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+
+# Restarting = stop then start (has downtime)
+# Reloading = start new instance then stop old instance (has no downtime)
+~/.npm-global/bin/pm2 startOrGracefulReload $scriptDir/ecosystem.config.js --update-env

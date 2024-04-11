@@ -290,8 +290,6 @@ upsignonpro@localhost:~$ echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashr
 upsignonpro@localhost:~$ source ~/.bashrc
 
 upsignonpro@localhost:~$ npm install -g pm2
-upsignonpro@localhost:~$ npm install -g yarn
-
 upsignonpro@localhost:~$ pm2 install pm2-logrotate
 ```
 
@@ -303,10 +301,6 @@ upsignonpro@localhost:~$ git config --global http.proxy http://username:passwor
 upsignonpro@localhost:~$ git config --global http.sslVerify false
 
 upsignonpro@localhost:~$ git config --global http.proxyAuthMethod 'basic'
-
-upsignonpro@localhost:~$ npm config set proxy http://username:password@host:port
-
-upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
 ## Installation de Postfix
@@ -494,7 +488,7 @@ After=network.target remote-fs.target nss-lookup.target
 Type=forking
 RemainAfterExit=1
 ExecStart=/home/upsignonpro/.npm-global/bin/pm2 start /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
-ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
+ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrGracefulReload /home/upsignonpro/upsignon-pro-server/ecosystem.config.js --update-env
 ExecStop=/home/upsignonpro/.npm-global/bin/pm2 stop /home/upsignonpro/upsignon-pro-server/ecosystem.config.js
 User=upsignonpro
 WorkingDirectory=/home/upsignonpro/upsignon-pro-server
@@ -528,7 +522,7 @@ After=network.target remote-fs.target nss-lookup.target postfix upsignonpro-serv
 Type=forking
 RemainAfterExit=1
 ExecStart=/home/upsignonpro/.npm-global/bin/pm2 start /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
-ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrReload /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
+ExecReload=/home/upsignonpro/.npm-global/bin/pm2 startOrGracefulReload /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js --update-env
 ExecStop=/home/upsignonpro/.npm-global/bin/pm2 stop /home/upsignonpro/upsignon-pro-dashboard/back/dashboard.config.js
 User=upsignonpro
 WorkingDirectory=/home/upsignonpro/upsignon-pro-dashboard/back

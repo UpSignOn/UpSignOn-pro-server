@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 module.exports = {
   apps: [
@@ -16,6 +15,9 @@ module.exports = {
       source_map_support: true,
       autorestart: true,
       min_uptime: 1000,
+      env: {
+        NODE_ENV: 'production',
+      },
     },
   ],
 };
