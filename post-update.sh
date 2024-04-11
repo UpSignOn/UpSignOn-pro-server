@@ -1,4 +1,4 @@
 #!/bin/bash
-~/.npm-global/bin/yarn install
-~/.npm-global/bin/yarn build
-~/.npm-global/bin/pm2 startOrGracefulReload ecosystem.config.js --update-env
+
+scriptDir=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+~/.npm-global/bin/pm2 startOrGracefulReload $scriptDir/ecosystem.config.js --update-env

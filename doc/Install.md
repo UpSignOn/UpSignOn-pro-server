@@ -374,8 +374,6 @@ upsignonpro@localhost:~$ echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashr
 upsignonpro@localhost:~$ source ~/.bashrc
 
 upsignonpro@localhost:~$ npm install -g pm2
-upsignonpro@localhost:~$ npm install -g yarn
-
 upsignonpro@localhost:~$ pm2 install pm2-logrotate
 ```
 
@@ -387,10 +385,6 @@ upsignonpro@localhost:~$ git config --global http.proxy http://username:passwor
 upsignonpro@localhost:~$ git config --global http.sslVerify false
 
 upsignonpro@localhost:~$ git config --global http.proxyAuthMethod 'basic'
-
-upsignonpro@localhost:~$ npm config set proxy http://username:password@host:port
-
-upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
 ## Installation du serveur UpSignOn PRO et provisioning de la base de données
