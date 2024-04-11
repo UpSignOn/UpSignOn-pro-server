@@ -1,0 +1,8 @@
+logs
+.env*
+.env.*
+*.key
+*.crt
+*.csr
+*.cer
+.DS_STORE
