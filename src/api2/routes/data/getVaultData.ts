@@ -57,6 +57,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         char_length(user_devices.device_public_key_2) > 0 AS has_device_public_key_2,
         users.allowed_to_export AS allowed_to_export,
         groups.settings AS group_settings,
+        groups.stop_this_instance,
         users.allowed_offline_mobile AS allowed_offline_mobile,
         users.allowed_offline_desktop AS allowed_offline_desktop,
         user_devices.device_type AS device_type,
@@ -85,6 +86,10 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         logInfo(req.body?.userEmail, 'getVaultData fail: email address changed');
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
+    }
+    if (dbRes.rows[0].stop_this_instance) {
+      logInfo('instance stopped');
+      return res.status(400).end();
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
       logInfo(req.body?.userEmail, 'getVaultData fail: revoked by user');

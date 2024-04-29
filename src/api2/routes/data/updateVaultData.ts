@@ -3,6 +3,7 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
+import { isInstanceStopped } from '../../helpers/serverMoved';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateVaultData = async (req: any, res: any): Promise<void> => {
@@ -24,6 +25,11 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     if (!basicAuth.granted) {
       logInfo(req.body?.userEmail, 'updateVaultData fail: auth not granted');
       return res.status(401).end();
+    }
+    const hasServerMoved = await isInstanceStopped(basicAuth.groupId);
+    if (hasServerMoved) {
+      logInfo('instance stopped');
+      return res.status(400).end();
     }
 
     const newEncryptedDataWithPasswordChallengeSecured =

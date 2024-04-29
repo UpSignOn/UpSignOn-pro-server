@@ -2,6 +2,7 @@ import { db } from '../../../helpers/db';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
+import { isInstanceStopped } from '../../helpers/serverMoved';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateSharedVaultData = async (req: any, res: any): Promise<void> => {
@@ -36,6 +37,12 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
     if (!authRes.granted) {
       logInfo(req.body?.userEmail, 'updateSharedVaultData fail: auth not granted');
       return res.status(401).end();
+    }
+
+    const hasServerMoved = await isInstanceStopped(authRes.groupId);
+    if (hasServerMoved) {
+      logInfo('instance stopped');
+      return res.status(400).end();
     }
 
     const contentDetails = inputSanitizer.getSharedVaultDetails(req.body?.contentDetails);

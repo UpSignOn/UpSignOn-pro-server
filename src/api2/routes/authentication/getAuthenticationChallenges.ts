@@ -26,6 +26,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         ud.id AS did,
         ud.authorization_status AS authorization_status,
         g.settings AS group_settings,
+        g.stop_this_instance AS stop_this_instance,
         ud.encrypted_password_backup_2 AS encrypted_password_backup_2
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
@@ -51,6 +52,10 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: email address updated');
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
+    }
+    if (dbRes.rows[0].stop_this_instance) {
+      logInfo('instance stopped');
+      return res.status(400).end();
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by user');
