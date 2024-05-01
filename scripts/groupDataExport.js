@@ -49,7 +49,7 @@ async function exportDb() {
       groupId,
     ]);
     const url_list = await db.query('SELECT * FROM url_list WHERE group_id=$1', [groupId]);
-    // const user_devices = await db.query('SELECT * FROM user_devices WHERE group_id=$1', [groupId]);
+    const user_devices = await db.query('SELECT * FROM user_devices WHERE group_id=$1', [groupId]);
     fs.writeFileSync(
       filePath,
       JSON.stringify({
@@ -60,7 +60,7 @@ async function exportDb() {
         // password_reset_request: password_reset_request.rows,
         shared_vault_recipients: shared_vault_recipients.rows,
         shared_vaults: shared_vaults.rows,
-        // user_devices: user_devices.rows,
+        user_devices: user_devices.rows,
         users: users.rows,
         shared_accounts: shared_accounts.rows,
         shared_account_users: shared_account_users.rows,

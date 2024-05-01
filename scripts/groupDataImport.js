@@ -130,6 +130,16 @@ async function importFunction() {
         return row;
       }
     });
+    data.user_devices = data.user_devices.map((row) => {
+      if (row.user_id === u.id) {
+        return {
+          ...row,
+          newUserId: newId,
+        };
+      } else {
+        return row;
+      }
+    });
   }
 
   // SHARED FOLDERS
@@ -279,6 +289,50 @@ async function importFunction() {
         svr.is_manager,
         groupId,
         svr.created_at,
+      ],
+    );
+  }
+  // USER DEVICES
+  for (var i = 0; i < data.user_devices.length; i++) {
+    const ud = data.user_devices[i];
+    await db.query(
+      `INSERT INTO user_devices (
+          user_id,
+          device_name,
+          device_unique_id,
+          authorization_status,
+          created_at,
+          device_type,
+          os_version,
+          revocation_date,
+          encrypted_password_backup,
+          app_version,
+          group_id,
+          device_public_key,
+          encrypted_password_backup_2,
+          device_public_key_2,
+          last_sync_date,
+          install_type,
+          os_family
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+      [
+        ud.newUserId,
+        ud.device_name,
+        ud.device_unique_id,
+        ud.authorization_status,
+        ud.created_at,
+        ud.device_type,
+        ud.os_version,
+        ud.revocation_date,
+        ud.encrypted_password_backup,
+        ud.app_version,
+        groupId,
+        ud.device_public_key,
+        ud.encrypted_password_backup_2,
+        ud.device_public_key_2,
+        ud.last_sync_date,
+        ud.install_type,
+        ud.os_family,
       ],
     );
   }
