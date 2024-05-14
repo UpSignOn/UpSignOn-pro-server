@@ -52,6 +52,7 @@ Règles à configurer:
 ### Chrome
 
 Documentation sur la gestion des règles: [https://support.google.com/chrome/a/answer/187202?hl=fr](https://support.google.com/chrome/a/answer/187202?hl=fr)
+
 Documentation sur la gestion des règles via le registre: [https://support.google.com/chrome/a/answer/9131254?hl=fr&ref_topic=9023406&sjid=3630899081903516948-EU](https://support.google.com/chrome/a/answer/9131254?hl=fr&ref_topic=9023406&sjid=3630899081903516948-EU)
 
 Liste des règles: [https://cloud.google.com/docs/chrome-enterprise/policies](https://cloud.google.com/docs/chrome-enterprise/policies)
@@ -99,6 +100,7 @@ Règles à configurer:
 ### Edge
 
 Documentation sur la gestion des règles : [https://docs.microsoft.com/en-us/deployedge/microsoft-edge-manage-extensions-policies](https://docs.microsoft.com/en-us/deployedge/microsoft-edge-manage-extensions-policies)
+
 Documentation sur la gestion des règles via Intune : [https://learn.microsoft.com/en-us/mem/intune/configuration/administrative-templates-configure-edge?bc=%2FDeployEdge%2Fbreadcrumb%2Ftoc.json&toc=%2FDeployEdge%2Ftoc.json](https://learn.microsoft.com/en-us/mem/intune/configuration/administrative-templates-configure-edge?bc=%2FDeployEdge%2Fbreadcrumb%2Ftoc.json&toc=%2FDeployEdge%2Ftoc.json)
 
 Liste des règles : [https://docs.microsoft.com/en-us/deployedge/microsoft-edge-policies](https://docs.microsoft.com/en-us/deployedge/microsoft-edge-policies)
