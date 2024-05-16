@@ -12,21 +12,11 @@ export const sendStatusUpdate = async (): Promise<void> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serverVersion = require('../../package.json').version;
-    const gitCommit = await new Promise((resolve) => {
-      childProcess.exec('git rev-parse HEAD', (error, stdout) => {
-        resolve(stdout?.toString().trim() || 'unknown');
-      });
-    });
     const nodeVersion = await new Promise((resolve) => {
       childProcess.exec('node --version', (error, stdout) => {
         resolve(stdout?.toString().trim() || 'unknown');
       });
     });
-
-    const lastMigrationResult = await db.query(
-      'SELECT name FROM migrations ORDER BY name desc limit 1',
-    );
-    const lastMigration = lastMigrationResult.rows[0].name;
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
     const statsByGroup = await getStatsByGroup();
     const licenseCount = licenseCountResult.rows[0].count;
@@ -41,24 +31,22 @@ export const sendStatusUpdate = async (): Promise<void> => {
       FROM users
       GROUP BY users.id`,
     );
-    const adminEmailsRes = await db.query('SELECT email FROM admins');
+    const deviceStats = await db.query(
+      'SELECT os_family, device_type, os_version FROM user_devices',
+    );
     const stats: { def: string[]; data: number[] } = await getStats();
-    const isCertChainComplete = await isCertificateChainComplete();
     const hasDailyBackup = getHasDailyBackup();
     const serverStatus = {
       serverUrl: env.API_PUBLIC_HOSTNAME,
-      gitCommit,
       serverVersion,
-      lastMigration,
       licenseCount,
       userAppVersions,
       securityGraph: JSON.stringify(stats),
       statsByGroup,
       detailedUserAppVersions: JSON.stringify(detailedUserAppVersions.rows),
       hasDailyBackup,
-      isCertChainComplete,
       nodeVersion,
-      adminEmails: adminEmailsRes.rows.map((a) => a.email),
+      deviceStats,
     };
 
     sendToUpSignOn(serverStatus);
