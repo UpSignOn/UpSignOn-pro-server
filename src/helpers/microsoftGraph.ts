@@ -45,7 +45,7 @@ export class MicrosoftGraph {
   static async getUserId(groupId: number, userEmail: string): Promise<string | null> {
     const graph = await MicrosoftGraph._getInstance(groupId, true);
     if (graph) {
-      const userId = await graph.getUserIdFromEmail(userEmail);
+      const userId = await graph._getUserIdFromEmail(userEmail);
       return userId;
     }
     return null;
@@ -167,7 +167,7 @@ class _MicrosoftGraph {
    * @param email
    * @returns the id if such a user exists, null otherwise
    */
-  async getUserIdFromEmail(email: string): Promise<string | null> {
+  async _getUserIdFromEmail(email: string): Promise<string | null> {
     if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
       throw 'Email is malformed';
     }
@@ -287,7 +287,7 @@ class _MicrosoftGraph {
   // }
 
   // async isDeviceAuthorizedForUser(email: string, deviceId: string): Promise<boolean> {
-  //   const userId = await this.getUserIdFromEmail(email);
+  //   const userId = await this._getUserIdFromEmail(email);
   //   if (!userId) return false;
   //   // TODO make sure deviceId has been validated
   //   const userDevices = await this.msGraph
