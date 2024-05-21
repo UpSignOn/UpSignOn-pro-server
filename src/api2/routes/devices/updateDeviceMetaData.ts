@@ -56,7 +56,6 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
         'WHERE ' +
         'users.email=$1 ' +
         'AND ud.device_unique_id = $2 ' +
-        "AND ud.authorization_status = 'AUTHORIZED' " +
         'AND users.group_id=$3',
       [userEmail, deviceUId, groupId],
     );
