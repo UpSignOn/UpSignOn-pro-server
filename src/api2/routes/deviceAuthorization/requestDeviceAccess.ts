@@ -60,10 +60,10 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceName');
       return res.status(400).json({ error: 'missing_deviceName' });
     }
-    if (!deviceType) {
-      logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceType');
-      return res.status(400).json({ error: 'missing_deviceType' });
-    }
+    // if (!deviceType) {
+    //   logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing deviceType');
+    //   return res.status(400).json({ error: 'missing_deviceType' });
+    // }
     if (!osNameAndVersion) {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: missing osNameAndVersion');
       return res.status(400).json({ error: 'missing_osNameAndVersion' });
