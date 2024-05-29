@@ -23,7 +23,7 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
       authRes.groupId,
     ]);
 
-    logInfo(req.body?.userEmail, 'deleteSharedVault OK');
+    logInfo(req.body?.userEmail, `deleteSharedVault ${sharedVaultId} OK`);
     return res.status(204).end();
   } catch (e) {
     logError(req.body?.userEmail, 'deleteSharedVault', e);
