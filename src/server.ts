@@ -113,7 +113,7 @@ SessionStore.init();
 
 app.use((req, res, next) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-  logInfo(ip, req.body?.userEmail, req.url);
+  logInfo(req.body?.userEmail, ip, req.url);
   if (!env.IS_PRODUCTION) {
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
