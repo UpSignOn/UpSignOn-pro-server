@@ -2,10 +2,16 @@ import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { PREVENT_V1_API_WHEN_V2_DATA, checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const deleteSingledSharings = async (req: any, res: any): Promise<void> => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
+
     const itemIds = inputSanitizer.getArrayOfNumbers(req.body?.itemIds);
     if (!itemIds) return res.status(401).end();
 

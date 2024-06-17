@@ -4,10 +4,15 @@ import { logError } from '../../helpers/logger';
 import { PREVENT_V1_API_WHEN_V2_DATA, checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwordChallengev1';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateData = async (req: any, res: any): Promise<void> => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const lastUpdateDate = inputSanitizer.getString(req.body?.lastUpdateDate);
     const isNewData = inputSanitizer.getBoolean(req.body?.isNewData); // DEPRECATED => this route is no longer used to add an empty space

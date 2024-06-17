@@ -2,12 +2,18 @@ import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const changeSharedFolderName = async (req: any, res: any) => {
   try {
     const sharedFolderId = inputSanitizer.getNumberOrNull(req.body?.sharedFolderId);
     const newName = inputSanitizer.getString(req.body?.newName);
+
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
 
     // Check params
     if (sharedFolderId == null || !newName) return res.status(401).end();

@@ -5,6 +5,7 @@ import { hashPasswordChallengeResultForSecureStorageV1 } from '../helpers/passwo
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
 import { PREVENT_V1_API_WHEN_V2_DATA } from '../helpers/authorizationChecks';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData = async (req: any, res: any): Promise<void> => {
@@ -15,7 +16,10 @@ export const addNewData = async (req: any, res: any): Promise<void> => {
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
-
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     // 0 - Check params
     if (
       !newEncryptedData ||

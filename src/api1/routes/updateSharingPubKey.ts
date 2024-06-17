@@ -1,3 +1,4 @@
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
@@ -7,7 +8,10 @@ import { checkBasicAuth } from '../helpers/authorizationChecks';
 export const updateSharingPubKey = async (req: any, res: any): Promise<void> => {
   try {
     const sharingPubKey = inputSanitizer.getString(req.body.pubKey);
-
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 

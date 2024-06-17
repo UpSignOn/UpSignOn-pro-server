@@ -2,6 +2,7 @@ import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { PREVENT_V1_API_WHEN_V2_DATA, checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateDeviceMetaData = async (req: any, res: any): Promise<void> => {
@@ -9,7 +10,9 @@ export const updateDeviceMetaData = async (req: any, res: any): Promise<void> =>
     const deviceName = inputSanitizer.getString(req.body?.deviceName);
     const osVersion = inputSanitizer.getString(req.body?.osVersion);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
-
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const basicAuth = await checkBasicAuth(req, { returningDeviceId: true });
     if (!basicAuth.granted) return res.status(401).end();
 

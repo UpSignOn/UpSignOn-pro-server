@@ -5,6 +5,7 @@ import { sendDeviceRequestEmail } from '../../helpers/sendDeviceRequestEmail';
 import { logError } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { getRandomString } from '../../helpers/randomString';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -38,6 +39,9 @@ export const requestAccess = async (req: any, res: any) => {
     const deviceOS = inputSanitizer.getString(req.body?.deviceOS);
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
 
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     // Check params
     if (!deviceId) return res.status(401).end();
 

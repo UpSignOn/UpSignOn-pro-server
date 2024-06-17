@@ -6,10 +6,15 @@ import {
   checkIsManagerForFolder,
 } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateContactSharedFolderRights = async (req: any, res: any): Promise<void> => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const contactId = inputSanitizer.getNumberOrNull(req.body?.contactId);
     const folderId = inputSanitizer.getNumberOrNull(req.body?.folderId);
     const willBeManager = inputSanitizer.getBoolean(req.body.willBeManager);

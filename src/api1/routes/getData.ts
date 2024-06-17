@@ -3,6 +3,7 @@ import { accessCodeHash } from '../helpers/accessCodeHash';
 import { logError } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 /**
  * Returns
@@ -16,7 +17,6 @@ import { SessionStore } from '../../helpers/sessionStore';
 export const getData = async (req: any, res: any): Promise<void> => {
   try {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
-
     // Get params
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);

@@ -7,10 +7,15 @@ import {
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const removeAuthorization = async (req: any, res: any) => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;

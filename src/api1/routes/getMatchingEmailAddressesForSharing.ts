@@ -3,12 +3,17 @@ import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 let contactSearchSessions: { session: string; expirationTimestamp: number }[] = [];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getMatchingEmailAddressesForSharing = async (req: any, res: any) => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const emailAddressSearch = inputSanitizer.getString(req.body?.emailAddressSearch);
     if (!emailAddressSearch || emailAddressSearch.length < 3) return res.status(401).end();
 

@@ -8,7 +8,7 @@ import { inputSanitizer } from '../../helpers/sanitizer';
 export const updateSharedItem = async (req: any, res: any): Promise<void> => {
   try {
     const appVersion = inputSanitizer.getString(req.body?.appVersion);
-    if (isStrictlyLowerVersion(appVersion, '4.5.0')) {
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
       return res.status(403).send({ error: 'deprecated_app' });
     }
 

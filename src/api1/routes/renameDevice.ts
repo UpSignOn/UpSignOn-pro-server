@@ -2,10 +2,15 @@ import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const renameDevice = async (req: any, res: any) => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const deviceToRename = inputSanitizer.getString(req.body?.deviceToRename);
     const newName = inputSanitizer.getString(req.body?.newName);
     if (!deviceToRename) return res.status(401).end();

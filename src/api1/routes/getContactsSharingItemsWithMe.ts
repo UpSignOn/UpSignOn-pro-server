@@ -1,10 +1,16 @@
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 import { db } from '../../helpers/db';
 import { logError } from '../../helpers/logger';
+import { inputSanitizer } from '../../helpers/sanitizer';
 import { checkBasicAuth } from '../helpers/authorizationChecks';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getContactsSharingItemsWithMe = async (req: any, res: any) => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const basicAuth = await checkBasicAuth(req);
     if (!basicAuth.granted) return res.status(401).end();
 

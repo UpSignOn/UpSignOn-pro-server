@@ -8,6 +8,7 @@ import {
 } from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { getRandomString } from '../../helpers/randomString';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset = async (req: any, res: any) => {
@@ -19,7 +20,10 @@ export const requestPasswordReset = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceAccessCode = inputSanitizer.getString(req.body?.deviceAccessCode); // DEPRECATED
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
-
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     // Check params
     if (!userEmail) return res.status(401).end();
     if (!deviceId) return res.status(401).end();

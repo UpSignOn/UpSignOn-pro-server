@@ -7,10 +7,15 @@ import {
   createDeviceChallengeV1,
 } from '../helpers/deviceChallengev1';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { isStrictlyLowerVersion } from '../../helpers/appVersionChecker';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup = async (req: any, res: any) => {
   try {
+    const appVersion = inputSanitizer.getString(req.body?.appVersion);
+    if (isStrictlyLowerVersion(appVersion, '7.1.1')) {
+      return res.status(403).send({ error: 'deprecated_app' });
+    }
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params
