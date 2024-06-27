@@ -71,107 +71,74 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
 };
 
 const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
+  // hypothesis : if a stat exists for a group for a day, then there exists a stats for other groups fro that day too. (The computation succeeds in whole or not at all)
   const rawStats = await db.query(
-    "SELECT user_id, shared_vault_id, date_trunc('day', date) as day, nb_accounts, nb_codes, nb_accounts_strong, nb_accounts_medium, nb_accounts_weak, nb_accounts_with_no_password, nb_accounts_with_duplicated_password, nb_accounts_red, nb_accounts_orange, nb_accounts_green FROM data_stats ORDER BY day ASC",
+    `SELECT
+      date,
+      SUM(nb_accounts) AS nb_accounts,
+      SUM(nb_codes) AS nb_codes,
+      SUM(nb_accounts_strong) AS nb_accounts_strong,
+      SUM(nb_accounts_medium) AS nb_accounts_medium,
+      SUM(nb_accounts_weak) AS nb_accounts_weak,
+      SUM(nb_accounts_with_duplicated_password) AS nb_accounts_with_duplicated_password,
+      SUM(nb_accounts_with_no_password) AS nb_accounts_with_no_password,
+      SUM(nb_accounts_red) AS nb_accounts_red,
+      SUM(nb_accounts_orange) AS nb_accounts_orange,
+      SUM(nb_accounts_green) AS nb_accounts_green
+    FROM pwd_stats_evolution GROUP BY date ORDER BY date ASC`,
   );
-
-  if (rawStats.rowCount === 0) {
+  if (!rawStats?.rowCount || rawStats.rowCount === 0) {
     return { def: [], data: [] };
   }
 
-  /*
-   * First get chartDataPerVaultPerDay = {
-   *  [userId]: {
-   *    [day]: stats
-   *  }
-   * }
-   */
-  const chartDataPerVaultPerDay: any = {};
-  rawStats.rows.forEach((r: any) => {
-    if (r.user_id) {
-      if (!chartDataPerVaultPerDay['v' + r.user_id]) {
-        chartDataPerVaultPerDay['v' + r.user_id] = {};
-      }
-      chartDataPerVaultPerDay['v' + r.user_id][r.day.toISOString()] = r;
-    } else {
-      if (!chartDataPerVaultPerDay['sv' + r.shared_vault_id]) {
-        chartDataPerVaultPerDay['sv' + r.shared_vault_id] = {};
-      }
-      chartDataPerVaultPerDay['sv' + r.shared_vault_id][r.day.toISOString()] = r;
-    }
-  });
-
   // Then get the continuous list of days
   let days: string[];
-  if (rawStats.rowCount == null) {
-    days = [];
-  } else {
-    const startDay = rawStats.rows[0].day;
-    let endDay = rawStats.rows[rawStats.rowCount - 1].day;
-    endDay = new Date(endDay);
-    endDay.setDate(endDay.getDate() + 1);
-    endDay.setHours(0, 0, 0, 0);
-    endDay = endDay.toISOString();
-    days = getDaysArray(startDay, endDay);
-  }
+  const startDay = rawStats.rows[0].date;
+  let endDay = rawStats.rows[rawStats.rowCount - 1].date;
+  endDay = new Date(endDay);
+  endDay.setDate(endDay.getDate() + 1);
+  endDay.setHours(0, 0, 0, 0);
+  endDay = endDay.toISOString();
+  days = getDaysArray(startDay, endDay).map((d) => d.split('T')[0]);
 
-  // Init chart data object
-  const chartDataObjet: any = {};
-  days.forEach((d) => {
-    chartDataObjet[d] = {
-      d: d, // day
-      n: 0, // accounts
-      cd: 0, // codes
-      st: 0, // strong
-      md: 0, // medium
-      wk: 0, // weak
-      no: 0, // no password
-      dp: 0, // duplicate
-      gr: 0, // green
-      or: 0, // orange
-      rd: 0, // red
-    };
+  let lastStatIndex = 0;
+  let lastValueUsed = [
+    days[0], // day
+    0, // accounts
+    0, // codes
+    0, // strong
+    0, // medium
+    0, // weak
+    0, // no password
+    0, // duplicate
+    0, // green
+    0, // orange
+    0, // red
+  ];
+  const graph = days.map((d) => {
+    const row = rawStats.rows[lastStatIndex];
+    if (row && row.date.toISOString().split('T')[0] === d) {
+      lastValueUsed = [
+        d,
+        row.nb_accounts,
+        row.nb_codes,
+        row.nb_accounts_strong,
+        row.nb_accounts_medium,
+        row.nb_accounts_weak,
+        row.nb_accounts_with_no_password,
+        row.nb_accounts_with_duplicated_password,
+        row.nb_accounts_green,
+        row.nb_accounts_orange,
+        row.nb_accounts_red,
+      ];
+      lastStatIndex++;
+    }
+    return lastValueUsed;
   });
 
-  // Then map each day to its stats
-  const userList = Object.keys(chartDataPerVaultPerDay);
-  userList.forEach((u) => {
-    let lastKnownStats: any = null;
-    const userStats = chartDataPerVaultPerDay[u];
-    days.forEach((d) => {
-      if (userStats[d]) {
-        lastKnownStats = userStats[d];
-      }
-      chartDataObjet[d].n += lastKnownStats?.nb_accounts || 0;
-      chartDataObjet[d].cd += lastKnownStats?.nb_codes || 0;
-      chartDataObjet[d].st += lastKnownStats?.nb_accounts_strong || 0;
-      chartDataObjet[d].md += lastKnownStats?.nb_accounts_medium || 0;
-      chartDataObjet[d].wk += lastKnownStats?.nb_accounts_weak || 0;
-      chartDataObjet[d].no += lastKnownStats?.nb_accounts_with_no_password || 0;
-      chartDataObjet[d].dp += lastKnownStats?.nb_accounts_with_duplicated_password || 0;
-      chartDataObjet[d].gr += lastKnownStats?.nb_accounts_green || 0;
-      chartDataObjet[d].or += lastKnownStats?.nb_accounts_orange || 0;
-      chartDataObjet[d].rd += lastKnownStats?.nb_accounts_red || 0;
-    });
-  });
-
-  const result = Object.values(chartDataObjet);
   return {
     def: ['d', 'n', 'cd', 'st', 'md', 'wk', 'no', 'dp', 'gr', 'or', 'rd'],
-    // @ts-ignore
-    data: result.map((val: any) => [
-      val.d.split('T')[0],
-      val.n,
-      val.cd,
-      val.st,
-      val.md,
-      val.wk,
-      val.no,
-      val.dp,
-      val.gr,
-      val.or,
-      val.rd,
-    ]),
+    data: graph,
   };
 };
 

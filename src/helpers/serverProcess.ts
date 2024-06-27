@@ -6,6 +6,7 @@ import { logInfo } from './logger';
 import { sendStatusUpdate } from './serverStatus';
 import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
 import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
+import { aggregateStatsDaily } from './dailyStats';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -53,6 +54,7 @@ export const startServer = (app: any, then: any): void => {
   setInterval(() => cronjob(60 * 5 * Math.random() * 1000), 24 * 3600 * 1000);
 
   syncPeriodicallyWithMicrosoftEntra();
+  aggregateStatsDaily();
 };
 
 const listenForGracefulShutdown = (server: any) => {

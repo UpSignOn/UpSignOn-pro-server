@@ -251,7 +251,6 @@ class _MicrosoftGraph {
       .select(['id', 'mail', 'displayName'])
       .get();
 
-    console.log(groupMembers);
     return groupMembers.value;
   }
 
