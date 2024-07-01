@@ -117,7 +117,7 @@ export const checkDevice2 = async (req: any, res: any) => {
     let requireAdminCheck = false;
     if (
       dbRes.rows[0]?.device_count != null &&
-      dbRes.rows[0].device_count > 0 &&
+      dbRes.rows[0].device_count > 1 &&
       dbRes.rows[0].group_settings != null &&
       dbRes.rows[0].group_settings.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
     ) {
