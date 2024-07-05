@@ -404,6 +404,7 @@ upsignonpro@localhost:~$ git clone --branch production https://github.com/UpSig
 upsignonpro@localhost:~$ cd upsignon-pro-server
 
 upsignonpro@localhost:~/upsignon-pro-server$ cp dot-env-template .env
+upsignonpro@localhost:~/upsignon-pro-server$ chmod o-rwx .env
 
 upsignonpro@localhost:~/upsignon-pro-server$ openssl rand -hex 30 # ceci génère une chaîne de caractères aléatoires qui peut être copiée dans la variable SESSION_SECRET du fichier .env
 
@@ -446,6 +447,7 @@ Vous pouvez voir qu'il y a deux dossiers dans ce projet.
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard/front$ cp ./front/dot-env-template ./front/.env
+upsignonpro@localhost:~/upsignon-pro-dashboard/front$ chmod o-rwx ./front/.env
 ```
 
 Puis éditez le fichier ./front/.env et modifiez la variable PUBLIC_URL avec l'url de votre serveur d'administration, chemin compris.
@@ -458,6 +460,7 @@ upsignonpro@localhost:~/upsignon-pro-dashboard/$ nano ./front/.env
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard/$ cp ./back/dot-env-template ./back/.env
+upsignonpro@localhost:~/upsignon-pro-dashboard/$ chmod o-rwx ./back/.env
 upsignonpro@localhost:~/upsignon-pro-dashboard/$ openssl rand -hex 30
 ```
 
