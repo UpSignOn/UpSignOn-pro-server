@@ -319,7 +319,7 @@ Tutorials that helped creating this doc:
 
 ### Configurez le hostname de votre machine
 
-- Modifiez le fichier **/etc/hosts** et ajoutez `upsignonpro.votre-domaine.fr` à la fin de la ligne '127.0.0.1 localhost' c'est-à-dire '127.0.0.1 localhost upsignonpro.votre-domaine.fr'
+- Modifiez le fichier **/etc/hosts** et remplacez localhost par `upsignonpro.votre-domaine.fr` à la fin de la ligne '127.0.0.1 localhost' c'est-à-dire '127.0.0.1 upsignonpro.votre-domaine.fr'
 
 - Modifiez le fichier **/etc/hostname** et mettez-y `upsignonpro.votre-domaine.fr`
 
@@ -343,6 +343,7 @@ La dernière commande affiche une invite de commande
 
 Modifiez le fichier **/etc/postfix/main.cf**:
 
+- Changez myhostname
 - Changez `mydestination = $myhostname, example.com, localhost.com, localhost` en `mydestination = $myhostname, localhost.<votre-domaine.fr>, <votre-domaine.fr>`
 - Changez `inet-interfaces = all` en `inet-interfaces = loopback-only`
 - Redémarrez Postfix `sudo systemctl restart postfix`
