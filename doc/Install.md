@@ -4,7 +4,7 @@
 > Note sur le vocabulaire :\
 > Dans cette documentation, un serveur désigne un processus qui écoute sur un port. Nous parlons de machine ou de VM pour désigner le conteneur hardware + système d'exploitation sur lequel s'exécutent ces processus.
 
-# Schéma d'architecture
+# 0 - Schéma d'architecture
 
 Vous allez devoir installer une base de données PostgreSQL et deux "serveurs" applicatifs (comprendre programmes nodeJS qui écoutent sur des ports localhost), soit 3 processus. Notez que ces 3 processus peuvent être éxecutés sur des machines différentes si vous le souhaitez.
 
@@ -57,7 +57,7 @@ Machine pour le serveur de base de données (si architecture type 2)
 | Client lourd (application UpSignOn)  | app.upsignon.eu                                                   | 443              |
 | Client lourd (application UpSignOn)  | \*.sentry.io                                                      | 443              |
 
-# Avant de commencer l'installation
+# 1 - Avant de commencer l'installation
 
 ## Choisissez et déclarez-nous vos urls
 
@@ -79,32 +79,14 @@ Nous devons déclarer vos urls dans notre base de données pour qu'elles soit au
 
 Nous recommandons l'utilisation d'une machine virtuelle dédiée à UpSigOn PRO. Ne réutilisez pas une machine sur laquelle vous faites déjà tourner d'autres services. La réutilisation d'une VM augmente les risques de compromission et les risques de conflits d'installation et de configuration.
 
-## Reverse DNS
-
-Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous avez choisi (normalement `upsignonpro.votre-domaine.fr`). Cela se paramètre normalement au niveau de votre fournisseur d'hébergement. Ceci est nécessaire au bon fonctionnement de Postfix pour l'envoi de mails aux utilisateurs (mail d'enrollement d'appareil, mail de mot de passe oublié, etc.).
-
 ## Configuration DNS
 
 - Ajouter un enregistrement A ou AAAA pour lier votre sous-domaine à l'adresse IP de votre machine.
+- D'autres enregistrements seront potentiellement ajoutés par la suite
+  - CAA
+  - SPF, DKIM, DMARC
 
-- Ajouter un enregistrement SPF pour améliorer la délivrabilité des emails. (Des enregistrements DKIM et DMARC seront également ajoutés à la fin de l'installation pour compléter cette configuration).
-
-  - type: TXT
-  - nom d'hôte: <upsignonpro.votre-domaine.fr>
-  - valeur (en y mettant l'adresse IP de la machine): v=spf1 ip4:XXX.XXX.XXX.XXX -all
-
-- Ajouter un enregistremenent CAA pour n'autoriser que Let's Encrypt à émettre un certificat pour votre sous-domaine (non obligatoire, mais recommandé):
-
-  - type: CAA
-  - nom d'hôte: <upsignonpro.votre-domaine.fr>
-  - valeur: 128 issue "letsencrypt.org"
-
-  NB: Let's Encrypt permet d'obtenir un certificat gratuit renouvellé automatiquement. C'est l'option proposée par défaut dans cette documentation. Vous pouvez également si vous le souhaitez utiliser une autre autorité de certification et gérer les certificats manuellement.
-
-      - les certificats wildcard sont autorisés mais non recommandés car vous devrez partager la clé privée entre plusieurs serveurs ce qui peut augmenter votre risque en cas de compromission de l'une des machines.
-      - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
-
-# Installation préalables
+# 2 - Installation préalables
 
 En tant que root
 
@@ -118,7 +100,7 @@ apt-get install -y git
 adduser upsignonpro
 ```
 
-# Installation de la base de données
+## Installation de la base de données
 
 Connectez-vous en tant qu'utilisateur postgres à la base de données PostgreSQL :
 
@@ -162,7 +144,7 @@ Dans la suite, les variables d'environnement suivantes feront référence à la 
 - DB_HOST: nom d'hôte de la machine sur laquelle est servi la base de données ('localhost')
 - DB_PORT: port sur lequel est servi la base de données ('5432')
 
-# Configuration d'un reverse proxy
+# 3 - Configuration d'un reverse proxy
 
 ## Installation de nginx
 
@@ -180,19 +162,21 @@ En tant que **root**,
 
 ## Installation d'un certificat Let's Encrypt
 
-- éditez le fichier /etc/nginx/sites-available/default en remplaçant "-" par votre nom de domaine à la directive server_name. Par exemple
+**DNS**
 
-```
-server {
-  // other configs
+Ajouter un enregistremenent DNS CAA pour n'autoriser que Let's Encrypt à émettre un certificat pour votre sous-domaine (non obligatoire, mais recommandé):
 
-  server_name upsignonpro.votre-domaine.fr
+- type: CAA
+- nom d'hôte: <upsignonpro.votre-domaine.fr>
+- valeur: 128 issue "letsencrypt.org"
 
-  // other configs
-}
-```
+**Configuration**
 
-- redémarrez nginx : `systemctl restart nginx`
+NB: Let's Encrypt permet d'obtenir un certificat gratuit renouvellé automatiquement. C'est l'option proposée par défaut dans cette documentation. Vous pouvez également si vous le souhaitez utiliser une autre autorité de certification et gérer les certificats manuellement.
+
+      - les certificats wildcard sont autorisés mais non recommandés car vous devrez partager la clé privée entre plusieurs serveurs ce qui peut augmenter votre risque en cas de compromission de l'une des machines.
+      - **LES CERTIFICATS AUTOSIGNÉS NE FONCTIONNERONT PAS** (sauf s'ils sont approuvés par toutes les machines de vos collaborateurs, mais cela reste fortement déconseillé).
+
 - suivez la procédure d'installation de Let's Encrypt: https://certbot.eff.org/instructions?ws=nginx&os=debianbuster (ou https://certbot.eff.org/ si vous êtes sur un autre type de machine)
 
 NB: Let's Encrypt produit ses certificats dans le dossier `/etc/letsencrypt/live/<upsignonpro.votre-domaine.fr>/`
@@ -277,7 +261,107 @@ Une fois ce fichier créé, redémarrez Nginx
 systemctl restart nginx
 ```
 
-# Installation des outils
+# 4 - Installation de Postfix (optionnel)
+
+> Les services UpSignOn ont besoin d'envoyer des emails transactionnels aux utilisateurs pour l'autorisation d'appareils, les procédures de mots de passe oublié, etc. Vous pouvez utiliser une adresse email relaie (à configurer à la fin de l'installation), ou choisir d'envoyer les mails directement depuis votre VM.
+
+Voici la procédure permettant de configurer Postfix pour l'envoi de mails directement depuis la VM.
+
+## Reverse DNS
+
+Configurez le reverse DNS de votre VM pour pointer vers le sous-domaine que vous avez choisi (normalement `upsignonpro.votre-domaine.fr`). Cela se paramètre normalement au niveau de votre fournisseur d'hébergement. Ceci est nécessaire au bon fonctionnement de Postfix pour l'envoi de mails aux utilisateurs (mail d'enrollement d'appareil, mail de mot de passe oublié, etc.).
+
+<!---
+Tutorials that helped creating this doc:
+- https://netcorecloud.com/tutorials/install-postfix-as-send-only-smtp-server/
+- https://scribbble.io/wardpoel/install-and-configure-postfix/
+--->
+
+## Configurez le hostname de votre machine
+
+- Modifiez le fichier **/etc/hosts** et remplacez localhost par `upsignonpro.votre-domaine.fr` à la fin de la ligne '127.0.0.1 localhost' c'est-à-dire '127.0.0.1 upsignonpro.votre-domaine.fr'
+
+- Modifiez le fichier **/etc/hostname** et mettez-y `upsignonpro.votre-domaine.fr`
+
+- Redémarrez la machine (`reboot`)
+
+- Vérifiez que la commande `hostnamectl` renvoie bien `upsignonpro.votre-domaine.fr`
+
+## Installation de Postfix
+
+```
+sudo apt update
+sudo apt install postfix
+```
+
+La dernière commande affiche une invite de commande
+
+- choisissez "Internet Site"
+- puis saisissez `upsignonpro.votre-domaine.fr`
+
+## Configurez Postfix pour l'envoi de mails uniquement
+
+Modifiez le fichier **/etc/postfix/main.cf**:
+
+- Donnez à myhostname la valeur `upsignonpro.votre-domaine.fr`
+- Changez `mydestination = $myhostname, example.com, localhost.com, localhost` en `mydestination = $myhostname, localhost.<votre-domaine.fr>`
+- Changez `inet-interfaces = all` en `inet-interfaces = loopback-only`
+- Redémarrez Postfix `sudo systemctl restart postfix`
+
+## Envoyez-vous un email de test
+
+```
+apt-get install mailutils
+echo "Un email envoyé par Postfix" | mail -s "test Postfix" prenom.nom@votre-domaine.fr
+```
+
+N'oubliez de vérifier votre dossier spams.
+
+Vous pouvez consulter les logs de Postfix dans **/var/log/mail.log**
+Vous pouvez consulter les "mails" machine dans le dossier **/var/mail/**
+
+## Configuration de DKIM
+
+Cette configuration augmente la délivrabilité de vos emails et diminue les chances que les mails envoyés par vos serveurs soient considérés comme spam. Elle est donc fortement recommandée.
+
+- Générez une clé RSA
+
+```
+su - upsignonpro
+mkdir DKIM
+cd DKIM
+openssl genrsa -out private.key 1024
+openssl rsa -in private.key -pubout -out public.key
+```
+
+## Configuration DNS
+
+- Ajouter un enregistrement SPF pour améliorer la délivrabilité des emails. (Des enregistrements DKIM et DMARC seront également ajoutés à la fin de l'installation pour compléter cette configuration).
+
+  - type: TXT
+  - nom d'hôte: <upsignonpro.votre-domaine.fr>
+  - valeur (en y mettant l'adresse IP de la machine): v=spf1 ip4:XXX.XXX.XXX.XXX -all
+
+- Ajoutez l'enregistrement suivant dans votre configuration DNS
+  - type: TXT
+  - nom d'hôte: `uso1._domainkey.upsignonpro.votre-domaine.fr`
+  - valeur: v=DKIM1;k=rsa;p=DKIM_PUBLIC_KEY
+
+> DKIM_PUBLIC_KEY est le contenu du fichier public.key généré précédemment sans la première et la dernière ligne, et sans retour à la ligne.
+
+NB: "uso1" est une valeur arbitraire qui permet de distinguer plusieurs enregistrement DKIM liés au même (sous-)domaine pour désigner des clés différentes.
+
+- Ajoutez l'enregistrement DMARC suivant dans votre configuration DNS
+
+  - type: TXT
+  - nom d'hôte: `_dmarc.upsignonpro.votre-domaine.fr`
+  - valeur: v=DMARC1; p=reject; aspf=s; adkim=s;
+
+  Cet enregistrement permet de demander aux serveurs de mails destinataires de totalement refuser les emails pour lesquels la vérification SPF ou la vérification DKIM n'est pas valide, ce qui limite les risques de phishing via le domaine upsignonpro.votre-domaine.fr. Vous pouvez demander plutôt une mise en SPAM en utilisant la valeur `v=DMARC1; p=quarantine; aspf=s; adkim=s;` ou déléguer le choix du comportement à adopter au serveur destinataire en utilisant la valeur `v=DMARC1; p=none;`.
+
+# 5 - Installation des services UpSignOn
+
+## Préparation de l'environnement
 
 En tant qu'utilisateur **upsignonpro**
 
@@ -309,89 +393,7 @@ upsignonpro@localhost:~$ npm config set proxy http://username:password@host:por
 upsignonpro@localhost:~$ yarn config set proxy http://username:password@host:port
 ```
 
-## Installation de Postfix
-
-<!---
-Tutorials that helped creating this doc:
-- https://netcorecloud.com/tutorials/install-postfix-as-send-only-smtp-server/
-- https://scribbble.io/wardpoel/install-and-configure-postfix/
---->
-
-### Configurez le hostname de votre machine
-
-- Modifiez le fichier **/etc/hosts** et remplacez localhost par `upsignonpro.votre-domaine.fr` à la fin de la ligne '127.0.0.1 localhost' c'est-à-dire '127.0.0.1 upsignonpro.votre-domaine.fr'
-
-- Modifiez le fichier **/etc/hostname** et mettez-y `upsignonpro.votre-domaine.fr`
-
-- Redémarrez la machine (`reboot`)
-
-- Vérifiez que la commande `hostnamectl` renvoie bien `upsignonpro.votre-domaine.fr`
-
-### Installation de Postfix
-
-```
-sudo apt update
-sudo apt install postfix
-```
-
-La dernière commande affiche une invite de commande
-
-- choisissez "Internet Site"
-- puis saisissez `upsignonpro.votre-domaine.fr`
-
-### Configurez Postfix pour l'envoi de mails uniquement
-
-Modifiez le fichier **/etc/postfix/main.cf**:
-
-- Changez myhostname
-- Changez `mydestination = $myhostname, example.com, localhost.com, localhost` en `mydestination = $myhostname, localhost.<votre-domaine.fr>, <votre-domaine.fr>`
-- Changez `inet-interfaces = all` en `inet-interfaces = loopback-only`
-- Redémarrez Postfix `sudo systemctl restart postfix`
-
-### Envoyez-vous un email de test
-
-```
-apt-get install mailutils
-echo "Un email envoyé par Postfix" | mail -s "test Postfix" prenom.nom@votre-domaine.fr
-```
-
-N'oubliez de vérifier votre dossier spams.
-
-Vous pouvez consulter les logs de Postfix dans **/var/log/mail.log**
-Vous pouvez consulter les "mails" machine dans le dossier **/var/mail/**
-
-### Configuration de DKIM
-
-Cette configuration optionnelle augmente la délivrabilité de vos emails et diminue les chances que les mails envoyés par vos serveurs soient considérés comme spam.
-
-- Générez une clé RSA
-
-```
-su - upsignonpro
-mkdir DKIM
-cd DKIM
-openssl genrsa -out private.key 1024
-openssl rsa -in private.key -pubout -out public.key
-```
-
-- Ajoutez l'enregistrement suivant dans votre configuration DNS
-  - type: TXT
-  - nom d'hôte: `uso1._domainkey.upsignonpro.votre-domaine.fr`
-  - valeur: v=DKIM1;k=rsa;p=DKIM_PUBLIC_KEY
-
-> DKIM_PUBLIC_KEY est le contenu du fichier public.key généré précédemment sans la première et la dernière ligne, et sans retour à la ligne.
-
-NB: "uso1" est une valeur arbitraire qui permet de distinguer plusieurs enregistrement DKIM liés au même (sous-)domaine pour désigner des clés différentes.
-
-- Ajoutez l'enregistrement DMARC suivant dans votre configuration DNS
-
-  - type: TXT
-  - nom d'hôte: `_dmarc.upsignonpro.votre-domaine.fr`
-  - valeur: v=DMARC1; p=reject; aspf=s; adkim=s;
-
-  Cet enregistrement permet de demander aux serveurs de mails destinataires de totalement refuser les emails pour lesquels la vérification SPF ou la vérification DKIM n'est pas valide, ce qui limite les risques de phishing via le domaine upsignonpro.votre-domaine.fr. Vous pouvez demander plutôt une mise en SPAM en utilisant la valeur `v=DMARC1; p=quarantine; aspf=s; adkim=s;` ou déléguer le choix du comportement à adopter au serveur destinataire en utilisant la valeur `v=DMARC1; p=none;`.
-
-# Installation du serveur UpSignOn PRO et provisioning de la base de données
+## Installation du serveur UpSignOn PRO et provisioning de la base de données
 
 En tant qu'utilisateur upsignonpro
 
@@ -430,7 +432,7 @@ ou via la commande `pm2 logs` qui affiche directement tous les logs dont pm2 est
 
 Vous pouvez vérifier que la page https://upsignonpro.votre-domaine.fr affiche bien un message de succès.
 
-# Installation du serveur d'administration
+## Installation du serveur d'administration
 
 En tant qu'utilisateur upsignonpro
 
@@ -444,7 +446,7 @@ upsignonpro@localhost:~$ cd upsignon-pro-dashboard
 
 Vous pouvez voir qu'il y a deux dossiers dans ce projet.
 
-## DOSSIER FRONT
+### DOSSIER FRONT
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard/front$ cp ./front/dot-env-template ./front/.env
@@ -457,7 +459,7 @@ Puis éditez le fichier ./front/.env et modifiez la variable PUBLIC_URL avec l'u
 upsignonpro@localhost:~/upsignon-pro-dashboard/$ nano ./front/.env
 ```
 
-## DOSSIER BACK
+### DOSSIER BACK
 
 ```bash
 upsignonpro@localhost:~/upsignon-pro-dashboard/$ cp ./back/dot-env-template ./back/.env
@@ -477,11 +479,11 @@ upsignonpro@localhost:~/upsignon-pro-dashboard/$ ./update.sh
 
 En ouvrant la page https://upsignonpro.votre-domaine.fr/admin/login.html dans votre navigateur, vous devriez voir la page de connexion.
 
-# Configuration du redémarrage automatique des serveurs
+## Configuration du redémarrage automatique des serveurs
 
 Pour configurer le redémarrage automatique des processus pm2 au reboot de la VM, procédez ainsi :
 
-## Serveur UpSignOn PRO
+### Serveur UpSignOn PRO
 
 ```bash
 root@localhost:~# nano /etc/systemd/system/upsignonpro-server.service
@@ -515,7 +517,7 @@ root@localhost:~# systemctl enable upsignonpro-server.service
 root@localhost:~# systemctl daemon-reload
 ```
 
-## Serveur d'administration
+### Serveur d'administration
 
 ```bash
 root@localhost:~# nano /etc/systemd/system/upsignonpro-dashboard.service
@@ -549,7 +551,7 @@ root@localhost:~# systemctl enable upsignonpro-dashboard.service
 root@localhost:~# systemctl daemon-reload
 ```
 
-# Configuration des mises-à-jour automatiques des serveurs
+### Configuration des mises-à-jour automatiques des serveurs
 
 Pour configurer les mises-à-jour automatiques des serveurs, procédez ainsi :
 
@@ -571,7 +573,7 @@ Puis relancer le service cron
 root@localhost:~# service cron reload
 ```
 
-# Backup des bases de données
+### Backup des bases de données
 
 Nous avons préparé un script de sauvegarde tournante de la base de données. Pour l'utiliser, configurez les variables `DB_BACKUP_*` du fichier .env de upsignon-pro-server puis ajoutez le cron suivant pour l'utilisateur upsignonpro(`crontab -e`)
 
@@ -597,7 +599,7 @@ pg_dump -T admin_sessions -T device_sessions -T temporary_admins upsignonpro > d
 psql -d dbname < dump.sql
 ```
 
-# Dernières configurations
+# 6 - Dernières configurations
 
 ## Toute première connexion à la console d'administration
 
@@ -631,7 +633,7 @@ Une fois connecté à votre interface superadmin,
 - en cliquant sur le block "Super-Admin" orange, tout en haut à gauche de la page, vous pourrez voir la liste de vos banques. Ouvrez la banque que vous venez de créer, puis naviguez vers la page "Paramètres" de cette banque.
 - Vous voyez alors un lien de configuration. Ce lien devra être utilisé par tous vos utilisateurs pour configurer leur application.
 
-## Création de votre espace UpSignOn PRO
+## Création de votre coffre-fort UpSignOn PRO
 
 - Ajoutez votre adresse email (ou \*@votre-domaine.fr) à la liste des adresses email autorisées pour cette banque
 - installez l'application UpSignOn sur votre poste, puis cliquez sur le lien de configuration / scannez le qr code depuis UpSignOn en cliquant sur "ajouter un espace confidentiel" puis en sélectionnant l'option ESPACE PRO
@@ -648,17 +650,19 @@ Le mot de passe que vous avez utilisé précédemment pour vous connecter était
 
 Et voilà. Il ne vous reste plus qu'à configurer UpSignOn via votre dashboard selon vos besoins, à inviter d'autres administrateurs et à diffuser le lien de configuration à tous vos collègues.
 
-# ATTENTION !!! Gardez l'accès root à vos machines !
+# 7 -Remarques finales
+
+## ATTENTION !!! Gardez l'accès root à vos machines !
 
 Ne conservez pas votre mot de passe d'accès à vos machine hébergeant votre serveur UpSignOn PRO dans votre coffre-fort UpSignOn car en cas de problème sur votre serveur, vous ne pourrez plus accéder à votre coffre-fort et vous serez coincés.
 
 Vous pouvez en revanche utiliser un coffre-fort Perso pour stocker certains mots de passe auxquels vous devez pouvoir accéder en mode offline (le coffre-fort perso stocke vos données de façon chiffrée directement sur votre appareil). L'option mode offline pour les coffres-forts PRO sera disponible dans quelques temps.
 
-# Résolution de problèmes
+## Résolution de problèmes
 
 Voir la page dédiée: [/doc/Troubleshooting.md](/doc/Troubleshooting.md).
 
-# Note sur les paramètres OpenId
+<!-- ## Note sur les paramètres OpenId
 
 Les paramètres de configuration d'OpenId Connect sont optionnels. S'ils sont présents, l'application exigera une pré-authentification sur le service OpenId Connect désigné avant d'envoyer des requêtes au serveur UpSignOn PRO. Vous pouvez ainsi placer le serveur UpSignOn PRO derrière un NetScaler qui pourra refuser toutes les requêtes envoyées sans token OpenId.
 
@@ -674,4 +678,4 @@ From the Microsoft documentation: (more details [here](https://docs.microsoft.co
 - If your application supports Accounts in any organizational directory and personal Microsoft accounts, replace "Enter_the_Tenant_Info_Here" value with common.
 - To restrict support to Personal Microsoft accounts only, replace "Enter_the_Tenant_Info_Here" value with consumers.
 - Azure B2C authorities are of the form https://\{instance\}/\{tenant\}/\{policy\}. Each policy is considered its own authority. You will have to set the all of the knownAuthorities at the time of the client application construction.
-- ADFS authorities are of the form https://\{instance\}/adfs.
+- ADFS authorities are of the form https://\{instance\}/adfs. -->
