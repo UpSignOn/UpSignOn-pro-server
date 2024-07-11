@@ -27,7 +27,7 @@ Notez cependant que le serveur UpSignOn PRO doit rester accessible depuis n'impo
 
 Machine pour les serveurs NodeJS
 
-- OS : Debian 11 (sans interface graphique)
+- OS : Debian 12 (ou 11) (sans interface graphique)
 - CPU : 2vcore
 - RAM : 2Go
 - HD ou SSD 15Go :compter environ 3Go pour le système d'exploitation, les packages d'installation et le code + 6Go de logs par machine maximum. Soit, pour l'architecture type 1, 15Go de HD/SSD (hors base de données) et dans l'architecture type 2, 2 fois 9 Go de HD/SSD.
