@@ -183,9 +183,23 @@ const sendToUpSignOn = (status: any) => {
 
 const getStatsByGroup = async () => {
   const res = await db.query(
-    'SELECT groups.id, groups.name, groups.created_at, groups.nb_licences_sold, (SELECT COUNT(users.id) FROM users WHERE users.group_id=groups.id) AS nb_users FROM groups',
+    'SELECT groups.id, groups.name, groups.created_at, groups.nb_licences_sold, groups.stop_this_instance, groups.settings, (SELECT COUNT(users.id) FROM users WHERE users.group_id=groups.id) AS nb_users FROM groups',
   );
-  return JSON.stringify(res.rows);
+  return JSON.stringify(
+    res.rows.map((r) => {
+      if (r.settings) {
+        const rr = {
+          ...r,
+          isTesting: r.settings.IS_TESTING || false,
+          testingExpirationDate: r.settings.TESTING_EXPIRATION_DATE || null,
+        };
+        delete rr.settings;
+        return rr;
+      } else {
+        return r;
+      }
+    }),
+  );
 };
 
 const getHasDailyBackup = () => {
