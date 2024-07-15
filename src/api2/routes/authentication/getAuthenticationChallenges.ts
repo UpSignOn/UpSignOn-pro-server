@@ -79,7 +79,8 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
 
     if (
       dbRes.rows[0].group_settings?.IS_TESTING &&
-      new Date(dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE) < new Date()
+      (!dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE ||
+        new Date(dbRes.rows[0].group_settings.TESTING_EXPIRATION_DATE) < new Date())
     ) {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: test expired');
       return res.status(403).json({ error: 'test_expired' });

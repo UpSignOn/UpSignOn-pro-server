@@ -57,7 +57,8 @@ export const getAuthenticationChallenges = async (req: any, res: any) => {
 
     if (
       dbRes.rows[0].group_settings?.IS_TESTING &&
-      new Date(dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE) < new Date()
+      (!dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE ||
+        new Date(dbRes.rows[0].group_settings.TESTING_EXPIRATION_DATE) < new Date())
     ) {
       return res.status(404).json({ error: 'test_expired' });
     }
