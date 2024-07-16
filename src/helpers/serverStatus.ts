@@ -6,7 +6,6 @@ import childProcess from 'child_process';
 import https from 'https';
 import http from 'http';
 import { logError } from './logger';
-import { checkServerCertificateChain } from './certificateChainChecker';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
@@ -222,23 +221,4 @@ const getHasDailyBackup = () => {
     fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameWeekly)) ||
     fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameMonthly))
   );
-};
-
-const isCertificateChainComplete = async (): Promise<boolean> => {
-  try {
-    const settingsRes = await db.query(
-      "SELECT value FROM settings WHERE key='PRO_SERVER_URL_CONFIG'",
-    );
-    if (settingsRes.rowCount === 0) {
-      return false;
-    }
-
-    const isCertificateChainComplete = await checkServerCertificateChain(
-      new URL(settingsRes.rows[0]?.value?.url).host,
-    );
-    return isCertificateChainComplete;
-  } catch (e) {
-    logError('isCertificateChainComplete error:', e);
-    return false;
-  }
 };
