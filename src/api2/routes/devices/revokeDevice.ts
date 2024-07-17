@@ -95,7 +95,7 @@ export const revokeDevice = async (req: any, res: any) => {
     }
 
     await db.query(
-      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup='', encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
+      "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
       [new Date().toISOString(), deviceToDelete, userId, groupId],
     );
     logInfo(req.body?.userEmail, 'revokeDevice OK');

@@ -31,16 +31,6 @@ async function exportDb() {
     //   [groupId],
     // );
     const users = await db.query('SELECT * FROM users WHERE group_id=$1', [groupId]);
-    const shared_accounts = await db.query('SELECT * FROM shared_accounts WHERE group_id=$1', [
-      groupId,
-    ]);
-    const shared_account_users = await db.query(
-      'SELECT * FROM shared_account_users WHERE group_id=$1',
-      [groupId],
-    );
-    const shared_folders = await db.query('SELECT * FROM shared_folders WHERE group_id=$1', [
-      groupId,
-    ]);
     const shared_vault_recipients = await db.query(
       'SELECT * FROM shared_vault_recipients WHERE group_id=$1',
       [groupId],
@@ -62,9 +52,6 @@ async function exportDb() {
         shared_vaults: shared_vaults.rows,
         user_devices: user_devices.rows,
         users: users.rows,
-        shared_accounts: shared_accounts.rows,
-        shared_account_users: shared_account_users.rows,
-        shared_folders: shared_folders.rows,
         url_list: url_list.rows,
       }),
     );
