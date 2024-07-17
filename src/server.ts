@@ -42,6 +42,7 @@ import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPu
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 import { logEvent } from './api2/routes/audit/logEvent';
 import libsodium from 'libsodium-wrappers';
+import { updateLicences } from './licences';
 
 const app = express();
 
@@ -71,6 +72,10 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.status(200).send('UpSignOn PRO server is running');
+});
+app.post('/licences', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  return updateLicences(req, res);
 });
 
 // GROUP ROUTING with or without groupid (default groupid is 1)
