@@ -23,13 +23,6 @@ export const sendStatusUpdate = async (): Promise<void> => {
       `SELECT DISTINCT(app_version) FROM user_devices WHERE authorization_status='AUTHORIZED' ORDER BY app_version DESC`,
     );
     const userAppVersions = JSON.stringify(userAppVersionsResult.rows.map((v) => v.app_version));
-    const detailedUserAppVersions = await db.query(
-      `SELECT
-        users.id AS user_id,
-        starts_with(users.encrypted_data_2, 'formatP003-') AS hasMigrated
-      FROM users
-      GROUP BY users.id`,
-    );
     const deviceStats = await db.query(
       'SELECT os_family, device_type, os_version FROM user_devices',
     );
@@ -42,7 +35,6 @@ export const sendStatusUpdate = async (): Promise<void> => {
       userAppVersions,
       securityGraph: JSON.stringify(stats),
       statsByGroup,
-      detailedUserAppVersions: JSON.stringify(detailedUserAppVersions.rows),
       hasDailyBackup,
       nodeVersion,
       deviceStats,

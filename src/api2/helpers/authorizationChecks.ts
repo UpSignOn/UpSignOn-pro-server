@@ -83,8 +83,7 @@ export const checkBasicAuth2 = async (
   ${dataSelect}
   ${deviceIdSelect}
   u.id AS user_id,
-  u.deactivated AS deactivated,
-  char_length(ud.device_public_key) > 0 AS has_device_public_key
+  u.deactivated AS deactivated
 FROM user_devices AS ud
 INNER JOIN users AS u ON ud.user_id = u.id
 ${accountManagerOrRecipientJoin}

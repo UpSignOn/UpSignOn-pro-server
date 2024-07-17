@@ -55,10 +55,8 @@ async function importFunction() {
     const insertedUser = await db.query(
       `INSERT INTO users (
         email,
-        encrypted_data,
         created_at,
         updated_at,
-        sharing_public_key,
         group_id,
         nb_accounts,
         nb_codes,
@@ -74,13 +72,11 @@ async function importFunction() {
         sharing_public_key_2,
         allowed_to_export,
         allowed_offline_mobile,
-        allowed_offline_desktop) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21) RETURNING id`,
+        allowed_offline_desktop) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) RETURNING id`,
       [
         u.email,
-        u.encrypted_data,
         u.created_at,
         u.updated_at,
-        u.sharing_public_key,
         groupId,
         u.nb_accounts,
         u.nb_codes,
@@ -100,16 +96,7 @@ async function importFunction() {
       ],
     );
     const newId = insertedUser.rows[0].id;
-    data.shared_account_users = data.shared_account_users.map((sau) => {
-      if (sau.user_id === u.id) {
-        return {
-          ...sau,
-          newUserId: newId,
-        };
-      } else {
-        return sau;
-      }
-    });
+
     // data.data_stats = data.data_stats.map((row) => {
     //   if (row.user_id === u.id) {
     //     return {
@@ -140,72 +127,6 @@ async function importFunction() {
         return row;
       }
     });
-  }
-
-  // SHARED FOLDERS
-  for (var i = 0; i < data.shared_folders.length; i++) {
-    const sf = data.shared_folders[i];
-    const insertedSharedFolder = await db.query(
-      'INSERT INTO shared_folders (name, group_id) VALUES ($1,$2) RETURNING id',
-      [sf.name, groupId],
-    );
-    const newId = insertedSharedFolder.rows[0].id;
-    data.shared_accounts = data.shared_accounts.map((sa) => {
-      if (sa.shared_folder_id === sf.id) {
-        return {
-          ...sa,
-          newSharedFolderId: newId,
-        };
-      } else {
-        return sa;
-      }
-    });
-  }
-
-  // SHARED ACCOUNTS
-  for (var i = 0; i < data.shared_accounts.length; i++) {
-    const sa = data.shared_accounts[i];
-    const insertedAcc = await db.query(
-      'INSERT INTO shared_accounts (url, name, login, type, created_at, aes_encrypted_data, shared_folder_id, group_id, is_migrated) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',
-      [
-        sa.url,
-        sa.name,
-        sa.login,
-        sa.type,
-        sa.created_at,
-        sa.aes_encrypted_data,
-        sa.newSharedFolderId,
-        groupId,
-        sa.is_migrated,
-      ],
-    );
-    const newId = insertedAcc.rows[0].id;
-    data.shared_account_users = data.shared_account_users.map((sau) => {
-      if (sau.shared_account_id === sa.id) {
-        return {
-          ...sau,
-          newSharedAccountId: newId,
-        };
-      } else {
-        return sau;
-      }
-    });
-  }
-
-  // SHARED_ACCOUNT_USERS
-  for (var i = 0; i < data.shared_account_users.length; i++) {
-    const sau = data.shared_account_users[i];
-    await db.query(
-      'INSERT INTO shared_account_users (shared_account_id, user_id, is_manager, created_at, encrypted_aes_key, group_id) VALUES ($1,$2,$3,$4,$5,$6)',
-      [
-        sau.newSharedAccountId,
-        sau.newUserId,
-        sau.is_manager,
-        sau.created_at,
-        sau.encrypted_aes_key,
-        groupId,
-      ],
-    );
   }
 
   // URL LIST
@@ -305,16 +226,14 @@ async function importFunction() {
           device_type,
           os_version,
           revocation_date,
-          encrypted_password_backup,
           app_version,
           group_id,
-          device_public_key,
           encrypted_password_backup_2,
           device_public_key_2,
           last_sync_date,
           install_type,
           os_family
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
       [
         ud.newUserId,
         ud.device_name,
@@ -324,10 +243,8 @@ async function importFunction() {
         ud.device_type,
         ud.os_version,
         ud.revocation_date,
-        ud.encrypted_password_backup,
         ud.app_version,
         groupId,
-        ud.device_public_key,
         ud.encrypted_password_backup_2,
         ud.device_public_key_2,
         ud.last_sync_date,
