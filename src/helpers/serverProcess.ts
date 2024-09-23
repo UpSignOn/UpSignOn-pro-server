@@ -3,7 +3,7 @@ import { db } from './db';
 import https from 'https';
 import fs from 'fs';
 import { logInfo } from './logger';
-import { sendStatusUpdate } from './serverStatus';
+import { getActivationStatus, sendStatusUpdate } from './serverStatus';
 import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
 import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 import { aggregateStatsDaily } from './dailyStats';
@@ -19,6 +19,7 @@ if (env.HTTP_PROXY) {
 async function cronjob(randomDelay: number) {
   await cleanOldRevokedDevices();
   await cleanOrphanSharedVaults();
+  await getActivationStatus();
   setTimeout(async () => {
     await sendStatusUpdate();
     // randomize the time of the call in the next 5 minutes to avoid overloading the server

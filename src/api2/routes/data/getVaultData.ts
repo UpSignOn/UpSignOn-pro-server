@@ -2,6 +2,7 @@ import { db } from '../../../helpers/db';
 import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import { IS_ACTIVE } from '../../../helpers/serverStatus';
 import { SessionStore } from '../../../helpers/sessionStore';
 
 /**
@@ -15,6 +16,9 @@ import { SessionStore } from '../../../helpers/sessionStore';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getVaultData = async (req: any, res: any): Promise<void> => {
   try {
+    if (!IS_ACTIVE) {
+      return res.status(403);
+    }
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     // Get params

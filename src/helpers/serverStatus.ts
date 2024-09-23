@@ -214,3 +214,58 @@ const getHasDailyBackup = () => {
     fs.existsSync(path.join(env.DB_BACKUP_DIR, folderNameMonthly))
   );
 };
+
+export let IS_ACTIVE = false;
+export const getActivationStatus = () => {
+  const dataString = JSON.stringify({ url: env.API_PUBLIC_HOSTNAME });
+
+  let req;
+  if (env.IS_PRODUCTION) {
+    const options = {
+      hostname: 'app.upsignon.eu',
+      port: 443,
+      path: '/pro-activation-status',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    req = https.request(options, (res) => {
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', (data) => {
+        body += data;
+      });
+      res.on('end', () => {
+        try {
+          const resBody = JSON.parse(body);
+          IS_ACTIVE = !!resBody.isActive;
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    });
+  } else {
+    const options = {
+      hostname: 'localhost',
+      port: 8080,
+      path: '/pro-activation-status',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    req = http.request(options, () => {});
+  }
+
+  req.on('error', (error) => {
+    logError('getActivationStatus', error);
+    IS_ACTIVE = false;
+  });
+
+  req.write(dataString);
+  req.end();
+  console.log('Get Activation status');
+};

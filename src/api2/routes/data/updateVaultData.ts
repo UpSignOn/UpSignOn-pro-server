@@ -4,10 +4,14 @@ import { inputSanitizer } from '../../../helpers/sanitizer';
 import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/passwordChallengev2';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
 import { isInstanceStopped } from '../../helpers/serverMoved';
+import { IS_ACTIVE } from '../../../helpers/serverStatus';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateVaultData = async (req: any, res: any): Promise<void> => {
   try {
+    if (!IS_ACTIVE) {
+      return res.status(403);
+    }
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const lastUpdatedAt = inputSanitizer.getString(req.body?.lastUpdatedAt);
 

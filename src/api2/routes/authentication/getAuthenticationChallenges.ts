@@ -3,10 +3,14 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import { IS_ACTIVE } from '../../../helpers/serverStatus';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
   try {
+    if (!IS_ACTIVE) {
+      return res.status(403).json({ error: 'test_expired' });
+    }
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
