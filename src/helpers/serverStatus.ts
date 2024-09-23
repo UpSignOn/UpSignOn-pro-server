@@ -242,7 +242,7 @@ export const getActivationStatus = () => {
           const resBody = JSON.parse(body);
           IS_ACTIVE = !!resBody.isActive;
         } catch (e) {
-          console.error(e);
+          console.error(`Error ${e}\with body\n${body}`);
         }
       });
     });
