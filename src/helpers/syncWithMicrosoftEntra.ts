@@ -43,8 +43,15 @@ export const performMicrosoftEntraSync = async (): Promise<void> => {
     const assignedMSUsersByBank: { [id: number]: string[] } = {};
     for (let i = 0; i < banks.length; i++) {
       const bank = banks[i];
-      const allMsUsersForBank = await MicrosoftGraph.getAllUsersAssignedToUpSignOn(bank.id, true);
-      assignedMSUsersByBank[bank.id] = allMsUsersForBank;
+      try {
+        const allMsUsersForBank = await MicrosoftGraph.getAllUsersAssignedToUpSignOn(bank.id, true);
+        assignedMSUsersByBank[bank.id] = allMsUsersForBank;
+      } catch (e) {
+        console.error(
+          `performMicrosoftEntraSync > MicrosoftGraph.getAllUsersAssignedToUpSignOn(${bank.id}, true) errored:`,
+          e,
+        );
+      }
     }
 
     // Loop through users in our db
@@ -81,6 +88,7 @@ export const performMicrosoftEntraSync = async (): Promise<void> => {
               u.id,
               u.group_id,
             ]);
+            u.ms_entra_id = msEntraUid;
           }
           // then retry the check
           if (msEntraUid && assignedMSUsersByBank[u.group_id].indexOf(msEntraUid) >= 0) {
@@ -107,8 +115,8 @@ export const performMicrosoftEntraSync = async (): Promise<void> => {
         ]);
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     // if there is an error, we stop everything since the results are no longer guaranted
-    logError(e);
+    logError('performMicrosoftEntraSync', e);
   }
 };

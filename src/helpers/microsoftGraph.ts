@@ -202,18 +202,18 @@ class _MicrosoftGraph {
       .header('ConsistencyLevel', 'eventual')
       .select(['principalType', 'principalId'])
       .get();
-    const allUsersId: string[] = allPrincipalsRes.value
+    let allUsersId: string[] = allPrincipalsRes.value
       .filter((u: any) => u.principalType === 'User')
       .map((u: any) => u.principalId);
     const allGroups = allPrincipalsRes.value.filter((u: any) => u.principalType === 'Group');
     for (let i = 0; i < allGroups.length; i++) {
       const g = allGroups[i];
       const allGroupUsersRes = await this.msGraph
-        .api(`/groups/${g.id}/members/microsoft.graph.user`)
+        .api(`/groups/${g.principalId}/members/microsoft.graph.user`)
         .header('ConsistencyLevel', 'eventual')
         .select(['id'])
         .get();
-      allUsersId.push(allGroupUsersRes.value.map((u: any) => u.id));
+      allUsersId = [...allUsersId, ...allGroupUsersRes.value.map((u: any) => u.id)];
     }
     return allUsersId;
   }
