@@ -19,7 +19,7 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
     return res.status(200).json({
       newUrl: groupRes.rows[0].redirect_url,
       bankName: groupRes.rows[0].name,
-      preventUpdatePopup: groupRes.rows[0].settings.PREVENT_UPDATE_POPUP || false,
+      preventUpdatePopup: groupRes.rows[0]?.settings?.PREVENT_UPDATE_POPUP || false,
     });
   } catch (e) {
     logError('getBankConfig', e);

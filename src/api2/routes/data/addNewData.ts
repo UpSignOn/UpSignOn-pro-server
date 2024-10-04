@@ -120,8 +120,8 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     return res.status(200).json({
       lastUpdatedAt: updateRes.rows[0].updated_at,
       deviceSession,
-      allowedOffline: resultSettings.allowed_offline,
-      allowedToExport: resultSettings.allowed_to_export,
+      allowedOffline: resultSettings?.allowed_offline,
+      allowedToExport: resultSettings?.allowed_to_export,
     });
   } catch (e) {
     logError(req.body?.userEmail, 'addNewData2', e);

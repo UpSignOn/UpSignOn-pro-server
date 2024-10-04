@@ -181,8 +181,8 @@ const getStatsByGroup = async () => {
       if (r.settings) {
         const rr = {
           ...r,
-          isTesting: r.settings.IS_TESTING || false,
-          testingExpirationDate: r.settings.TESTING_EXPIRATION_DATE || null,
+          isTesting: r.settings?.IS_TESTING || false,
+          testingExpirationDate: r.settings?.TESTING_EXPIRATION_DATE || null,
         };
         delete rr.settings;
         return rr;

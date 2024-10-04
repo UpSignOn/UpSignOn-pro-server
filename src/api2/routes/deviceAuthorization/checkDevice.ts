@@ -119,7 +119,7 @@ export const checkDevice2 = async (req: any, res: any) => {
       dbRes.rows[0]?.device_count != null &&
       dbRes.rows[0].device_count > 1 &&
       dbRes.rows[0].group_settings != null &&
-      dbRes.rows[0].group_settings.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
+      dbRes.rows[0].group_settings?.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
     ) {
       nextAuthorizationStatus = 'USER_VERIFIED_PENDING_ADMIN_CHECK';
       requireAdminCheck = true;
