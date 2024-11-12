@@ -9,7 +9,7 @@ export const getAdminEmailsForGroup = async (groupId: number): Promise<string[]>
     const adminEmails = groupAdmins.rows.map((admin) => admin.email);
     return adminEmails;
   } else {
-    const superAdmins = await db.query('SELECT email FROM admins WHERE a.is_superadmin', []);
+    const superAdmins = await db.query('SELECT email FROM admins WHERE is_superadmin', []);
     const adminEmails = superAdmins.rows.map((admin) => admin.email);
     return adminEmails;
   }
