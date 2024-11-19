@@ -215,57 +215,77 @@ const getHasDailyBackup = () => {
   );
 };
 
-export let IS_ACTIVE = false;
-export const getActivationStatus = () => {
-  const dataString = JSON.stringify({ url: env.API_PUBLIC_HOSTNAME });
+const fetchActivationStatus = async (): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const dataString = JSON.stringify({ url: env.API_PUBLIC_HOSTNAME });
 
-  let req;
-  if (env.IS_PRODUCTION) {
-    const options = {
-      hostname: 'app.upsignon.eu',
-      port: 443,
-      path: '/pro-activation-status',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
+    let req;
+    if (env.IS_PRODUCTION) {
+      const options = {
+        hostname: 'app.upsignon.eu',
+        port: 443,
+        path: '/pro-activation-status',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
 
-    req = https.request(options, (res) => {
-      let body = '';
-      res.setEncoding('utf8');
-      res.on('data', (data) => {
-        body += data;
+      req = https.request(options, (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (data) => {
+          body += data;
+        });
+        res.on('end', () => {
+          try {
+            const resBody = JSON.parse(body);
+            resolve(!!resBody.isActive);
+          } catch (e) {
+            console.error(`Error ${e}\with body\n${body}`);
+            reject(e);
+          }
+        });
       });
-      res.on('end', () => {
-        try {
-          const resBody = JSON.parse(body);
-          IS_ACTIVE = !!resBody.isActive;
-        } catch (e) {
-          console.error(`Error ${e}\with body\n${body}`);
-        }
+      req.on('error', (error) => {
+        logError('getActivationStatus', error);
+        reject();
       });
-    });
-  } else {
-    const options = {
-      hostname: 'localhost',
-      port: 8080,
-      path: '/pro-activation-status',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
 
-    req = http.request(options, () => {});
-  }
-
-  req.on('error', (error) => {
-    logError('getActivationStatus', error);
-    IS_ACTIVE = false;
+      req.write(dataString);
+      req.end();
+      console.log('Get Activation status');
+    } else {
+      resolve(true);
+    }
   });
+};
 
-  req.write(dataString);
-  req.end();
-  console.log('Get Activation status');
+export let IS_ACTIVE: boolean = false;
+
+const interval = null;
+
+export const getActivationStatus = async () => {
+  try {
+    IS_ACTIVE = await fetchActivationStatus();
+    if (!IS_ACTIVE) {
+      console.log('==================== LICENCES DEACTIVATED, please contact our support.');
+    }
+  } catch (e) {
+    IS_ACTIVE = false;
+  }
+  if (!IS_ACTIVE && interval == null) {
+    setInterval(
+      async () => {
+        try {
+          IS_ACTIVE = await fetchActivationStatus();
+          if (IS_ACTIVE && interval) {
+            clearInterval(interval);
+            interval == null;
+          }
+        } catch (_) {}
+      },
+      1000 * 60 * 5,
+    );
+  }
 };
