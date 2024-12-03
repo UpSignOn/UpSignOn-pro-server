@@ -15,7 +15,7 @@ export const authenticate2 = async (req: any, res: any) => {
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
     if (!userEmail || !deviceUId || !passwordChallengeResponse || !deviceChallengeResponse) {
-      logInfo(req.body?.userEmail, 'authenticate2 fail: some parameter was missing');
+      logError(req.body?.userEmail, 'authenticate2 fail: some parameter was missing');
       return res.status(403).end();
     }
 
@@ -126,6 +126,7 @@ export const authenticate2 = async (req: any, res: any) => {
       } else {
         if (!hasPassedDeviceChallenge) {
           logInfo(req.body?.userEmail, 'authenticate2 fail: device authentication failed');
+          // this occurs too often
           return res.status(401).json({ error: 'bad_device_challenge_response' });
         } else {
           logInfo(req.body?.userEmail, 'authenticate2 fail: password authentication failed');
