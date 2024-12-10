@@ -38,10 +38,10 @@ function getSignedSession(sessionId: string): string {
 async function createSession(sessionData: SessionData): Promise<string> {
   const newSessionId = uuidv4();
   const sessionDataString = JSON.stringify(sessionData);
-  const expirationTime = Math.trunc(new Date().getTime() / 1000) + 3600; // now + 1 hour
+  // nb do use postgres time manipulation instead of js time to avoid issues with server time
   await db.query(
-    'INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3))',
-    [newSessionId, sessionDataString, expirationTime],
+    `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, current_timestamp(0)+interval '1 hour')`,
+    [newSessionId, sessionDataString],
   );
   return getSignedSession(newSessionId);
 }
@@ -53,6 +53,7 @@ async function checkSession(
   if (typeof untrustedSession !== 'string') return false;
   const sessionId = untrustedSession.split('.')[0];
   if (untrustedSession !== getSignedSession(sessionId)) return false;
+  // nb do use postgres time manipulation instead of js time to avoid issues with server time
   const res = await db.query(
     'SELECT session_data FROM device_sessions WHERE session_id = $1::text AND current_timestamp(0) <= expiration_time',
     [sessionId],
