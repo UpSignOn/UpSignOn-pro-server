@@ -14,8 +14,20 @@ export const authenticate2 = async (req: any, res: any) => {
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
 
-    if (!userEmail || !deviceUId || !passwordChallengeResponse || !deviceChallengeResponse) {
-      logError(req.body?.userEmail, 'authenticate2 fail: some parameter was missing');
+    if (!userEmail) {
+      logError(req.body?.userEmail, 'authenticate2 fail: userEmail missing');
+      return res.status(403).end();
+    }
+    if (!deviceUId) {
+      logError(req.body?.userEmail, 'authenticate2 fail: deviceUID missing');
+      return res.status(403).end();
+    }
+    if (!passwordChallengeResponse) {
+      logError(req.body?.userEmail, 'authenticate2 fail: passwordChallengeResponse missing');
+      return res.status(403).end();
+    }
+    if (!deviceChallengeResponse) {
+      logError(req.body?.userEmail, 'authenticate2 fail: deviceChallengeResponse missing');
       return res.status(403).end();
     }
 
