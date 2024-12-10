@@ -62,7 +62,7 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
 
     if (!dbRes || dbRes.rowCount === 0) {
       logInfo(req.body?.userEmail, 'updateDeviceMetaData2 fail: device deleted');
-      return res.status(401).end();
+      return res.status(401).json({ error: 'device_deleted' });
     }
 
     if (!deviceChallengeResponse) {
