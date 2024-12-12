@@ -14,7 +14,7 @@ export const sendDeviceRequestEmail = async (
   try {
     const emailConfig = await getEmailConfig();
     const transporter = getMailTransporter(emailConfig, { debug: false });
-    const expDate = expirationDate.toLocaleDateString();
+    const expDate = expirationDate.toLocaleDateString('fr');
     const expTime = expirationDate.toLocaleTimeString().split(':').slice(0, 2).join(':');
 
     // prevent HTML injections
