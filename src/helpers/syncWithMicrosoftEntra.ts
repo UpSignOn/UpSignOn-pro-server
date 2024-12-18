@@ -1,7 +1,7 @@
 import { isEmailAuthorizedWithPattern } from '../api2/helpers/emailAuthorization';
 import { db } from './db';
 import { logError } from './logger';
-import { MicrosoftGraph } from './microsoftGraph';
+import { MicrosoftGraph } from 'ms-entra-for-upsignon';
 
 const getNext1pmOr1am = (): Date => {
   const nextSyncDate = new Date();
@@ -63,14 +63,18 @@ export const performMicrosoftEntraSync = async (): Promise<void> => {
       const u = usersRes.rows[i];
       // First update their ms entra id
       if (!u.ms_entra_id) {
-        const msEntraUid = await MicrosoftGraph.getUserId(u.group_id, u.email);
-        if (msEntraUid != null) {
-          await db.query('UPDATE users SET ms_entra_id=$1 WHERE id=$2 AND group_id=$3', [
-            msEntraUid,
-            u.id,
-            u.group_id,
-          ]);
-          u.ms_entra_id = msEntraUid;
+        try {
+          const msEntraUid = await MicrosoftGraph.getUserId(u.group_id, u.email);
+          if (msEntraUid != null) {
+            await db.query('UPDATE users SET ms_entra_id=$1 WHERE id=$2 AND group_id=$3', [
+              msEntraUid,
+              u.id,
+              u.group_id,
+            ]);
+            u.ms_entra_id = msEntraUid;
+          }
+        } catch (e) {
+          console.error(e);
         }
       }
 
@@ -80,19 +84,23 @@ export const performMicrosoftEntraSync = async (): Promise<void> => {
         if (assignedMSUsersByBank[u.group_id].indexOf(u.ms_entra_id) >= 0) {
           isMsEntraAllowed = true;
         } else {
-          // maybe the user was recreated with another uuid or completely deleted
-          const msEntraUid = await MicrosoftGraph.getUserId(u.group_id, u.email);
-          if (msEntraUid != u.ms_entra_id) {
-            await db.query('UPDATE users SET ms_entra_id=$1 WHERE id=$2 AND group_id=$3', [
-              msEntraUid,
-              u.id,
-              u.group_id,
-            ]);
-            u.ms_entra_id = msEntraUid;
-          }
-          // then retry the check
-          if (msEntraUid && assignedMSUsersByBank[u.group_id].indexOf(msEntraUid) >= 0) {
-            isMsEntraAllowed = true;
+          try {
+            // maybe the user was recreated with another uuid or completely deleted
+            const msEntraUid = await MicrosoftGraph.getUserId(u.group_id, u.email);
+            if (msEntraUid != u.ms_entra_id) {
+              await db.query('UPDATE users SET ms_entra_id=$1 WHERE id=$2 AND group_id=$3', [
+                msEntraUid,
+                u.id,
+                u.group_id,
+              ]);
+              u.ms_entra_id = msEntraUid;
+            }
+            // then retry the check
+            if (msEntraUid && assignedMSUsersByBank[u.group_id].indexOf(msEntraUid) >= 0) {
+              isMsEntraAllowed = true;
+            }
+          } catch (e) {
+            console.error(e);
           }
         }
       }

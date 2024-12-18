@@ -1,5 +1,5 @@
 import { db } from '../../helpers/db';
-import { MicrosoftGraph } from '../../helpers/microsoftGraph';
+import { MicrosoftGraph } from 'ms-entra-for-upsignon';
 
 type TEmailAuthorizationStatus = 'UNAUTHORIZED' | 'PATTERN_AUTHORIZED' | 'MS_ENTRA_AUTHORIZED';
 

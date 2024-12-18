@@ -7,6 +7,7 @@ import { getActivationStatus, sendStatusUpdate } from './serverStatus';
 import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
 import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 import { aggregateStatsDaily } from './dailyStats';
+import { setupMSGraph } from './init_ms_graph';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -27,6 +28,7 @@ async function cronjob(randomDelay: number) {
 }
 
 export const startServer = (app: any, then: any): void => {
+  setupMSGraph();
   if (env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH && env.LOCALHOST_SSL_CERTIFICATE_CRT_PATH) {
     const options = {
       key: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH),

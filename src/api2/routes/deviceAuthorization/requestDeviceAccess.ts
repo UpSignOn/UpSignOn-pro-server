@@ -10,7 +10,7 @@ import {
 } from '../../../helpers/getDefaultSettingOrUserOverride';
 import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
-import { MicrosoftGraph } from '../../../helpers/microsoftGraph';
+import { MicrosoftGraph } from 'ms-entra-for-upsignon';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
