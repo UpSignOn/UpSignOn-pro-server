@@ -8,6 +8,7 @@ import { cleanOldRevokedDevices, cleanOrphanSharedVaults } from './dbCleaner';
 import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 import { aggregateStatsDaily } from './dailyStats';
 import { setupMSGraph } from './init_ms_graph';
+import { sendMailForDeviceUpdate } from './sendMailForDeviceUpdate';
 
 if (env.HTTP_PROXY) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -58,6 +59,7 @@ export const startServer = (app: any, then: any): void => {
 
   syncPeriodicallyWithMicrosoftEntra();
   aggregateStatsDaily();
+  sendMailForDeviceUpdate();
 };
 
 const listenForGracefulShutdown = (server: any) => {

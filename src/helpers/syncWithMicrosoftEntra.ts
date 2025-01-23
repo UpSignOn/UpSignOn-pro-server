@@ -32,7 +32,7 @@ export const syncPeriodicallyWithMicrosoftEntra = async (): Promise<void> => {
   }, nextSyncDate.getTime() - Date.now()); // start the cron at the next 1pm or 1am
 };
 
-export const performMicrosoftEntraSync = async (): Promise<void> => {
+const performMicrosoftEntraSync = async (): Promise<void> => {
   try {
     // NB : for optimization purposes, we call MS graph on groups first to initialize their config
     // but then when we call getUserId, we don't get the config again for each user...
