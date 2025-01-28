@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM --platform=linux/amd64 node:16
+FROM --platform=linux/amd64 node:23
 USER node
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
