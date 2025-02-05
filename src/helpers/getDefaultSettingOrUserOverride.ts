@@ -46,7 +46,7 @@ export const getDefaultSettingOrUserOverride = (
 
   const isDesktop =
     osFamily.toLowerCase() === 'windows' ||
-    osFamily.toLowerCase() === 'mac' ||
+    osFamily.toLowerCase() === 'macos' ||
     osFamily.toLowerCase() === 'linux' ||
     // for backwards compat
     osFamily.indexOf('Windows') === 0 ||
