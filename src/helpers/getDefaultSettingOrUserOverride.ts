@@ -7,6 +7,10 @@ export type GROUP_SETTINGS = {
   ALLOWED_ANDROID?: boolean | null;
   ALLOWED_MACOS?: boolean | null;
   ALLOWED_LINUX?: boolean | null;
+  DEFAULT_AUTOLOCK_DELAY_DESKTOP?: number;
+  MAX_AUTOLOCK_DELAY_DESKTOP?: number;
+  DEFAULT_AUTOLOCK_DELAY_MOBILE?: number;
+  MAX_AUTOLOCK_DELAY_MOBILE?: number;
 } | null;
 
 type USER_OVERRIDE = {
@@ -26,6 +30,8 @@ export type USER_SETTINGS_OVERRIDE = {
 type RESULTING_USER_SETTINGS = {
   allowed_to_export: boolean;
   allowed_offline: boolean;
+  defaultAutolockDelay: number | null;
+  maxAutolockDelay: number | null;
 };
 
 export const getDefaultSettingOrUserOverride = (
@@ -56,8 +62,19 @@ export const getDefaultSettingOrUserOverride = (
       ? !defaultSettings?.DISABLE_OFFLINE_MODE_DEFAULT_MOBILE
       : userOverride?.allowed_offline_mobile;
   const allowed_offline = isDesktop ? allowed_offline_desktop : allowed_offline_mobile;
+
+  const defaultAutolockDelay =
+    (isDesktop
+      ? defaultSettings?.DEFAULT_AUTOLOCK_DELAY_DESKTOP
+      : defaultSettings?.DEFAULT_AUTOLOCK_DELAY_MOBILE) || null;
+  const maxAutolockDelay =
+    (isDesktop
+      ? defaultSettings?.MAX_AUTOLOCK_DELAY_DESKTOP
+      : defaultSettings?.MAX_AUTOLOCK_DELAY_MOBILE) || null;
   return {
     allowed_to_export,
     allowed_offline,
+    defaultAutolockDelay,
+    maxAutolockDelay,
   };
 };

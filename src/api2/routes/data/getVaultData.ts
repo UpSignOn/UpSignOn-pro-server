@@ -127,6 +127,10 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       lastUpdatedAt: dbRes.rows[0].updated_at,
       allowedToExport: userResultingSetting.allowed_to_export,
       allowedOffline: userResultingSetting.allowed_offline,
+      defaultAutolockDelay: inputSanitizer.getNumberOrNull(
+        userResultingSetting.defaultAutolockDelay,
+      ),
+      maxAutolockDelay: inputSanitizer.getNumberOrNull(userResultingSetting.maxAutolockDelay),
       sharedVaults,
       needsPasswordBackup:
         !dbRes.rows[0].encrypted_password_backup_2 ||
