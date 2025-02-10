@@ -19,7 +19,7 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
     }
 
     const dbRes = await db.query(
-      `SELECT svr.user_id, users.email, svr.is_manager
+      `SELECT svr.user_id, users.email, svr.is_manager, svr.access_level
           FROM shared_vault_recipients AS svr
           INNER JOIN users ON users.id=svr.user_id
           WHERE shared_vault_id=$1 AND svr.group_id=$2`,
@@ -31,7 +31,8 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
       recipients: dbRes.rows.map((r) => ({
         id: r.user_id,
         email: r.email,
-        isManager: r.is_manager,
+        isManager: r.is_manager, // deprecated
+        accessLevel: r.access_level,
       })),
     });
   } catch (e) {

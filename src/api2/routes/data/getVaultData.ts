@@ -159,6 +159,7 @@ export const getSharedVaults = async (
     id: number;
     name: string;
     isManager: boolean;
+    accessLevel: boolean;
     encryptedData: string;
     encryptedKey: string;
     lastUpdatedAt: any;
@@ -171,6 +172,7 @@ export const getSharedVaults = async (
       sv.encrypted_data AS encrypted_data,
       sv.last_updated_at AS last_updated_at,
       svr.is_manager AS is_manager,
+      svr.access_level AS access_level,
       svr.encrypted_shared_vault_key AS encrypted_shared_vault_key
     FROM shared_vaults AS sv
     INNER JOIN shared_vault_recipients AS svr
@@ -185,7 +187,8 @@ export const getSharedVaults = async (
     encryptedData: s.encrypted_data,
     lastUpdatedAt: s.last_updated_at,
     encryptedKey: s.encrypted_shared_vault_key,
-    isManager: s.is_manager,
+    isManager: s.is_manager, // deprecated
+    accessLevel: s.access_level,
   }));
 };
 

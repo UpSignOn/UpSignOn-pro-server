@@ -11,7 +11,8 @@ export const checkBasicAuth2 = async (
     returningUserPublicKey?: true;
     returningData?: true;
     returningDeviceId?: true;
-    checkIsManagerForVaultId?: number;
+    checkIsOwnerForVaultId?: number;
+    checkIsEditorForVaultId?: number;
     checkIsRecipientForVaultId?: number;
   },
 ): Promise<
@@ -65,18 +66,32 @@ export const checkBasicAuth2 = async (
   const deviceIdSelect = options?.returningDeviceId ? 'ud.id AS device_id,' : '';
 
   const accountManagerOrRecipientJoin =
-    options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
+    options?.checkIsOwnerForVaultId ||
+    options?.checkIsRecipientForVaultId ||
+    options?.checkIsEditorForVaultId
       ? 'INNER JOIN shared_vault_recipients AS svr ON u.id = svr.user_id'
       : '';
   const accountManagerOrRecipientWhere =
-    options?.checkIsRecipientForVaultId || options?.checkIsManagerForVaultId
+    options?.checkIsRecipientForVaultId ||
+    options?.checkIsOwnerForVaultId ||
+    options?.checkIsEditorForVaultId
       ? 'AND svr.shared_vault_id=$4'
       : '';
   const accountManagerOrRecipientParam =
-    options?.checkIsManagerForVaultId || options?.checkIsRecipientForVaultId
-      ? [options.checkIsManagerForVaultId || options.checkIsRecipientForVaultId]
+    options?.checkIsOwnerForVaultId ||
+    options?.checkIsEditorForVaultId ||
+    options?.checkIsRecipientForVaultId
+      ? [
+          options.checkIsOwnerForVaultId ||
+            options.checkIsEditorForVaultId ||
+            options.checkIsRecipientForVaultId,
+        ]
       : [];
-  const accountRecipientWhere = options?.checkIsManagerForVaultId ? 'AND svr.is_manager=true' : '';
+  const accountRecipientWhere = options?.checkIsOwnerForVaultId
+    ? "AND svr.access_level='owner'"
+    : options?.checkIsEditorForVaultId
+      ? "AND (svr.access_level='editor' OR svr.access_level='owner')"
+      : '';
 
   const query = `SELECT
   ${publicKeySelect}

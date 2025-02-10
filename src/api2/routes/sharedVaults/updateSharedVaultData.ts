@@ -31,7 +31,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
       return res.status(403).end();
     }
 
-    const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    const authRes = await checkBasicAuth2(req, { checkIsEditorForVaultId: sharedVaultId });
     if (!authRes.granted) {
       logInfo(req.body?.userEmail, 'updateSharedVaultData fail: auth not granted');
       return res.status(401).end();
