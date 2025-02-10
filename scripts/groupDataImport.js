@@ -202,12 +202,13 @@ async function importFunction() {
   for (var i = 0; i < data.shared_vault_recipients.length; i++) {
     const svr = data.shared_vault_recipients[i];
     await db.query(
-      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, group_id, created_at) VALUES ($1,$2,$3,$4,$5,$6)',
+      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, group_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
       [
         svr.newSharedVaultId,
         svr.newUserId,
         svr.encrypted_shared_vault_key,
         svr.is_manager,
+        svr.access_level,
         groupId,
         svr.created_at,
       ],

@@ -24,17 +24,30 @@ export const addRecipientToSharedVault = async (req: any, res: any): Promise<voi
       return res.status(403).end();
     }
 
-    const isManager = inputSanitizer.getBoolean(req.body?.isManager);
+    let isManager = inputSanitizer.getBoolean(req.body?.isManager); // for backwards compatibilty
+    let accessLevel = inputSanitizer.getString(req.body?.accessLevel);
+    if (accessLevel != null) {
+      isManager = accessLevel === 'owner';
+    } else {
+      accessLevel = isManager ? 'owner' : 'reader';
+    }
 
-    const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    const authRes = await checkBasicAuth2(req, { checkIsOwnerForVaultId: sharedVaultId });
     if (!authRes.granted) {
       logInfo(req.body?.userEmail, 'addRecipientToSharedVault fail: auth not granted');
       return res.status(401).end();
     }
 
     await db.query(
-      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, group_id) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING',
-      [sharedVaultId, recipientId, encryptedSharedVaultKey, isManager, authRes.groupId],
+      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, group_id) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING',
+      [
+        sharedVaultId,
+        recipientId,
+        encryptedSharedVaultKey,
+        isManager, // deprecated
+        accessLevel,
+        authRes.groupId,
+      ],
     );
 
     logInfo(req.body?.userEmail, 'addRecipientToSharedVault OK');

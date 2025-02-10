@@ -12,7 +12,7 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
       return res.status(403).end();
     }
 
-    const authRes = await checkBasicAuth2(req, { checkIsManagerForVaultId: sharedVaultId });
+    const authRes = await checkBasicAuth2(req, { checkIsOwnerForVaultId: sharedVaultId });
     if (!authRes.granted) {
       logInfo(req.body?.userEmail, 'deleteSharedVault fail: auth not granted');
       return res.status(401).end();
