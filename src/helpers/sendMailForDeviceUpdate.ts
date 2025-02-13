@@ -48,7 +48,7 @@ export const sendMailForDeviceUpdate = async (): Promise<void> => {
 const sendMailForDeviceUpdateTask = async (): Promise<void> => {
   try {
     const emailsRes = await db.query(
-      "SELECT u.email, d.device_name, d.device_type, d.app_version FROM users AS u RIGHT JOIN user_devices AS d ON d.user_id=u.id WHERE d.authorization_status = 'AUTHORIZED')",
+      "SELECT u.email, d.device_name, d.device_type, d.app_version FROM users AS u RIGHT JOIN user_devices AS d ON d.user_id=u.id WHERE d.authorization_status = 'AUTHORIZED'",
     );
     if (emailsRes == null) return;
     const devicesByEmail: {
