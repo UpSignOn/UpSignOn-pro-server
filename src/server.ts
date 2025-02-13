@@ -32,7 +32,10 @@ import { renameSharedVault } from './api2/routes/sharedVaults/renameSharedVault'
 import { deleteSharedVault } from './api2/routes/sharedVaults/deleteSharedVault';
 import { getRecipientsForSharedVault } from './api2/routes/sharingRecipients/getRecipientsForSharedVault';
 import { addRecipientToSharedVault } from './api2/routes/sharingRecipients/addRecipientToSharedVault';
-import { updateRecipientRightsOnSharedVault } from './api2/routes/sharingRecipients/updateRecipientRightsOnSharedVault';
+import {
+  updateRecipientRightsOnSharedVault,
+  updateRecipientsRightsOnSharedVault,
+} from './api2/routes/sharingRecipients/updateRecipientRightsOnSharedVault';
 import {
   removeRecipientFromSharedVault,
   removeRecipientsFromSharedVault,
@@ -174,6 +177,13 @@ app.post(
     '/api2/update-recipient-rights-on-shared-vault',
   ],
   updateRecipientRightsOnSharedVault,
+);
+app.post(
+  [
+    '/:groupId/api2/update-recipients-rights-on-shared-vault',
+    '/api2/update-recipients-rights-on-shared-vault',
+  ],
+  updateRecipientsRightsOnSharedVault,
 );
 app.post(
   ['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'],

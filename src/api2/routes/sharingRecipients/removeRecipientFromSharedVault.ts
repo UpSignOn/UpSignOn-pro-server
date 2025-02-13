@@ -58,7 +58,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
     try {
       sharedVaultId = Joi.attempt(req.body?.sharedVaultId, Joi.number().required());
     } catch (err) {
-      logError(req.body?.userEmail, err);
+      logInfo(req.body?.userEmail, err);
       return res.status(403).end();
     }
 
@@ -69,7 +69,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
         Joi.array().required().items(Joi.number()),
       );
     } catch (err) {
-      logError(req.body?.userEmail, err);
+      logInfo(req.body?.userEmail, err);
       return res.status(403).end();
     }
 
@@ -92,6 +92,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
         isOwner = true;
       }
     }
+    // TODO: Check we are not removing the last manager
 
     if (isRemovingOthers && !isOwner) {
       logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: not owner');
@@ -101,10 +102,10 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
       'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id = ANY(($2)::INT[]) AND group_id=$3',
       [sharedVaultId, recipientIds, basicAuth.groupId],
     );
-    logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault OK');
+    logInfo(req.body?.userEmail, 'removeRecipientsFromSharedVault OK');
     return res.status(204).end();
   } catch (e) {
-    logError(req.body?.userEmail, 'removeRecipientFromSharedVault', e);
+    logError(req.body?.userEmail, 'removeRecipientsFromSharedVault', e);
     return res.status(400).end();
   }
 };
