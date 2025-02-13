@@ -33,7 +33,10 @@ import { deleteSharedVault } from './api2/routes/sharedVaults/deleteSharedVault'
 import { getRecipientsForSharedVault } from './api2/routes/sharingRecipients/getRecipientsForSharedVault';
 import { addRecipientToSharedVault } from './api2/routes/sharingRecipients/addRecipientToSharedVault';
 import { updateRecipientRightsOnSharedVault } from './api2/routes/sharingRecipients/updateRecipientRightsOnSharedVault';
-import { removeRecipientFromSharedVault } from './api2/routes/sharingRecipients/removeRecipientFromSharedVault';
+import {
+  removeRecipientFromSharedVault,
+  removeRecipientsFromSharedVault,
+} from './api2/routes/sharingRecipients/removeRecipientFromSharedVault';
 import { disconnect2 } from './api2/routes/authentication/disconnect';
 import { backupPassword2 } from './api2/routes/passwordReset/backupPassword';
 import { getPasswordBackup2 } from './api2/routes/passwordReset/getPasswordBackup';
@@ -175,6 +178,13 @@ app.post(
 app.post(
   ['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'],
   removeRecipientFromSharedVault,
+);
+app.post(
+  [
+    '/:groupId/api2/remove-recipients-from-shared-vault',
+    '/api2/remove-recipients-from-shared-vault',
+  ],
+  removeRecipientsFromSharedVault,
 );
 
 if (module === require.main) {
