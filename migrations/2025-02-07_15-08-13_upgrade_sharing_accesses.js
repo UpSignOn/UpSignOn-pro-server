@@ -2,7 +2,7 @@
 
 exports.up = async function (db) {
   await db.query(
-    "ALTER TABLE shared_vault_recipients ADD COLUMN IF NOT EXISTS access_level VARCHAR(30) NOT NULL DEFAULT 'minimum'",
+    "ALTER TABLE shared_vault_recipients ADD COLUMN IF NOT EXISTS access_level VARCHAR(30) NOT NULL DEFAULT 'blind'",
   );
   await db.query("UPDATE shared_vault_recipients SET access_level=\'owner\' WHERE is_manager=true");
   await db.query(
