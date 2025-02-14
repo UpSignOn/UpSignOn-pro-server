@@ -75,7 +75,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
 
     const basicAuth = await checkBasicAuth2(req);
     if (!basicAuth.granted) {
-      logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: auth not granted');
+      logInfo(req.body?.userEmail, 'removeRecipientsFromSharedVault fail: auth not granted');
       return res.status(401).end();
     }
 
@@ -95,7 +95,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
     // TODO: Check we are not removing the last manager
 
     if (isRemovingOthers && !isOwner) {
-      logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: not owner');
+      logInfo(req.body?.userEmail, 'removeRecipientsFromSharedVault fail: not owner');
       return res.status(403).end();
     }
     await db.query(
