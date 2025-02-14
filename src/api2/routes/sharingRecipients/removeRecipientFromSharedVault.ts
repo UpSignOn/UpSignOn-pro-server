@@ -79,7 +79,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
       return res.status(401).end();
     }
 
-    const isRemovingOthers = recipientIds.filter((rId) => rId != basicAuth.userId);
+    const isRemovingOthers = recipientIds.filter((rId) => rId != basicAuth.userId).length > 0;
 
     let isOwner = false;
     if (isRemovingOthers) {
