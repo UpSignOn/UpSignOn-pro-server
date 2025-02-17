@@ -4,6 +4,9 @@ import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
 
+const minVersionForNotification = '7.11.0';
+const endOfSupportDate = '4 mars 2025';
+
 const getNext8am = (): Date => {
   const notificationDate = new Date();
   // first get next 8am time
@@ -15,7 +18,6 @@ const getNext8am = (): Date => {
   } else {
     notificationDate.setTime(notificationDate.getTime() + 24 * 3600 * 1000); // next day same hour
     notificationDate.setHours(8); // at 8 am
-    notificationDate.setHours(0);
     notificationDate.setMinutes(0);
     notificationDate.setSeconds(0);
     notificationDate.setMilliseconds(0);
@@ -56,7 +58,7 @@ const sendMailForDeviceUpdateTask = async (): Promise<void> => {
     } = {};
     for (var i = 0; i < emailsRes.rows.length; i++) {
       const d = emailsRes.rows[i];
-      if (isStrictlyLowerVersion(d.app_version, '7.10.3')) {
+      if (isStrictlyLowerVersion(d.app_version, minVersionForNotification)) {
         if (!devicesByEmail[d.email]) {
           devicesByEmail[d.email] = [];
         }
@@ -83,8 +85,7 @@ const sendMailForDeviceUpdateTask = async (): Promise<void> => {
 
       const line1 = 'Bonjour,';
       const line2 = "Votre application UpSignOn n'est pas à jour sur les appareils suivants :";
-      const line3 =
-        'À partir du 10 février 2025, les applications ayant une version inférieure à la version 7.10.5 ne pourront plus se synchroniser ou rencontront un crash au démarrage pour certaines versions.';
+      const line3 = `À partir du ${endOfSupportDate}, les applications ayant une version inférieure à la version ${minVersionForNotification} ne pourront plus se synchroniser ou rencontront un crash au démarrage pour certaines versions.`;
       const line4 = 'Nous vous invitons donc à procéder à leur mise-à-jour dès que possible.';
       const line5 =
         'NB : si vous n\'utilisez plus les appareils en question, ou si ces appareils sont des reliquats d\'applications désinstallées, vous pouvez les supprimer depuis la page "appareils synchronisés" directement dans votre coffre-fort.';
