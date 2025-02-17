@@ -6,6 +6,7 @@ import { inputSanitizer } from './sanitizer';
 
 const minVersionForNotification = '7.11.0';
 const endOfSupportDate = '4 mars 2025';
+const isActive = false;
 
 const getNext8am = (): Date => {
   const notificationDate = new Date();
@@ -38,6 +39,7 @@ const getNext8am = (): Date => {
 };
 
 export const sendMailForDeviceUpdate = async (): Promise<void> => {
+  if (!isActive) return;
   sendMailForDeviceUpdateTask();
 
   // call perform sync every two days at 8am
