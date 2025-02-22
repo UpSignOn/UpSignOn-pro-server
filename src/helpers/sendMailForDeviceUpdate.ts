@@ -40,7 +40,6 @@ const getNext8am = (): Date => {
 
 export const sendMailForDeviceUpdate = async (): Promise<void> => {
   if (!isActive) return;
-  sendMailForDeviceUpdateTask();
 
   // call perform sync every two days at 8am
   setTimeout(() => {
