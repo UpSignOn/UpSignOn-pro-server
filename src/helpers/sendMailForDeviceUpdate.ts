@@ -44,7 +44,6 @@ export const sendMailForDeviceUpdate = async (): Promise<void> => {
   // call perform sync every two days at 8am
   setTimeout(() => {
     sendMailForDeviceUpdateTask();
-    setInterval(sendMailForDeviceUpdateTask, 48 * 3600 * 1000); // call it every 48 hours
   }, getNext8am().getTime() - Date.now());
 };
 
