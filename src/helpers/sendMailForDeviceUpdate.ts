@@ -6,7 +6,7 @@ import { inputSanitizer } from './sanitizer';
 
 const minVersionForNotification = '7.11.0';
 const endOfSupportDate = '11 mars 2025';
-const isActive = false;
+const isActive = true;
 
 const getNext8am = (): Date => {
   const notificationDate = new Date();
