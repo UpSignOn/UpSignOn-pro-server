@@ -3,6 +3,7 @@
 import { db } from '../../helpers/db';
 import { logInfo } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
+import { IS_ACTIVE } from '../../helpers/serverStatus';
 import { SessionStore } from '../../helpers/sessionStore';
 
 export const checkBasicAuth2 = async (
@@ -132,4 +133,96 @@ WHERE
     granted: true,
     groupId,
   };
+};
+
+export const checkDeviceAuthorizationOnly = async (
+  res: any,
+  req: any,
+): Promise<{ user_id: number; device_primary_id: number } | null> => {
+  // Authenticate device
+  if (!IS_ACTIVE) {
+    res.status(403);
+    return null;
+  }
+  const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+
+  // Get params
+  const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
+  const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
+  const deviceId = inputSanitizer.getString(req.body?.deviceId);
+
+  // Check params
+  if (!userEmail) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: missing userEmail');
+    res.status(403).end();
+    return null;
+  }
+  if (!deviceId) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: missing deviceId');
+    res.status(403).end();
+    return null;
+  }
+  if (!deviceSession) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: missing deviceSession');
+    res.status(401).end();
+    return null;
+  }
+
+  const isSessionOK = await SessionStore.checkSession(deviceSession, {
+    userEmail,
+    deviceUniqueId: deviceId,
+    groupId,
+  });
+  if (!isSessionOK) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: session not valid');
+    res.status(401).end();
+    return null;
+  }
+
+  // Request DB
+  const dbRes = await db.query(
+    `SELECT
+        users.id AS user_id,
+        user_devices.id AS device_primary_id,
+        user_devices.authorization_status AS authorization_status,
+        users.deactivated AS deactivated,
+        groups.stop_this_instance
+      FROM user_devices
+      INNER JOIN users ON user_devices.user_id = users.id
+      INNER JOIN groups ON groups.id = users.group_id
+      WHERE
+        users.email=$1 AND
+        user_devices.device_unique_id = $2 AND
+        users.group_id=$3`,
+    [userEmail, deviceId, groupId],
+  );
+
+  if (!dbRes || dbRes.rowCount === 0) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: device deleted');
+    res.status(403).json({ error: 'revoked' });
+    return null;
+  }
+  if (dbRes.rows[0].stop_this_instance) {
+    logInfo('instance stopped');
+    res.status(400).end();
+    return null;
+  }
+  if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
+    logInfo(req.body?.userEmail, 'getVaultData fail: revoked by user');
+    res.status(403).json({ error: 'revoked' });
+    return null;
+  }
+  if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' || dbRes.rows[0].deactivated) {
+    logInfo(req.body?.userEmail, 'getVaultData fail: device revoked by admin or user deactivated');
+    res.status(403).json({ error: 'revoked_by_admin' });
+    return null;
+  }
+
+  if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') {
+    logInfo(req.body?.userEmail, 'getVaultData fail: status', dbRes.rows[0].authorization_status);
+    res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
+    return null;
+  }
+
+  return dbRes.rows[0];
 };

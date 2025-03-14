@@ -49,6 +49,15 @@ import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaDat
 import { logEvent } from './api2/routes/audit/logEvent';
 import libsodium from 'libsodium-wrappers';
 import { updateLicences } from './licences';
+import { availableShamirConfigs } from './api2/routes/shamirRecovery/availableShamirConfigs';
+import { needsShamirUpdate } from './api2/routes/shamirRecovery/needsShamirUpdate';
+import { requestShamirRecovery } from './api2/routes/shamirRecovery/requestShamirRecovery';
+import { upsertShamirBackup } from './api2/routes/shamirRecovery/upsertShamirBackup';
+import { abortShamirRecovery } from './api2/routes/shamirRecovery/abortShamirRecovery';
+import { finishShamirRecovery } from './api2/routes/shamirRecovery/finishShamirRecovery';
+import { approveShamirRecovery } from './api2/routes/shamirRecovery/approveShamirRecovery';
+import { retrieveShamirRecovery } from './api2/routes/shamirRecovery/retrieveShamirRecovery';
+import { retrieveShamirRecoveriesToApprove } from './api2/routes/shamirRecovery/retrieveShamirRecoveriesToApprove';
 
 const app = express();
 
@@ -195,6 +204,44 @@ app.post(
     '/api2/remove-recipients-from-shared-vault',
   ],
   removeRecipientsFromSharedVault,
+);
+
+// SHAMIR RECOVERY
+app.post(
+  ['/:groupId/api2/get-available-shamir-configs', '/api2/get-available-shamir-configs'],
+  availableShamirConfigs,
+);
+app.post(
+  ['/:groupId/api2/get-needs-shamir-update', '/api2/get-needs-shamir-update'],
+  needsShamirUpdate,
+);
+app.post(['/:groupId/api2/upsert-shamir-backup', '/api2/upsert-shamir-backup'], upsertShamirBackup);
+app.post(
+  ['/:groupId/api2/request-shamir-recovery', '/api2/request-shamir-recovery'],
+  requestShamirRecovery,
+);
+app.post(
+  [
+    '/:groupId/api2/retrieve-shamir-recoveries-to-approve',
+    '/api2/retrieve-shamir-recoveries-to-approve',
+  ],
+  retrieveShamirRecoveriesToApprove,
+);
+app.post(
+  ['/:groupId/api2/approve-shamir-recovery', '/api2/approve-shamir-recovery'],
+  approveShamirRecovery,
+);
+app.post(
+  ['/:groupId/api2/retrieve-shamir-recovery', '/api2/retrieve-shamir-recovery'],
+  retrieveShamirRecovery,
+);
+app.post(
+  ['/:groupId/api2/abort-shamir-recovery', '/api2/abort-shamir-recovery'],
+  abortShamirRecovery,
+);
+app.post(
+  ['/:groupId/api2/finish-shamir-recovery', '/api2/finish-shamir-recovery'],
+  finishShamirRecovery,
 );
 
 if (module === require.main) {
