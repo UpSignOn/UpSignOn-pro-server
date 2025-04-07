@@ -4,6 +4,7 @@ import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { IS_ACTIVE } from '../../../helpers/serverStatus';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
@@ -13,7 +14,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     }
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     if (!userEmail || !deviceId) {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
@@ -38,14 +39,14 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         AND ud.device_unique_id = $2
         AND u.group_id=$3
       `,
-      [userEmail, deviceId, groupId],
+      [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
         'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND group_id=$2',
-        [userEmail, groupId],
+        [userEmail, groupIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
         logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device deleted');

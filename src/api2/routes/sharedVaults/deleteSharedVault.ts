@@ -20,7 +20,7 @@ export const deleteSharedVault = async (req: any, res: any): Promise<void> => {
 
     await db.query('DELETE FROM shared_vaults WHERE id=$1 AND group_id=$2', [
       sharedVaultId,
-      authRes.groupId,
+      authRes.groupIds.internalId,
     ]);
 
     logInfo(req.body?.userEmail, `deleteSharedVault ${sharedVaultId} OK`);

@@ -8,11 +8,12 @@ import {
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import libsodium from 'libsodium-wrappers';
 import { sendDeviceRequestAdminEmail } from '../../../helpers/sendDeviceRequestEmail';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice2 = async (req: any, res: any) => {
   try {
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -65,7 +66,7 @@ export const checkDevice2 = async (req: any, res: any) => {
           AND ud.authorization_status != 'REVOKED_BY_USER'
           AND users.group_id=$3
       `,
-      [userEmail, deviceId, groupId],
+      [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
@@ -126,7 +127,7 @@ export const checkDevice2 = async (req: any, res: any) => {
     }
 
     if (requireAdminCheck) {
-      await sendDeviceRequestAdminEmail(userEmail, groupId);
+      await sendDeviceRequestAdminEmail(userEmail, groupIds.internalId);
       logInfo(
         req.body?.userEmail,
         'checkDevice OK (waiting for admin check - email sent to admin)',

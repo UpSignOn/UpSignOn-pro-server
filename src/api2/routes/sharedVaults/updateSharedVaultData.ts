@@ -37,7 +37,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
       return res.status(401).end();
     }
 
-    const hasServerMoved = await isInstanceStopped(authRes.groupId);
+    const hasServerMoved = await isInstanceStopped(authRes.groupIds.internalId);
     if (hasServerMoved) {
       logInfo('instance stopped');
       return res.status(400).end();
@@ -74,7 +74,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
         newEncryptedData,
         sharedVaultId,
         lastUpdatedAt,
-        authRes.groupId,
+        authRes.groupIds.internalId,
         vaultStats.nbAccounts,
         vaultStats.nbCodes,
         vaultStats.nbAccountsStrong,

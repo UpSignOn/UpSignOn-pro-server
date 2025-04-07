@@ -5,11 +5,12 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> => {
   try {
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
@@ -57,7 +58,7 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
         'users.email=$1 ' +
         'AND ud.device_unique_id = $2 ' +
         'AND users.group_id=$3',
-      [userEmail, deviceUId, groupId],
+      [userEmail, deviceUId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
@@ -85,13 +86,13 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
 
     await db.query(
       'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
-      [deviceName, osNameAndVersion, appVersion, dbRes.rows[0].id, groupId],
+      [deviceName, osNameAndVersion, appVersion, dbRes.rows[0].id, groupIds.internalId],
     );
     if (osFamily && deviceType && installType) {
       // sent after version 7.5 of the app
       await db.query(
         'UPDATE user_devices SET os_family=$1, device_type=$2, install_type=$3 WHERE id=$4 AND group_id=$5',
-        [osFamily, deviceType, installType, dbRes.rows[0].id, groupId],
+        [osFamily, deviceType, installType, dbRes.rows[0].id, groupIds.internalId],
       );
     }
     logInfo(req.body?.userEmail, 'updateDeviceMetaData2 OK');

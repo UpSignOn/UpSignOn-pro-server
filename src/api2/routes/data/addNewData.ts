@@ -5,6 +5,7 @@ import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/pas
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData2 = async (req: any, res: any): Promise<void> => {
@@ -14,7 +15,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // 0 - Check params
     if (
@@ -44,7 +45,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         AND ud.authorization_status='AUTHORIZED'
         AND u.group_id=$3
         `,
-      [userEmail, deviceUId, groupId],
+      [userEmail, deviceUId, groupIds.internalId],
     );
     // 1 - check that user data is indeed empty
     if (
@@ -85,7 +86,12 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     // 4 - Do the update
     const updateRes = await db.query(
       'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key_2)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
-      [newEncryptedDataWithPasswordChallengeSecured, sharingPublicKey, userEmail, groupId],
+      [
+        newEncryptedDataWithPasswordChallengeSecured,
+        sharingPublicKey,
+        userEmail,
+        groupIds.internalId,
+      ],
     );
     if (updateRes.rowCount === 0) {
       logInfo(req.body?.userEmail, 'addNewData2 fail: database update failed');
@@ -96,12 +102,12 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
       new Date().toISOString(),
       selectRes.rows[0].did,
-      groupId,
+      groupIds.internalId,
     ]);
 
     const settingsRes = await db.query(
       'SELECT os_family, device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
-      [deviceUId, groupId],
+      [deviceUId, groupIds.internalId],
     );
 
     const resultSettings = getDefaultSettingOrUserOverride(
@@ -112,7 +118,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
 
     // Set Session
     const deviceSession = await SessionStore.createSession({
-      groupId,
+      groupId: groupIds.internalId,
       deviceUniqueId: deviceUId,
       userEmail,
     });

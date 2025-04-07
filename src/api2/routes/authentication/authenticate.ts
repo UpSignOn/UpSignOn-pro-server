@@ -4,6 +4,7 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { checkPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const authenticate2 = async (req: any, res: any) => {
@@ -12,7 +13,7 @@ export const authenticate2 = async (req: any, res: any) => {
     const passwordChallengeResponse = inputSanitizer.getString(req.body?.passwordChallengeResponse);
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     if (!userEmail) {
       logError(req.body?.userEmail, 'authenticate2 fail: userEmail missing');
@@ -49,7 +50,7 @@ export const authenticate2 = async (req: any, res: any) => {
         AND ud.authorization_status='AUTHORIZED'
         AND u.group_id=$3
       `,
-      [userEmail, deviceUId, groupId],
+      [userEmail, deviceUId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
@@ -102,7 +103,7 @@ export const authenticate2 = async (req: any, res: any) => {
       passwordChallengeResponse,
       password_challenge_error_count,
       did,
-      groupId,
+      groupIds.internalId,
     );
 
     // 5 - check Device challenge
@@ -119,7 +120,7 @@ export const authenticate2 = async (req: any, res: any) => {
         [did],
       );
       const deviceSession = await SessionStore.createSession({
-        groupId,
+        groupId: groupIds.internalId,
         deviceUniqueId: deviceUId,
         userEmail,
       });

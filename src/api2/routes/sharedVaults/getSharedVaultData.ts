@@ -20,7 +20,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
       );
       return res.status(401).end();
     }
-    const hasServerMoved = await isInstanceStopped(authRes.groupId);
+    const hasServerMoved = await isInstanceStopped(authRes.groupIds.internalId);
     if (hasServerMoved) {
       logInfo('instance stopped');
       return res.status(400).end();
@@ -41,7 +41,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
       WHERE svr.user_id=$1
       AND sv.id=$2
       AND sv.group_id=$3`,
-      [authRes.userId, sharedVaultId, authRes.groupId],
+      [authRes.userId, sharedVaultId, authRes.groupIds.internalId],
     );
     const sharedVaultMap = sharedVaultRes.rows.map((s) => ({
       id: s.id,
