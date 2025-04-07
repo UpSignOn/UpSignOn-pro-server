@@ -7,6 +7,7 @@ import {
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const revokeDevice = async (req: any, res: any) => {
@@ -15,7 +16,7 @@ export const revokeDevice = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;
 
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
     let userId = null;
 
     // DEVICE CAN REVOKE ITSELF WITHOUT FULL SESSION
@@ -47,7 +48,7 @@ export const revokeDevice = async (req: any, res: any) => {
           'users.email=$1 ' +
           'AND ud.device_unique_id = $2 ' +
           'AND users.group_id=$3',
-        [userEmail, deviceId, groupId],
+        [userEmail, deviceId, groupIds.internalId],
       );
 
       if (!dbRes || dbRes.rowCount === 0) {
@@ -61,7 +62,7 @@ export const revokeDevice = async (req: any, res: any) => {
         isSessionAuthenticated = await SessionStore.checkSession(deviceSession, {
           userEmail,
           deviceUniqueId: deviceId,
-          groupId,
+          groupId: groupIds.internalId,
         });
       }
       if (!deviceSession || !isSessionAuthenticated) {
@@ -96,7 +97,7 @@ export const revokeDevice = async (req: any, res: any) => {
 
     await db.query(
       "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND group_id=$4",
-      [new Date().toISOString(), deviceToDelete, userId, groupId],
+      [new Date().toISOString(), deviceToDelete, userId, groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'revokeDevice OK');
     // Return res

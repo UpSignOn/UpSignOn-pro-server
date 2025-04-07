@@ -3,12 +3,14 @@ import { db } from '../../../helpers/db';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 let contactSearchSessions: { session: string; expirationTimestamp: number }[] = [];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) => {
   try {
+    const groupIds = await getGroupIds(req);
     const emailAddressSearch = inputSanitizer.getString(req.body?.emailAddressSearch);
     if (!emailAddressSearch || emailAddressSearch.length < 3) {
       logInfo(
@@ -35,7 +37,7 @@ export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) =
 
     const searchRes = await db.query(
       'SELECT email FROM users WHERE email LIKE $1 AND sharing_public_key_2 IS NOT NULL AND group_id=$2',
-      [emailAddressSearch + '%', parseInt(req.params.groupId || 1)],
+      [emailAddressSearch + '%', groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'getMatchingEmailAddressesForSharing2 OK');
     // Return res

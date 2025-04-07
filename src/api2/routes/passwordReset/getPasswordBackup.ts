@@ -7,11 +7,12 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import libsodium from 'libsodium-wrappers';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup2 = async (req: any, res: any) => {
   try {
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -50,7 +51,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
         AND user_devices.authorization_status='AUTHORIZED'
         AND user_devices.group_id=$3
       LIMIT 1`,
-      [userEmail, deviceId, groupId],
+      [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!deviceRes || deviceRes.rowCount === 0) {
@@ -91,7 +92,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       AND password_reset_request.status != 'COMPLETED'
     LIMIT 1
     `,
-      [deviceId, groupId],
+      [deviceId, groupIds.internalId],
     );
 
     const resetRequest = existingRequestRes.rows[0];
@@ -125,11 +126,11 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
 
     await db.query(
       `UPDATE password_reset_request SET status='COMPLETED', reset_token=null WHERE id=$1 AND group_id=$2`,
-      [resetRequest.reset_request_id, groupId],
+      [resetRequest.reset_request_id, groupIds.internalId],
     );
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
-      [deviceId, groupId],
+      [deviceId, groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'getPasswordBackup2 OK');
     // Return res

@@ -4,6 +4,7 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { IS_ACTIVE } from '../../../helpers/serverStatus';
 import { SessionStore } from '../../../helpers/sessionStore';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 /**
  * Returns
@@ -19,7 +20,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     if (!IS_ACTIVE) {
       return res.status(403);
     }
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // Get params
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
@@ -43,7 +44,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceId,
-      groupId,
+      groupId: groupIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'getVaultData fail: session not valid');
@@ -75,14 +76,14 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         users.email=$1 AND
         user_devices.device_unique_id = $2 AND
         users.group_id=$3`,
-      [userEmail, deviceId, groupId],
+      [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
         'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND group_id=$2',
-        [userEmail, groupId],
+        [userEmail, groupIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
         logInfo(req.body?.userEmail, 'getVaultData fail: device deleted');
@@ -113,7 +114,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
     }
 
-    const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupId);
+    const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupIds.internalId);
 
     const userResultingSetting = getDefaultSettingOrUserOverride(
       dbRes.rows[0].group_settings,
@@ -140,10 +141,10 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
       new Date().toISOString(),
       dbRes.rows[0].device_primary_id,
-      groupId,
+      groupIds.internalId,
     ]);
     // Clean changed_emails table if necessary
-    cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupId);
+    cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupIds.internalId);
     logInfo(req.body?.userEmail, 'getVaultData OK');
   } catch (e) {
     logError(req.body?.userEmail, 'getVaultData', e);

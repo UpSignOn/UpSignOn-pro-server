@@ -84,114 +84,118 @@ app.post('/licences', (req, res) => {
   return updateLicences(req, res);
 });
 
-// GROUP ROUTING with or without groupid (default groupid is 1)
+// GROUP ROUTING with or without bankUUID (default bankUUID used to be 1)
+// TODO(giregk): remove default group id routes in 2026
 
 // API 2
 // BANK
-app.all(['/:groupId/api2/bank-config', '/api2/bank-config'], getBankConfig);
-app.post(['/:groupId/api2/url-list', '/api2/url-list'], getUrlList2);
+app.all(['/:bankUUID/api2/bank-config', '/api2/bank-config'], getBankConfig);
+app.post(['/:bankUUID/api2/url-list', '/api2/url-list'], getUrlList2);
 
 // AUTHORIZATION
 app.post(
-  ['/:groupId/api2/request-device-access', '/api2/request-device-access'],
+  ['/:bankUUID/api2/request-device-access', '/api2/request-device-access'],
   requestDeviceAccess2,
 );
-app.post(['/:groupId/api2/check-device', '/api2/check-device'], checkDevice2);
+app.post(['/:bankUUID/api2/check-device', '/api2/check-device'], checkDevice2);
 
 // AUTHENTICATION
 app.post(
-  ['/:groupId/api2/get-authentication-challenges', '/api2/get-authentication-challenges'],
+  ['/:bankUUID/api2/get-authentication-challenges', '/api2/get-authentication-challenges'],
   getAuthenticationChallenges2,
 );
-app.post(['/:groupId/api2/authenticate', '/api2/authenticate'], authenticate2);
-app.post(['/:groupId/api2/disconnect', '/api2/disconnect'], disconnect2);
+app.post(['/:bankUUID/api2/authenticate', '/api2/authenticate'], authenticate2);
+app.post(['/:bankUUID/api2/disconnect', '/api2/disconnect'], disconnect2);
 
 // PASSWORD RESET
 app.post(
-  ['/:groupId/api2/request-password-reset', '/api2/request-password-reset'],
+  ['/:bankUUID/api2/request-password-reset', '/api2/request-password-reset'],
   requestPasswordReset2,
 );
-app.post(['/:groupId/api2/backup-password', '/api2/backup-password'], backupPassword2);
-app.post(['/:groupId/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup2);
+app.post(['/:bankUUID/api2/backup-password', '/api2/backup-password'], backupPassword2);
+app.post(['/:bankUUID/api2/get-password-backup', '/api2/get-password-backup'], getPasswordBackup2);
 
 // DATA
-app.post(['/:groupId/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
-app.post(['/:groupId/api2/update-vault-data', '/api2/update-vault-data'], updateVaultData);
-app.post(['/:groupId/api2/add-new-data', '/api2/add-new-data'], addNewData2);
+app.post(['/:bankUUID/api2/get-vault-data', '/api2/get-vault-data'], getVaultData);
+app.post(['/:bankUUID/api2/update-vault-data', '/api2/update-vault-data'], updateVaultData);
+app.post(['/:bankUUID/api2/add-new-data', '/api2/add-new-data'], addNewData2);
 
 // DEVICES
 app.post(
-  ['/:groupId/api2/get-authorized-devices', '/api2/get-authorized-devices'],
+  ['/:bankUUID/api2/get-authorized-devices', '/api2/get-authorized-devices'],
   getAuthorizedDevices2,
 );
-app.post(['/:groupId/api2/rename-device', '/api2/rename-device'], renameDevice2);
-app.post(['/:groupId/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
+app.post(['/:bankUUID/api2/rename-device', '/api2/rename-device'], renameDevice2);
+app.post(['/:bankUUID/api2/revoke-device', '/api2/revoke-device'], revokeDevice);
 
 // LOGS
-app.post(['/:groupId/api2/log-event', '/api2/log-event'], logEvent);
+app.post(['/:bankUUID/api2/log-event', '/api2/log-event'], logEvent);
 app.post(
-  ['/:groupId/api2/update-device-metadata', '/api2/update-device-metadata'],
+  ['/:bankUUID/api2/update-device-metadata', '/api2/update-device-metadata'],
   updateDeviceMetaData2,
 );
 
 // SHARED VAULTS
-app.post(['/:groupId/api2/create-shared-vault', '/api2/create-shared-vault'], createSharedVault);
+app.post(['/:bankUUID/api2/create-shared-vault', '/api2/create-shared-vault'], createSharedVault);
 app.post(
-  ['/:groupId/api2/get-shared-vault-data', '/api2/get-shared-vault-data'],
+  ['/:bankUUID/api2/get-shared-vault-data', '/api2/get-shared-vault-data'],
   getSharedVaultData,
 );
 app.post(
-  ['/:groupId/api2/update-shared-vault-data', '/api2/update-shared-vault-data'],
+  ['/:bankUUID/api2/update-shared-vault-data', '/api2/update-shared-vault-data'],
   updateSharedVaultData,
 );
-app.post(['/:groupId/api2/rename-shared-vault', '/api2/rename-shared-vault'], renameSharedVault);
-app.post(['/:groupId/api2/delete-shared-vault', '/api2/delete-shared-vault'], deleteSharedVault);
+app.post(['/:bankUUID/api2/rename-shared-vault', '/api2/rename-shared-vault'], renameSharedVault);
+app.post(['/:bankUUID/api2/delete-shared-vault', '/api2/delete-shared-vault'], deleteSharedVault);
 
 // SHARING RECIPIENTS
 app.post(
-  ['/:groupId/api2/check-user-public-key', '/api2/check-user-public-key'],
+  ['/:bankUUID/api2/check-user-public-key', '/api2/check-user-public-key'],
   checkUserPublicKey2,
 );
 app.post(
   [
-    '/:groupId/api2/get-matching-email-addresses-for-sharing',
+    '/:bankUUID/api2/get-matching-email-addresses-for-sharing',
     '/api2/get-matching-email-addresses-for-sharing',
   ],
   getMatchingEmailAddressesForSharing2,
 );
 app.post(
-  ['/:groupId/api2/get-recipient-public-key', '/api2/get-recipient-public-key'],
+  ['/:bankUUID/api2/get-recipient-public-key', '/api2/get-recipient-public-key'],
   getRecipientPublicKey,
 );
 app.post(
-  ['/:groupId/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'],
+  ['/:bankUUID/api2/add-recipient-to-shared-vault', '/api2/add-recipient-to-shared-vault'],
   addRecipientToSharedVault,
 );
 app.post(
-  ['/:groupId/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'],
+  ['/:bankUUID/api2/get-recipients-for-shared-vault', '/api2/get-recipients-for-shared-vault'],
   getRecipientsForSharedVault,
 );
 app.post(
   [
-    '/:groupId/api2/update-recipient-rights-on-shared-vault',
+    '/:bankUUID/api2/update-recipient-rights-on-shared-vault',
     '/api2/update-recipient-rights-on-shared-vault',
   ],
   updateRecipientRightsOnSharedVault,
 );
 app.post(
   [
-    '/:groupId/api2/update-recipients-rights-on-shared-vault',
+    '/:bankUUID/api2/update-recipients-rights-on-shared-vault',
     '/api2/update-recipients-rights-on-shared-vault',
   ],
   updateRecipientsRightsOnSharedVault,
 );
 app.post(
-  ['/:groupId/api2/remove-recipient-from-shared-vault', '/api2/remove-recipient-from-shared-vault'],
+  [
+    '/:bankUUID/api2/remove-recipient-from-shared-vault',
+    '/api2/remove-recipient-from-shared-vault',
+  ],
   removeRecipientFromSharedVault,
 );
 app.post(
   [
-    '/:groupId/api2/remove-recipients-from-shared-vault',
+    '/:bankUUID/api2/remove-recipients-from-shared-vault',
     '/api2/remove-recipients-from-shared-vault',
   ],
   removeRecipientsFromSharedVault,

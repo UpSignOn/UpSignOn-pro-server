@@ -11,6 +11,7 @@ import {
 import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 import { MicrosoftGraph } from 'ms-entra-for-upsignon';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // TESTS
 // - if I request access for a user that does not exist, it creates the user and the device request
@@ -29,7 +30,7 @@ import { MicrosoftGraph } from 'ms-entra-for-upsignon';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestDeviceAccess2 = async (req: any, res: any) => {
   try {
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -82,22 +83,26 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         groups.settings AS group_settings
       FROM users INNER JOIN groups ON groups.id = users.group_id
       WHERE users.email=$1 AND users.group_id=$2`,
-      [userEmail, groupId],
+      [userEmail, groupIds.internalId],
     );
     if (userRes.rows[0]?.deactivated) {
       return res.status(403).json({ error: 'user_deactivated' });
     }
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
-      const userMSEntraId = await MicrosoftGraph.getUserId(groupId, userEmail);
-      const emailAuthStatus = await getEmailAuthorizationStatus(userEmail, userMSEntraId, groupId);
+      const userMSEntraId = await MicrosoftGraph.getUserId(groupIds.internalId, userEmail);
+      const emailAuthStatus = await getEmailAuthorizationStatus(
+        userEmail,
+        userMSEntraId,
+        groupIds.internalId,
+      );
       if (emailAuthStatus === 'UNAUTHORIZED') {
         logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: email address not allowed');
         return res.status(403).json({ error: 'email_address_not_allowed' });
       }
       userRes = await db.query(
         'INSERT INTO users (email, ms_entra_id, group_id) VALUES ($1,$2,$3) RETURNING id',
-        [userEmail, userMSEntraId, groupId],
+        [userEmail, userMSEntraId, groupIds.internalId],
       );
     }
     const userId = userRes.rows[0].id;
@@ -105,7 +110,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     // CHECK SECOND REQUESTS FOR SAME DEVICE
     const deviceRes = await db.query(
       'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND group_id=$3',
-      [userId, deviceId, groupId],
+      [userId, deviceId, groupIds.internalId],
     );
 
     if (
@@ -166,14 +171,22 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
           'PENDING',
           randomAuthorizationCode,
           expirationDate,
-          groupId,
+          groupIds.internalId,
         ],
       );
     } else {
       // request is pending and expired, let's update it
       await db.query(
         'UPDATE user_devices SET (device_name, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4) WHERE user_id=$5 AND device_unique_id=$6 AND group_id=$7',
-        [deviceName, 'PENDING', randomAuthorizationCode, expirationDate, userId, deviceId, groupId],
+        [
+          deviceName,
+          'PENDING',
+          randomAuthorizationCode,
+          expirationDate,
+          userId,
+          deviceId,
+          groupIds.internalId,
+        ],
       );
     }
 

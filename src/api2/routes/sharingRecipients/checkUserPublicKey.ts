@@ -27,7 +27,7 @@ export const checkUserPublicKey2 = async (req: any, res: any) => {
       await db.query('UPDATE users SET sharing_public_key_2 = $1 WHERE email=$2 AND group_id=$3', [
         publicKey,
         basicAuth.userEmail,
-        basicAuth.groupId,
+        basicAuth.groupIds.internalId,
       ]);
     }
     // Return res

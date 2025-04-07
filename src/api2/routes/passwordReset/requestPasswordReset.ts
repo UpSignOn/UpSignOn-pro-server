@@ -9,11 +9,12 @@ import {
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
 import { sendPasswordResetRequestNotificationToAdmins } from '../../../helpers/sendPasswordResetRequestNotificationToAdmins';
+import { getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset2 = async (req: any, res: any) => {
   try {
-    const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+    const groupIds = await getGroupIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -49,7 +50,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         AND user_devices.authorization_status='AUTHORIZED'
         AND user_devices.group_id=$3
       LIMIT 1`,
-      [userEmail, deviceId, groupId],
+      [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!authDbRes || authDbRes.rowCount === 0 || authDbRes.rows[0].deactivated) {
@@ -86,14 +87,14 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         AND password_reset_request.status != 'COMPLETED'
       ORDER BY password_reset_request.created_at DESC
       LIMIT 1`,
-      [authDbRes.rows[0].did, groupId],
+      [authDbRes.rows[0].did, groupIds.internalId],
     );
 
     const resetRequest = dbRes.rows[0];
 
     const settingRes = await db.query(
       `SELECT settings->>'DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN' AS value FROM groups WHERE id=$1`,
-      [groupId],
+      [groupIds.internalId],
     );
     if (settingRes.rows[0]?.value === 'true' || settingRes.rows[0]?.value === true) {
       // MANUAL VALIDATION IS DISABLED
@@ -105,7 +106,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
               (device_id, status, reset_token, reset_token_expiration_date, group_id, granted_by)
             VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4, 'configuration')
           `,
-          [authDbRes.rows[0].did, randomAuthorizationCode, expirationDate, groupId],
+          [authDbRes.rows[0].did, randomAuthorizationCode, expirationDate, groupIds.internalId],
         );
       } else {
         await db.query(
@@ -116,7 +117,12 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
             reset_token_expiration_date=$2,
             granted_by='configuration'
           WHERE id=$3 AND group_id=$4`,
-          [randomAuthorizationCode, expirationDate, resetRequest.reset_request_id, groupId],
+          [
+            randomAuthorizationCode,
+            expirationDate,
+            resetRequest.reset_request_id,
+            groupIds.internalId,
+          ],
         );
       }
       await sendPasswordResetRequestEmail(
@@ -136,10 +142,10 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
             VALUES
               ($1, 'PENDING_ADMIN_CHECK', $2)
           `,
-          [authDbRes.rows[0].did, groupId],
+          [authDbRes.rows[0].did, groupIds.internalId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request created)');
-        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupId);
+        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupIds.internalId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (
         !resetRequest.reset_token_expiration_date ||
@@ -148,10 +154,10 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         // Start a new request
         await db.query(
           `UPDATE password_reset_request SET created_at=CURRENT_TIMESTAMP(0), status='PENDING_ADMIN_CHECK', granted_by=null, reset_token=null, reset_token_expiration_date=null WHERE id=$1 AND group_id=$2`,
-          [resetRequest.reset_request_id, groupId],
+          [resetRequest.reset_request_id, groupIds.internalId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request updated)');
-        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupId);
+        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupIds.internalId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request still pending)');

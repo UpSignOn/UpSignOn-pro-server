@@ -4,6 +4,7 @@ import { db } from '../../helpers/db';
 import { logInfo } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
+import { getGroupIds, GroupIds } from './bankUUID';
 
 export const checkBasicAuth2 = async (
   req: any,
@@ -24,11 +25,11 @@ export const checkBasicAuth2 = async (
       encryptedData: null | string;
       deviceId: null | number;
       granted: true;
-      groupId: number;
+      groupIds: GroupIds;
     }
   | { granted: false }
 > => {
-  const groupId = inputSanitizer.getNumber(req.params.groupId, 1);
+  const groupIds = await getGroupIds(req);
 
   const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -51,7 +52,7 @@ export const checkBasicAuth2 = async (
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceUId,
-      groupId,
+      groupId: groupIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: invalid session');
@@ -110,7 +111,7 @@ WHERE
   ${accountManagerOrRecipientWhere}
   ${accountRecipientWhere}
   `;
-  const params = [userEmail, deviceUId, groupId, ...accountManagerOrRecipientParam];
+  const params = [userEmail, deviceUId, groupIds.internalId, ...accountManagerOrRecipientParam];
   // Request DB
   const dbRes = await db.query(query, params);
 
@@ -130,6 +131,6 @@ WHERE
     encryptedData: dbRes.rows[0].encrypted_data_2,
     deviceId: dbRes.rows[0].device_id,
     granted: true,
-    groupId,
+    groupIds,
   };
 };
