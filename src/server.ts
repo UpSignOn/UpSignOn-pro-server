@@ -87,6 +87,13 @@ app.post('/licences', (req, res) => {
 // GROUP ROUTING with or without bankUUID (default bankUUID used to be 1)
 // TODO(giregk): remove default group id routes in 2026
 
+app.get('/:bankUUID/', (req, res) => {
+  return res
+    .status(303)
+    .redirect(
+      `https://app.upsignon.eu/pro-setup?uri=${encodeURIComponent(`https://${req.hostname}${req.originalUrl}`)}`,
+    );
+});
 // API 2
 // BANK
 app.all(['/:bankUUID/api2/bank-config', '/api2/bank-config'], getBankConfig);
