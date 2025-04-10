@@ -21,7 +21,7 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
       // this is the deprecated integer group id
       internalId = intId;
     } else if (typeof rawId !== 'string' || rawId.length != 36) {
-      throw 'Bad groupId in req.params: ' + rawId;
+      throw new Error('Bad groupId in req.params: ' + rawId);
     } else {
       publicId = rawId;
     }
@@ -38,14 +38,14 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
       usesDeprecatedIntId = true;
       publicId = gRes.rows[0].public_id;
     } else {
-      throw `Group id ${internalId} not found.`;
+      throw new Error(`Group id ${internalId} not found.`);
     }
   } else {
     const gRes = await db.query('SELECT id FROM groups WHERE public_id=$1', [publicId]);
     if (gRes.rows.length === 1) {
       internalId = gRes.rows[0].id;
     } else {
-      throw `Group public id ${publicId} not found.`;
+      throw new Error(`Group public id ${publicId} not found.`);
     }
   }
 
