@@ -128,8 +128,8 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       deviceSession,
       allowedOffline: resultSettings?.allowed_offline,
       allowedToExport: resultSettings?.allowed_to_export,
-      defaultAutolockDelay: inputSanitizer.getNumberOrNull(resultSettings?.defaultAutolockDelay),
-      maxAutolockDelay: inputSanitizer.getNumberOrNull(resultSettings?.maxAutolockDelay),
+      defaultAutolockDelay: resultSettings?.defaultAutolockDelay,
+      maxAutolockDelay: resultSettings?.maxAutolockDelay,
     });
   } catch (e) {
     logError(req.body?.userEmail, 'addNewData2', e);
