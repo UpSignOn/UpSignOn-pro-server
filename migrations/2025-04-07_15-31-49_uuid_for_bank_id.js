@@ -1,7 +1,9 @@
 //2025-04-07_15-31-49_uuid_for_bank_id
 
 exports.up = async function (db) {
-  await db.query('CREATE EXTENSION pgcrypto IF NOT EXISTS');
+  // su - postgres
+  // psql upsignonpro
+  // CREATE EXTENSION pgcrypto IF NOT EXISTS
   await db.query(
     'ALTER TABLE groups ADD COLUMN IF NOT EXISTS public_id UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE',
   );
