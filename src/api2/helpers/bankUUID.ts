@@ -15,15 +15,15 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
   if (typeof rawId === 'undefined' || rawId == null || rawId === 'undefined') {
     // this is the deprecated default integer group id 1
     internalId = 1;
+  } else if (rawId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)) {
+    publicId = rawId;
   } else {
     const intId = Number.parseInt(rawId);
     if (!Number.isNaN(intId)) {
       // this is the deprecated integer group id
       internalId = intId;
-    } else if (typeof rawId !== 'string' || rawId.length != 36) {
-      throw new Error('Bad groupId in req.params: ' + rawId);
     } else {
-      publicId = rawId;
+      throw new Error('Bad groupId in req.params: ' + rawId);
     }
   }
 
