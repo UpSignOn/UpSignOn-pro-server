@@ -88,10 +88,11 @@ app.post('/licences', (req, res) => {
 // TODO(giregk): remove default group id routes in 2026
 
 app.get('/:bankUUID/', (req, res) => {
+  var hostname = env.API_PUBLIC_HOSTNAME.replace(/\/$/, '');
   return res
     .status(303)
     .redirect(
-      `https://app.upsignon.eu/pro-setup?uri=${encodeURIComponent(`https://${req.hostname}${req.originalUrl}`)}`,
+      `https://app.upsignon.eu/pro-setup?url=${encodeURIComponent(`https://${hostname}${req.originalUrl}`)}`,
     );
 });
 // API 2
