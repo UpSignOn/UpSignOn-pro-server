@@ -17,14 +17,10 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
     internalId = 1;
   } else if (rawId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)) {
     publicId = rawId;
+  } else if (rawId.match(/^[1-9][0-9]{0,3}$/)) {
+    internalId = Number.parseInt(rawId);
   } else {
-    const intId = Number.parseInt(rawId);
-    if (!Number.isNaN(intId)) {
-      // this is the deprecated integer group id
-      internalId = intId;
-    } else {
-      throw new Error('Bad groupId in req.params: ' + rawId);
-    }
+    throw new Error('Bad groupId in req.params: ' + rawId);
   }
 
   if (internalId != null) {
