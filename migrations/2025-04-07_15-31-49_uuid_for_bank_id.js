@@ -3,7 +3,7 @@
 exports.up = async function (db) {
   // su - postgres
   // psql upsignonpro
-  // CREATE EXTENSION pgcrypto IF NOT EXISTS
+  // CREATE EXTENSION pgcrypto;
   await db.query(
     'ALTER TABLE groups ADD COLUMN IF NOT EXISTS public_id UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE',
   );
