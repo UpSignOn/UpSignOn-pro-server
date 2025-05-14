@@ -34,7 +34,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+).([a-zA-Z]{2,5})$/g;
+    const emailRegex = /^([a-zA-Z0-9_\-\.+]+)@([a-zA-Z0-9_\-\.]+).([a-zA-Z]{2,5})$/g;
     if (!userEmail || !emailRegex.test(userEmail)) {
       logInfo(req.body?.userEmail, 'requestDeviceAccess2 fail: not a valid email');
       return res.status(400).end();
