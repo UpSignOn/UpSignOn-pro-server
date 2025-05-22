@@ -49,6 +49,8 @@ import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaDat
 import { logEvent } from './api2/routes/audit/logEvent';
 import libsodium from 'libsodium-wrappers';
 import { updateLicences } from './licences';
+import { getBrowserSetupPreference } from './api2/routes/browserSetupSecurity/getBrowserSetupPreference';
+import { setBrowserSetupUserPreference } from './api2/routes/browserSetupSecurity/setBrowserSetupUserPreference';
 
 const app = express();
 
@@ -208,6 +210,10 @@ app.post(
   ],
   removeRecipientsFromSharedVault,
 );
+
+// BROWSER SETUP SAFE/UNSAFE CONFIG
+app.post('/:bankUUID/api2/get-browser-setup-preference', getBrowserSetupPreference);
+app.post('/:bankUUID/api2/set-browser-setup-preference', setBrowserSetupUserPreference);
 
 if (module === require.main) {
   runMigrations()
