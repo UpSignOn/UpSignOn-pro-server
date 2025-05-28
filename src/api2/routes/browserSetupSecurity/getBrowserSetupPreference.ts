@@ -14,11 +14,11 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
 
     // Check params
     if (!userEmail) {
-      logInfo(req.body?.userEmail, 'getUserBrowserSetupPreference fail: missing userEmail');
+      logInfo(req.body?.userEmail, 'getBrowserSetupPreference fail: missing userEmail');
       return res.status(403).end();
     }
     if (!deviceId) {
-      logInfo(req.body?.userEmail, 'getUserBrowserSetupPreference fail: missing deviceId');
+      logInfo(req.body?.userEmail, 'getBrowserSetupPreference fail: missing deviceId');
       return res.status(403).end();
     }
 

@@ -29,7 +29,7 @@ export const setBrowserSetupUserPreference = async (req: any, res: any) => {
 
     return res.status(200).end();
   } catch (e) {
-    logError(req.body?.userEmail, 'setUserBrowserSetupPreference', e);
+    logError(req.body?.userEmail, 'setBrowserSetupUserPreference', e);
     return res.status(400).end();
   }
 };
