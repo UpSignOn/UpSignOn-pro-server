@@ -4,4 +4,6 @@ exports.up = function (db) {
   return db.query('ALTER TABLE user_devices ADD COLUMN IF NOT EXISTS use_safe_browser_setup BOOL');
 };
 
-exports.down = function (db) {};
+exports.down = function (db) {
+  return db.query('ALTER TABLE user_devices DROP COLUMN IF EXISTS use_safe_browser_setup');
+};
