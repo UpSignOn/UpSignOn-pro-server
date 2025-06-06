@@ -1646,8 +1646,8 @@ mkdirp@^1.0.3:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 "ms-entra-for-upsignon@git+https://github.com/UpSignOn/ms-entra-for-upsignon":
-  version "1.0.0"
-  resolved "git+https://github.com/UpSignOn/ms-entra-for-upsignon#5fd1a55468e969e5c09cbed4e178aabd2f6a4c19"
+  version "1.0.1"
+  resolved "git+https://github.com/UpSignOn/ms-entra-for-upsignon#55a0fa818578c7e9527d517ef4210d4a714a3604"
   dependencies:
     "@azure/identity" "^4.5.0"
     "@microsoft/microsoft-graph-client" "^3.0.7"
