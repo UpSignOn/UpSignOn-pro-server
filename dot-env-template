@@ -24,7 +24,7 @@ API_PUBLIC_HOSTNAME=upsignonpro.votre-domaine.fr
 SESSION_SECRET=
 
 # EMAILS
-USE_POSTFIX=true
+USE_POSTFIX=false
 # this sending mail hostname must match your DKIM configuration if used
 SENDING_MAIL=ne-pas-repondre@upsignonpro.votre-domaine.fr
 DKIM_KEY_SELECTOR=uso1
