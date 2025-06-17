@@ -50,12 +50,12 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
         userUseSafeBrowserSetup = true;
       }
       if (
-        d.group_settings.ALLOW_UNSAFE_BROWSER_SETUP &&
-        d.user_settings_override.ALLOW_UNSAFE_BROWSER_SETUP !== false
+        d.group_settings?.ALLOW_UNSAFE_BROWSER_SETUP &&
+        d.user_settings_override?.ALLOW_UNSAFE_BROWSER_SETUP !== false
       ) {
         // allowed globally and not disallowed specifically for this user
         adminUseUnsafeBrowserSetup = true;
-      } else if (d.user_settings_override.ALLOW_UNSAFE_BROWSER_SETUP) {
+      } else if (d.user_settings_override?.ALLOW_UNSAFE_BROWSER_SETUP) {
         // allowed specifically for this user
         adminUseUnsafeBrowserSetup = true;
       }

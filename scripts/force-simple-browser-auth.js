@@ -8,7 +8,7 @@ async function forceSimpleBrowserAuth() {
     for (let i = 0; i < groups.rows.length; i++) {
       let g = groups.rows[i];
       let settings = g.settings || {};
-      settings.ALLOW_UNSAFE_BROWSER_SETUP = true;
+      settings?.ALLOW_UNSAFE_BROWSER_SETUP = true;
       await db.query('UPDATE groups SET settings=$1 WHERE id=$2', [settings, g.id]);
     }
     await db.release();
