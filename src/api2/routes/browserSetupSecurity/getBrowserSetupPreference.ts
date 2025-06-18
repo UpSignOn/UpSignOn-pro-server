@@ -40,8 +40,9 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
       [userEmail, deviceId, groupIds.internalId],
     );
 
-    var adminUseUnsafeBrowserSetup = false;
+    var adminUseUnsafeBrowserSetup = true; // deprecated
     var userUseSafeBrowserSetup = false;
+    var adminForceSafeBrowserSetup = false;
 
     if (dbRes.rowCount === 1) {
       const d = dbRes.rows[0];
@@ -50,18 +51,17 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
         userUseSafeBrowserSetup = true;
       }
       if (
-        d.group_settings?.ALLOW_UNSAFE_BROWSER_SETUP &&
-        d.user_settings_override?.ALLOW_UNSAFE_BROWSER_SETUP !== false
+        d.group_settings?.FORCE_SAFE_BROWSER_SETUP ||
+        d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP
       ) {
-        // allowed globally and not disallowed specifically for this user
-        adminUseUnsafeBrowserSetup = true;
-      } else if (d.user_settings_override?.ALLOW_UNSAFE_BROWSER_SETUP) {
-        // allowed specifically for this user
-        adminUseUnsafeBrowserSetup = true;
+        // forced globally or specifically for this user
+        adminForceSafeBrowserSetup = true;
       }
     }
 
-    return res.status(200).json({ adminUseUnsafeBrowserSetup, userUseSafeBrowserSetup });
+    return res
+      .status(200)
+      .json({ adminUseUnsafeBrowserSetup, userUseSafeBrowserSetup, adminForceSafeBrowserSetup });
   } catch (e) {
     logError(req.body?.userEmail, 'getBrowserSetupPreference', e);
     return res.status(400).end();
