@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
+const dotEnvPath = path.join(__dirname, '.env');
+require('dotenv').config({ path: dotEnvPath });
 
 module.exports = {
   apps: [
@@ -16,7 +18,8 @@ module.exports = {
       autorestart: true,
       min_uptime: 1000,
       env: {
-        NODE_ENV: 'production',
+        // prevent pm2 override of NODE_ENV
+        NODE_ENV: process.env.NODE_ENV,
       },
     },
   ],
