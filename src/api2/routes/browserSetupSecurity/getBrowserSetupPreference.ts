@@ -51,11 +51,13 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
         userUseSafeBrowserSetup = true;
       }
       if (
-        d.group_settings?.FORCE_SAFE_BROWSER_SETUP ||
-        d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP
+        d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP === true ||
+        d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP === false
       ) {
-        // forced globally or specifically for this user
-        adminForceSafeBrowserSetup = true;
+        // forced specifically for this user
+        adminForceSafeBrowserSetup = !!d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP;
+      } else {
+        adminForceSafeBrowserSetup = !!d.group_settings?.FORCE_SAFE_BROWSER_SETUP;
       }
     }
 
