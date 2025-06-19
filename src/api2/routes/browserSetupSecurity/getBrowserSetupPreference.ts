@@ -40,9 +40,9 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
       [userEmail, deviceId, groupIds.internalId],
     );
 
-    var adminUseUnsafeBrowserSetup = true; // deprecated
-    var userUseSafeBrowserSetup = false;
-    var adminForceSafeBrowserSetup = false;
+    const adminUseUnsafeBrowserSetup = true; // deprecated
+    let userUseSafeBrowserSetup = false;
+    let adminForceSafeBrowserSetup = false;
 
     if (dbRes.rowCount === 1) {
       const d = dbRes.rows[0];
