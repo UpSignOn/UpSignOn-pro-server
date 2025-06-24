@@ -58,8 +58,16 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.disable('x-powered-by');
-app.use(express.json({ limit: '3Mb' }));
+app.use(express.json({ limit: '5Mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+app.use((err: any, req: any, res: any, next: any) => {
+  if (err.type === 'entity.too.large') {
+    logInfo(`Request body too large (${err.length ?? 'unknown'} bytes) when calling ${req.url}.`);
+    return res.sendStatus(413).end();
+  }
+  next(err);
+});
 
 // SESSIONS
 if (!env.SESSION_SECRET) {
