@@ -60,7 +60,7 @@
     "@typespec/ts-http-runtime" "^0.2.2"
     tslib "^2.6.2"
 
-"@azure/identity@^4.10.0":
+"@azure/identity@^4.10.1":
   version "4.10.1"
   resolved "https://registry.yarnpkg.com/@azure/identity/-/identity-4.10.1.tgz#6ce1e7b367d2eb6680d0efa5817382aafcd86f05"
   integrity sha512-YM/z6RxRtFlXUH2egAYF/FDPes+MUE6ZoknjEdaq7ebJMMNUzn9zCJ3bd2ZZZlkP0r1xKa88kolhFH/FGV7JnA==
@@ -1462,10 +1462,10 @@ minimatch@^9.0.4:
     brace-expansion "^2.0.1"
 
 "ms-entra-for-upsignon@git+https://github.com/UpSignOn/ms-entra-for-upsignon":
-  version "1.0.1"
-  resolved "git+https://github.com/UpSignOn/ms-entra-for-upsignon#4926e79d18e80c5255f7181b68f020a05c58bd25"
+  version "1.0.2"
+  resolved "git+https://github.com/UpSignOn/ms-entra-for-upsignon#2ce37e7879f5ddb2c84ebaab1b53106c55ea447b"
   dependencies:
-    "@azure/identity" "^4.10.0"
+    "@azure/identity" "^4.10.1"
     "@microsoft/microsoft-graph-client" "^3.0.7"
 
 ms@^2.1.1, ms@^2.1.3:
