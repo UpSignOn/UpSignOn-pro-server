@@ -6,9 +6,26 @@ import { getGroupIds } from '../../helpers/bankUUID';
 export const getBankConfig = async (req: any, res: any): Promise<void> => {
   try {
     const groupIds = await getGroupIds(req);
-    const groupRes = await db.query('SELECT name, redirect_url, settings FROM groups WHERE id=$1', [
-      groupIds.internalId,
-    ]);
+    const groupRes = await db.query(
+      `SELECT
+        g.name,
+        g.redirect_url,
+        g.settings,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'openid_configuration_url', sso.openid_configuration_url,
+              'client_id', sso.client_id
+            )
+          ) FILTER (WHERE sso.id IS NOT NULL),
+          '[]'
+        ) AS sso_configs
+      FROM groups AS g
+      LEFT JOIN bank_sso_config AS sso ON sso.bank_id = g.id
+      WHERE g.id = $1
+      GROUP BY g.id`,
+      [groupIds.internalId],
+    );
     if (groupRes.rowCount === 0) {
       logInfo(req.body?.userEmail, 'getBankConfig fail: bad group');
       return res.status(400).end();
@@ -22,6 +39,7 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
           : null),
       bankName: groupRes.rows[0].name,
       preventUpdatePopup: groupRes.rows[0]?.settings?.PREVENT_UPDATE_POPUP || false,
+      ssoConfigs: groupRes.rows[0]?.sso_configs,
     });
   } catch (e) {
     logError('getBankConfig', e);
