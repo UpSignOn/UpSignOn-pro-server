@@ -14,7 +14,15 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     }
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupIds = await getGroupIds(req);
+
+    let groupIds;
+    try {
+      groupIds = await getGroupIds(req);
+    } catch (e) {
+      // bank may have been deleted, we need to send a revoked_by_admin response
+      logError(req.body?.userEmail, 'getAuthenticationChallenges2', e);
+      return res.status(403).json({ error: 'revoked_by_admin' });
+    }
 
     if (!userEmail || !deviceId) {
       logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
