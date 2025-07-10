@@ -20,7 +20,14 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     if (!IS_ACTIVE) {
       return res.status(403);
     }
-    const groupIds = await getGroupIds(req);
+    let groupIds;
+    try {
+      groupIds = await getGroupIds(req);
+    } catch (e) {
+      // bank may have been deleted, we need to send a revoked_by_admin response
+      logError(req.body?.userEmail, 'getVaultData', e);
+      return res.status(403).json({ error: 'revoked_by_admin' });
+    }
 
     // Get params
     const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
