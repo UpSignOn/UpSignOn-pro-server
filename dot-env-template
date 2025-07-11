@@ -42,3 +42,5 @@ HTTP_PROXY=
 #  - Do not forget to chmod 400 these files
 LOCALHOST_SSL_CERTIFICATE_KEY_PATH=
 LOCALHOST_SSL_CERTIFICATE_CRT_PATH=
+
+NODE_ENV=production
