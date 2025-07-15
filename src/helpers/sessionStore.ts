@@ -57,24 +57,26 @@ async function createOpenIdSession(
   const newSessionId = uuidv4();
   const sessionDataString = JSON.stringify(sessionData);
 
-  let expDate;
   if (expirationTimestamp) {
-    expDate = new Date(expirationTimestamp * 1000);
+    // Utiliser PostgreSQL pour gérer l'expiration basée sur le timestamp fourni
+    await db.query(
+      `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3))`,
+      [newSessionId, sessionDataString, expirationTimestamp],
+    );
   } else {
-    expDate = new Date();
-    expDate.setTime(expDate.getTime() + 3600 * 1000);
+    // Utiliser PostgreSQL pour gérer l'expiration par défaut (1 heure)
+    await db.query(
+      `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, current_timestamp(0)+interval '1 hour')`,
+      [newSessionId, sessionDataString],
+    );
   }
-  const expirationIso = expDate.toISOString().replace('T', ' ').replace('Z', '');
-  await db.query(
-    `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, $3)`,
-    [newSessionId, sessionDataString, expirationIso],
-  );
+
   return getSignedSession(newSessionId);
 }
 
 async function checkSession(
   untrustedSession: string,
-  actualSessionData: SessionData,
+  untrustedSessionData: SessionData,
 ): Promise<boolean> {
   if (typeof untrustedSession !== 'string') return false;
   const sessionId = untrustedSession.split('.')[0];
@@ -89,14 +91,14 @@ async function checkSession(
   }
   const expectedSessionData = res.rows[0].session_data;
   return (
-    expectedSessionData.userEmail === actualSessionData.userEmail &&
-    expectedSessionData.deviceUniqueId === actualSessionData.deviceUniqueId &&
-    expectedSessionData.groupId === actualSessionData.groupId
+    expectedSessionData.userEmail === untrustedSessionData.userEmail &&
+    expectedSessionData.deviceUniqueId === untrustedSessionData.deviceUniqueId &&
+    expectedSessionData.groupId === untrustedSessionData.groupId
   );
 }
 async function checkOpenIdSession(
   untrustedSession: string,
-  actualSessionData: OpenIdSessionData,
+  untrustedSessionData: { userEmail: string; groupId: number },
 ): Promise<boolean> {
   if (typeof untrustedSession !== 'string') return false;
   const sessionId = untrustedSession.split('.')[0];
@@ -111,9 +113,8 @@ async function checkOpenIdSession(
   }
   const expectedSessionData = res.rows[0].session_data;
   return (
-    expectedSessionData.userEmail === actualSessionData.userEmail &&
-    expectedSessionData.accessToken === actualSessionData.accessToken &&
-    expectedSessionData.groupId === actualSessionData.groupId
+    expectedSessionData.userEmail === untrustedSessionData.userEmail &&
+    expectedSessionData.groupId === untrustedSessionData.groupId
   );
 }
 
