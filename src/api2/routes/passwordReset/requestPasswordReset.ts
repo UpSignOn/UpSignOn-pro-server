@@ -6,30 +6,26 @@ import {
   checkDeviceRequestAuthorizationV2,
   createDeviceChallengeV2,
 } from '../../helpers/deviceChallengev2';
-import { inputSanitizer } from '../../../helpers/sanitizer';
 import { getRandomString } from '../../../helpers/randomString';
 import { sendPasswordResetRequestNotificationToAdmins } from '../../../helpers/sendPasswordResetRequestNotificationToAdmins';
 import { getGroupIds } from '../../helpers/bankUUID';
+import Joi from 'joi';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset2 = async (req: any, res: any) => {
   try {
     const groupIds = await getGroupIds(req);
 
-    // Get params
-    const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const deviceId = inputSanitizer.getString(req.body?.deviceId);
-    const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
+    const joiRes = Joi.object({
+      userEmail: Joi.string().email().lowercase().required(),
+      deviceId: Joi.string().required(),
+      deviceChallengeResponse: Joi.string(),
+    }).validate(req.body);
 
-    // Check params
-    if (!userEmail) {
-      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: missing userEmail');
-      return res.status(403).end();
+    if (joiRes.error) {
+      return res.status(400).json({ error: joiRes.error.details });
     }
-    if (!deviceId) {
-      logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: missing deviceId');
-      return res.status(403).end();
-    }
+    const safeBody = joiRes.value;
 
     // Request DB
     const authDbRes = await db.query(
@@ -50,20 +46,20 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         AND user_devices.authorization_status='AUTHORIZED'
         AND user_devices.group_id=$3
       LIMIT 1`,
-      [userEmail, deviceId, groupIds.internalId],
+      [safeBody.userEmail, safeBody.deviceId, groupIds.internalId],
     );
 
     if (!authDbRes || authDbRes.rowCount === 0 || authDbRes.rows[0].deactivated) {
       logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: no such authorized device');
       return res.status(401).end();
     }
-    if (!deviceChallengeResponse) {
+    if (!safeBody.deviceChallengeResponse) {
       const deviceChallenge = await createDeviceChallengeV2(authDbRes.rows[0].did);
       logInfo(req.body?.userEmail, 'requestPasswordReset2 fail: sending device challenge');
       return res.status(403).json({ deviceChallenge });
     }
     const isDeviceAuthorized = await checkDeviceRequestAuthorizationV2(
-      deviceChallengeResponse,
+      safeBody.deviceChallengeResponse,
       authDbRes.rows[0].did,
       authDbRes.rows[0].session_auth_challenge_exp_time,
       authDbRes.rows[0].session_auth_challenge,
@@ -126,7 +122,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         );
       }
       await sendPasswordResetRequestEmail(
-        userEmail,
+        safeBody.userEmail,
         authDbRes.rows[0].device_name,
         randomAuthorizationCode,
         expirationDate,
@@ -145,7 +141,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           [authDbRes.rows[0].did, groupIds.internalId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request created)');
-        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupIds.internalId);
+        await sendPasswordResetRequestNotificationToAdmins(safeBody.userEmail, groupIds.internalId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (
         !resetRequest.reset_token_expiration_date ||
@@ -157,7 +153,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
           [resetRequest.reset_request_id, groupIds.internalId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request updated)');
-        await sendPasswordResetRequestNotificationToAdmins(userEmail, groupIds.internalId);
+        await sendPasswordResetRequestNotificationToAdmins(safeBody.userEmail, groupIds.internalId);
         return res.status(200).json({ resetStatus: 'pending_admin_check' });
       } else if (resetRequest.reset_status === 'PENDING_ADMIN_CHECK') {
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request still pending)');
