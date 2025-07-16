@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { logError } from './logger';
 import env from './env';
+import { isEmailEquivalentTo } from './emailCompare';
 
 type SessionData = {
   userEmail: string;
@@ -113,7 +114,7 @@ async function checkOpenIdSession(
   }
   const expectedSessionData = res.rows[0].session_data;
   return (
-    expectedSessionData.userEmail === untrustedSessionData.userEmail &&
+    isEmailEquivalentTo(expectedSessionData.userEmail, untrustedSessionData.userEmail) &&
     expectedSessionData.groupId === untrustedSessionData.groupId
   );
 }
