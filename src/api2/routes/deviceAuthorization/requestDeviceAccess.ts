@@ -34,7 +34,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     const groupIds = await getGroupIds(req);
 
     const joiRes = Joi.object({
-      userEmail: Joi.string().email().required(),
+      userEmail: Joi.string().email().lowercase().required(),
       deviceId: Joi.string().required(),
       devicePublicKey: Joi.string().required(),
       deviceName: Joi.string().required(),
