@@ -20,12 +20,12 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       groupIds = await getGroupIds(req);
     } catch (e) {
       // bank may have been deleted, we need to send a revoked_by_admin response
-      logError(req.body?.userEmail, 'getAuthenticationChallenges2', e);
+      logError(userEmail, 'getAuthenticationChallenges2', e);
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
 
     if (!userEmail || !deviceId) {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
+      logInfo(userEmail, 'getAuthenticationChallenges2 fail: some parameter was missing');
       return res.status(403).end();
     }
 
@@ -57,10 +57,10 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         [userEmail, groupIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
-        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device deleted');
+        logInfo(userEmail, 'getAuthenticationChallenges2 fail: device deleted');
         return res.status(403).json({ error: 'revoked' });
       } else {
-        logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: email address updated');
+        logInfo(userEmail, 'getAuthenticationChallenges2 fail: email address updated');
         return res.status(403).json({ newEmailAddress: emailChangeRes.rows[0].new_email });
       }
     }
@@ -69,21 +69,18 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       return res.status(400).end();
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_USER') {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: device revoked by user');
+      logInfo(userEmail, 'getAuthenticationChallenges2 fail: device revoked by user');
       return res.status(403).json({ error: 'revoked' });
     }
     if (dbRes.rows[0].authorization_status === 'REVOKED_BY_ADMIN' || dbRes.rows[0].deactivated) {
       logInfo(
-        req.body?.userEmail,
+        userEmail,
         'getAuthenticationChallenges2 fail: device revoked by admin or deactivated',
       );
       return res.status(403).json({ error: 'revoked_by_admin' });
     }
     if (dbRes.rows[0].authorization_status === 'USER_VERIFIED_PENDING_ADMIN_CHECK') {
-      logInfo(
-        req.body?.userEmail,
-        'getAuthenticationChallenges2 fail: device still pending admin check',
-      );
+      logInfo(userEmail, 'getAuthenticationChallenges2 fail: device still pending admin check');
       return res.status(403).json({ error: 'pending_admin_authorization' });
     }
 
@@ -92,13 +89,13 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
       (!dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE ||
         new Date(dbRes.rows[0].group_settings.TESTING_EXPIRATION_DATE) < new Date())
     ) {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: test expired');
+      logInfo(userEmail, 'getAuthenticationChallenges2 fail: test expired');
       return res.status(403).json({ error: 'test_expired' });
     }
 
     if (dbRes.rows[0].authorization_status !== 'AUTHORIZED') {
       logInfo(
-        req.body?.userEmail,
+        userEmail,
         'getAuthenticationChallenges2 fail: device status',
         dbRes.rows[0].authorization_status,
       );
@@ -114,7 +111,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     if (dbRes.rows[0].encrypted_data_2) {
       const passwordChallenge = createPasswordChallengeV2(dbRes.rows[0].encrypted_data_2);
 
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 OK');
+      logInfo(userEmail, 'getAuthenticationChallenges2 OK');
       return res.status(200).json({
         passwordChallenge: passwordChallenge.pwdChallengeBase64,
         passwordDerivationSalt: passwordChallenge.pwdDerivationSaltBase64,
@@ -126,7 +123,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         hasPasswordBackup: !!dbRes.rows[0].encrypted_password_backup_2,
       });
     } else {
-      logInfo(req.body?.userEmail, 'getAuthenticationChallenges2 fail: empty data');
+      logInfo(userEmail, 'getAuthenticationChallenges2 fail: empty data');
       return res.status(403).json({ error: 'empty_data', deviceChallenge });
     }
   } catch (e) {
