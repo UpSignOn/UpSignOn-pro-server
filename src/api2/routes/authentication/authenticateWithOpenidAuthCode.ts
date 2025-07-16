@@ -203,6 +203,12 @@ const fetchOpenIdConfig = async (
         },
       },
       (res) => {
+        if (res.statusCode !== 200) {
+          const errorMessage = `Failed to fetch OpenID configuration. Status code: ${res.statusCode}`;
+          logError('fetchOpenIdConfig', errorMessage);
+          reject(new Error(errorMessage));
+          return;
+        }
         let responseData = '';
         res.on('data', (chunk) => {
           responseData += chunk;
