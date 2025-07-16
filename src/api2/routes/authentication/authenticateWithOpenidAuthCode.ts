@@ -110,7 +110,13 @@ export const authenticateWithOpenidAuthCode = async (req: any, res: any) => {
       return;
     }
 
-    const decodedAccessToken = jwt.decode(tokenJson.access_token);
+    let decodedAccessToken = null;
+    try {
+      decodedAccessToken = jwt.decode(tokenJson.access_token);
+    } catch (e) {
+      // All access token are not necessarily JWT compliant, as documented by Microsoft.
+      // We must not depend on that.
+    }
     const accessTokenExp =
       typeof decodedAccessToken == 'object' && decodedAccessToken?.exp
         ? decodedAccessToken?.exp
