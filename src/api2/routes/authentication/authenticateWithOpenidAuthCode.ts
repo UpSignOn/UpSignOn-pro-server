@@ -168,9 +168,11 @@ export const authenticateWithOpenidAuthCode = async (req: any, res: any) => {
       },
       accessTokenExp,
     );
+    const nonce = typeof decodedIdToken == 'string' ? null : decodedIdToken.nonce;
     res.status(200).json({
       openidSession,
       email: userEmail,
+      nonce,
     });
   } catch (e) {
     logError('authenticateWithOpenidAuthCode', e);
