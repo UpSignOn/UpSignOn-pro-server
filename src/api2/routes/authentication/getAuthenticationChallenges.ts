@@ -4,7 +4,7 @@ import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { IS_ACTIVE } from '../../../helpers/serverStatus';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { BadGroupIdException, getGroupIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
@@ -19,9 +19,12 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     try {
       groupIds = await getGroupIds(req);
     } catch (e) {
-      // bank may have been deleted, we need to send a revoked_by_admin response
-      logError(userEmail, 'getAuthenticationChallenges2', e);
-      return res.status(403).json({ error: 'revoked_by_admin' });
+      if (e instanceof BadGroupIdException) {
+        // bank may have been deleted, we need to send a revoked_by_admin response
+        logError(userEmail, 'getAuthenticationChallenges2', e);
+        return res.status(403).json({ error: 'revoked_by_admin' });
+      }
+      throw e;
     }
 
     if (!userEmail || !deviceId) {

@@ -6,6 +6,8 @@ export type GroupIds = {
   usesDeprecatedIntId: boolean;
 };
 
+export class BadGroupIdException extends Error {}
+
 /// This function transforms uuidv4 group id into integer group id
 /// and maintains backwards compatibility with previous id format
 export const getGroupIds = async (req: any): Promise<GroupIds> => {
@@ -20,7 +22,7 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
   } else if (rawId.match(/^[1-9][0-9]{0,3}$/)) {
     internalId = Number.parseInt(rawId);
   } else {
-    throw new Error('Bad groupId in req.params: ' + rawId);
+    throw new BadGroupIdException('Bad groupId in req.params: ' + rawId);
   }
 
   if (internalId != null) {
@@ -34,14 +36,14 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
       usesDeprecatedIntId = true;
       publicId = gRes.rows[0].public_id;
     } else {
-      throw new Error(`Group id ${internalId} not found.`);
+      throw new BadGroupIdException(`Group id ${internalId} not found.`);
     }
   } else {
     const gRes = await db.query('SELECT id FROM groups WHERE public_id=$1', [publicId]);
     if (gRes.rows.length === 1) {
       internalId = gRes.rows[0].id;
     } else {
-      throw new Error(`Group public id ${publicId} not found.`);
+      throw new BadGroupIdException(`Group public id ${publicId} not found.`);
     }
   }
 
