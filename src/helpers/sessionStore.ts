@@ -3,11 +3,17 @@ import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { logError } from './logger';
 import env from './env';
+import { isEmailEquivalentTo } from './emailCompare';
 
 type SessionData = {
   userEmail: string;
   deviceUniqueId: string;
   groupId: number;
+};
+type OpenIdSessionData = {
+  userEmail: string;
+  groupId: number;
+  accessToken: string;
 };
 
 async function cleanSessions() {
@@ -45,10 +51,33 @@ async function createSession(sessionData: SessionData): Promise<string> {
   );
   return getSignedSession(newSessionId);
 }
+async function createOpenIdSession(
+  sessionData: OpenIdSessionData,
+  expirationTimestamp: number | null,
+): Promise<string> {
+  const newSessionId = uuidv4();
+  const sessionDataString = JSON.stringify(sessionData);
+
+  if (expirationTimestamp) {
+    // Utiliser PostgreSQL pour gérer l'expiration basée sur le timestamp fourni
+    await db.query(
+      `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3))`,
+      [newSessionId, sessionDataString, expirationTimestamp],
+    );
+  } else {
+    // Utiliser PostgreSQL pour gérer l'expiration par défaut (1 heure)
+    await db.query(
+      `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, current_timestamp(0)+interval '1 hour')`,
+      [newSessionId, sessionDataString],
+    );
+  }
+
+  return getSignedSession(newSessionId);
+}
 
 async function checkSession(
   untrustedSession: string,
-  actualSessionData: SessionData,
+  untrustedSessionData: SessionData,
 ): Promise<boolean> {
   if (typeof untrustedSession !== 'string') return false;
   const sessionId = untrustedSession.split('.')[0];
@@ -63,9 +92,30 @@ async function checkSession(
   }
   const expectedSessionData = res.rows[0].session_data;
   return (
-    expectedSessionData.userEmail === actualSessionData.userEmail &&
-    expectedSessionData.deviceUniqueId === actualSessionData.deviceUniqueId &&
-    expectedSessionData.groupId === actualSessionData.groupId
+    expectedSessionData.userEmail === untrustedSessionData.userEmail &&
+    expectedSessionData.deviceUniqueId === untrustedSessionData.deviceUniqueId &&
+    expectedSessionData.groupId === untrustedSessionData.groupId
+  );
+}
+async function checkOpenIdSession(
+  untrustedSession: string,
+  untrustedSessionData: { userEmail: string; groupId: number },
+): Promise<boolean> {
+  if (typeof untrustedSession !== 'string') return false;
+  const sessionId = untrustedSession.split('.')[0];
+  if (untrustedSession !== getSignedSession(sessionId)) return false;
+  // nb do use postgres time manipulation instead of js time to avoid issues with server time
+  const res = await db.query(
+    'SELECT session_data FROM device_sessions WHERE session_id = $1::text AND current_timestamp(0) <= expiration_time',
+    [sessionId],
+  );
+  if (res.rowCount === 0) {
+    return false;
+  }
+  const expectedSessionData = res.rows[0].session_data;
+  return (
+    isEmailEquivalentTo(expectedSessionData.userEmail, untrustedSessionData.userEmail) &&
+    expectedSessionData.groupId === untrustedSessionData.groupId
   );
 }
 
@@ -79,6 +129,8 @@ async function disconnectSession(untrustedSession: string) {
 export const SessionStore = {
   init,
   createSession,
+  createOpenIdSession,
   checkSession,
+  checkOpenIdSession,
   disconnectSession,
 };

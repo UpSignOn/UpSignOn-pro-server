@@ -9,5 +9,4 @@ logs
 *.csr
 *.cer
 !ecosystem.example.config.js
-*vscode/launch.json
 .DS_STORE

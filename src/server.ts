@@ -51,6 +51,7 @@ import libsodium from 'libsodium-wrappers';
 import { updateLicences } from './licences';
 import { getBrowserSetupPreference } from './api2/routes/browserSetupSecurity/getBrowserSetupPreference';
 import { setBrowserSetupUserPreference } from './api2/routes/browserSetupSecurity/setBrowserSetupUserPreference';
+import { authenticateWithOpenidAuthCode } from './api2/routes/authentication/authenticateWithOpenidAuthCode';
 
 const app = express();
 
@@ -124,6 +125,9 @@ app.post(
 );
 app.post(['/:bankUUID/api2/authenticate', '/api2/authenticate'], authenticate2);
 app.post(['/:bankUUID/api2/disconnect', '/api2/disconnect'], disconnect2);
+
+// OPENID
+app.post(['/:bankUUID/api2/authenticate-with-openid-auth-code'], authenticateWithOpenidAuthCode);
 
 // PASSWORD RESET
 app.post(
