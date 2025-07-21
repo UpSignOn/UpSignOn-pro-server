@@ -4,8 +4,9 @@ const { exec } = require('child_process');
 exports.up = async function (db) {
   await new Promise((resolve, reject) => {
     const dbName = process.env.DB_NAME;
+    const dbHost = process.env.DB_HOST;
     exec(
-      `/usr/bin/pg_dump ${dbName} > ~/backup_before_v5_deletion.sql`,
+      `/usr/bin/pg_dump ${dbName} -h ${dbHost}> ~/backup_before_v5_deletion.sql`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`error: ${error.message}`);
