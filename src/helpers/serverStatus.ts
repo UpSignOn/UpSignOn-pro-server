@@ -152,7 +152,7 @@ const sendToUpSignOn = (status: any) => {
   } else {
     const options = {
       hostname: 'localhost',
-      port: 8080,
+      port: 3002,
       path: '/pro-status',
       method: 'POST',
       headers: {
