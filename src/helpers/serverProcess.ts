@@ -34,7 +34,7 @@ export const startServer = (app: any, then: any): void => {
       key: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH),
       cert: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_CRT_PATH),
     };
-    const server = https.createServer(options, app).listen(env.SERVER_PORT, () => {
+    const server = https.createServer(options, app).listen(env.SERVER_PORT || 3000, () => {
       logInfo(
         `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server listening`,
         server.address(),
@@ -44,7 +44,7 @@ export const startServer = (app: any, then: any): void => {
     listenForGracefulShutdown(server);
   } else {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const server = app.listen(env.SERVER_PORT, () => {
+    const server = app.listen(env.SERVER_PORT || 3000, () => {
       logInfo(
         `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server listening`,
         server.address(),
