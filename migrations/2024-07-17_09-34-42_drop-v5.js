@@ -5,8 +5,9 @@ exports.up = async function (db) {
   await new Promise((resolve, reject) => {
     const dbName = process.env.DB_NAME;
     const dbHost = process.env.DB_HOST;
+    const dbPwd = process.env.DB_PASS;
     exec(
-      `/usr/bin/pg_dump ${dbName} -h ${dbHost}> ~/backup_before_v5_deletion.sql`,
+      `PGPASSWORD=${dbPwd} /usr/bin/pg_dump ${dbName} -h ${dbHost} > ~/backup_before_v5_deletion.sql`,
       (error, stdout, stderr) => {
         if (error) {
           console.error(`error: ${error.message}`);
