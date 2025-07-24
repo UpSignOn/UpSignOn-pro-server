@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import https from 'https';
 import jwt, { GetPublicKeyOrSecret, JwtPayload } from 'jsonwebtoken';
 import { URLSearchParams } from 'url';
 import { logError } from '../../../helpers/logger';
@@ -192,43 +191,26 @@ const fetchOpenIdConfig = async (
   jwks_uri: string;
   id_token_signing_alg_values_supported: jwt.Algorithm[];
 }> => {
-  return new Promise((resolve, reject) => {
-    const configUri = new URL(openid_configuration_url);
-    const openidConfigReq = https.request(
-      configUri,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  try {
+    const response = await fetch(openid_configuration_url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      (res) => {
-        if (res.statusCode !== 200) {
-          const errorMessage = `Failed to fetch OpenID configuration. Status code: ${res.statusCode}`;
-          logError('fetchOpenIdConfig', errorMessage);
-          reject(new Error(errorMessage));
-          return;
-        }
-        let responseData = '';
-        res.on('data', (chunk) => {
-          responseData += chunk;
-        });
-        res.on('end', () => {
-          try {
-            const json = JSON.parse(responseData);
-            resolve(json);
-          } catch (err) {
-            reject(err);
-          }
-        });
-      },
-    );
-    openidConfigReq.on('error', (error) => {
-      logError('fetchOpenIdConfig error', error);
-      reject();
     });
-    openidConfigReq.end();
-  });
+
+    if (!response.ok) {
+      const errorMessage = `Failed to fetch OpenID configuration. Status code: ${response.status}`;
+      logError('fetchOpenIdConfig', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    logError('fetchOpenIdConfig error', error);
+    throw error;
+  }
 };
 
 type AccessTokenType = {
@@ -248,7 +230,7 @@ const postTokenEndpoint = async (params: {
   redirect_uri: string;
   code_verifier: string;
 }): Promise<AccessTokenType> => {
-  return new Promise((resolve, reject) => {
+  try {
     const searchParams = new URLSearchParams({
       client_id: params.client_id,
       scope: params.scope,
@@ -258,36 +240,22 @@ const postTokenEndpoint = async (params: {
       code_verifier: params.code_verifier,
     });
 
-    const options = {
+    const response = await fetch(params.token_endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': searchParams.toString().length,
       },
-    };
-
-    const tokenReq = https.request(params.token_endpoint, options, (tokenRes) => {
-      let responseData = '';
-      tokenRes.on('data', (chunk) => {
-        responseData += chunk;
-      });
-      tokenRes.on('end', () => {
-        try {
-          const json = JSON.parse(responseData);
-          resolve(json);
-        } catch (err) {
-          logError('postTokenEndpoint', err);
-          reject('Invalid JSON response from IDP');
-        }
-      });
+      body: searchParams.toString(),
     });
 
-    tokenReq.on('error', (error: any) => {
-      logError('postTokenEndpoint', error);
-      reject('Error with IDP');
-    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    tokenReq.write(searchParams.toString());
-    tokenReq.end();
-  });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    logError('postTokenEndpoint', error);
+    throw new Error('Error with IDP');
+  }
 };
