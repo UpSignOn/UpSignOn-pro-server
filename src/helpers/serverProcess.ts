@@ -29,6 +29,7 @@ async function cronjob(randomDelay: number) {
 
 export const startServer = (app: any, then: any): void => {
   setupMSGraph();
+  const serverEnv = process.env.NODE_ENV === 'production' ? 'Production' : 'Dev';
   if (env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH && env.LOCALHOST_SSL_CERTIFICATE_CRT_PATH) {
     const options = {
       key: fs.readFileSync(env.LOCALHOST_SSL_CERTIFICATE_KEY_PATH),
@@ -37,15 +38,10 @@ export const startServer = (app: any, then: any): void => {
     const server = https.createServer(options, app).listen(env.SERVER_PORT, () => {
       const address = server.address();
       if (!address) {
-        logError(
-          `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server COULD NOT START`,
-        );
+        logError(`${serverEnv} server COULD NOT START`);
         return;
       }
-      logInfo(
-        `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server listening`,
-        server.address(),
-      );
+      logInfo(`${serverEnv} server listening`, server.address());
       then();
     });
     listenForGracefulShutdown(server);
@@ -54,15 +50,10 @@ export const startServer = (app: any, then: any): void => {
     const server = app.listen(env.SERVER_PORT, () => {
       const address = server.address();
       if (!address) {
-        logError(
-          `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server COULD NOT START`,
-        );
+        logError(`${serverEnv} server COULD NOT START`);
         return;
       }
-      logInfo(
-        `${process.env.NODE_ENV === 'production' ? 'Production' : 'Dev'} server listening `,
-        address,
-      );
+      logInfo(`${serverEnv} server listening `, address);
     });
     listenForGracefulShutdown(server);
   }
