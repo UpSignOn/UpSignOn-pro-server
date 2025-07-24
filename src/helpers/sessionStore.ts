@@ -44,7 +44,7 @@ function getSignedSession(sessionId: string): string {
 async function createSession(sessionData: SessionData): Promise<string> {
   const newSessionId = uuidv4();
   const sessionDataString = JSON.stringify(sessionData);
-  // nb do use postgres time manipulation instead of js time to avoid issues with server time
+  // NB: do use postgres time manipulation instead of js time to avoid issues with server time
   await db.query(
     `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, current_timestamp(0)+interval '1 hour')`,
     [newSessionId, sessionDataString],
@@ -59,13 +59,12 @@ async function createOpenIdSession(
   const sessionDataString = JSON.stringify(sessionData);
 
   if (expirationTimestamp) {
-    // Utiliser PostgreSQL pour gérer l'expiration basée sur le timestamp fourni
     await db.query(
       `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3))`,
       [newSessionId, sessionDataString, expirationTimestamp],
     );
   } else {
-    // Utiliser PostgreSQL pour gérer l'expiration par défaut (1 heure)
+    // NB: do use postgres time manipulation instead of js time to avoid issues with server time
     await db.query(
       `INSERT INTO device_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, current_timestamp(0)+interval '1 hour')`,
       [newSessionId, sessionDataString],
