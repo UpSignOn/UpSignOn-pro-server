@@ -11,7 +11,10 @@ import { SessionStore } from '../../../helpers/sessionStore';
 
 import { Request, Response } from 'express';
 
-export const authenticateWithOpenidAuthCode = async (req: Request, res: Response) => {
+export const authenticateWithOpenidAuthCode = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const safeBody: {
       openidConfigurationUrl: string;
@@ -156,9 +159,8 @@ export const authenticateWithOpenidAuthCode = async (req: Request, res: Response
         groupIds.internalId,
       );
       if (emailAuthStatus == 'UNAUTHORIZED') {
-        return res
-          .status(400)
-          .json({ error: 'User is SSO authenticated but not allowed on this bank.' });
+        res.status(400).json({ error: 'User is SSO authenticated but not allowed on this bank.' });
+        return;
       }
     }
 
