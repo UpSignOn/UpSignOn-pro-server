@@ -3,8 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { db } from './db';
 import childProcess from 'child_process';
-import https from 'https';
-import http from 'http';
 import { logError } from './logger';
 
 export const sendStatusUpdate = async (): Promise<void> => {
@@ -40,7 +38,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       deviceStats,
     };
 
-    sendToUpSignOn(serverStatus);
+    await sendToUpSignOn(serverStatus);
   } catch (e) {
     logError('sendStatusUpdate', e);
   }
@@ -133,43 +131,28 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
   };
 };
 
-const sendToUpSignOn = (status: any) => {
-  const dataString = JSON.stringify(status);
+const sendToUpSignOn = async (status: any) => {
+  try {
+    const url = env.IS_PRODUCTION
+      ? 'https://app.upsignon.eu/pro-status'
+      : 'http://localhost:8080/pro-status';
 
-  let req;
-  if (env.IS_PRODUCTION) {
-    const options = {
-      hostname: 'app.upsignon.eu',
-      port: 443,
-      path: '/pro-status',
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-    };
+      body: JSON.stringify(status),
+    });
 
-    req = https.request(options, () => {});
-  } else {
-    const options = {
-      hostname: 'localhost',
-      port: 8080,
-      path: '/pro-status',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    req = http.request(options, () => {});
-  }
-
-  req.on('error', (error) => {
+    console.log('Sent status');
+  } catch (error) {
     logError('sendToUpSignOn', error);
-  });
-
-  req.write(dataString);
-  req.end();
-  console.log('Sent status');
+  }
 };
 
 const getStatsByGroup = async () => {
@@ -216,49 +199,30 @@ const getHasDailyBackup = () => {
 };
 
 const fetchActivationStatus = async (): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    const dataString = JSON.stringify({ url: env.API_PUBLIC_HOSTNAME });
-
-    let req;
-    if (env.IS_PRODUCTION) {
-      const options = {
-        hostname: 'app.upsignon.eu',
-        port: 443,
-        path: '/pro-activation-status',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-
-      req = https.request(options, (res) => {
-        let body = '';
-        res.setEncoding('utf8');
-        res.on('data', (data) => {
-          body += data;
-        });
-        res.on('end', () => {
-          try {
-            const resBody = JSON.parse(body);
-            resolve(!!resBody.isActive);
-          } catch (e) {
-            console.error(`Error ${e}\with body\n${body}`);
-            reject(e);
-          }
-        });
-      });
-      req.on('error', (error) => {
-        logError('getActivationStatus', error);
-        reject();
-      });
-
-      req.write(dataString);
-      req.end();
-      console.log('Get Activation status');
-    } else {
-      resolve(true);
+  try {
+    if (!env.IS_PRODUCTION) {
+      return true;
     }
-  });
+
+    const response = await fetch('https://app.upsignon.eu/pro-activation-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: env.API_PUBLIC_HOSTNAME }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const resBody = await response.json();
+    console.log('Get Activation status');
+    return !!resBody.isActive;
+  } catch (e) {
+    logError('getActivationStatus', e);
+    throw e;
+  }
 };
 
 export let IS_ACTIVE: boolean = false;
