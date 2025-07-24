@@ -228,8 +228,8 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         safeBody.deviceName,
         safeBody.deviceType,
         safeBody.osNameAndVersion,
-        randomAuthorizationCode!,
-        new Date(expirationDate!),
+        randomAuthorizationCode,
+        new Date(expirationDate),
       );
 
       logInfo(safeBody.userEmail, 'requestDeviceAccess2 OK (email sent with new code)');
