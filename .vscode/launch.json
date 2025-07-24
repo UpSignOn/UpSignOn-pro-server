@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Lancer le serveur en debug (TypeScript)",
+      "name": "Launch the server in debug mode (TypeScript)",
       "program": "${workspaceFolder}/src/server.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/compiled/**/*.js"],
