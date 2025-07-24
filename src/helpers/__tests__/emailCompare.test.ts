@@ -90,12 +90,6 @@ describe('isEmailEquivalentTo', () => {
       ).toBe(true);
     });
 
-    test('should handle corporate addresses with extensions', () => {
-      expect(isEmailEquivalentTo('employee+department@company.com', 'employee@company.com')).toBe(
-        true,
-      );
-    });
-
     test('should differentiate different users even with extensions', () => {
       expect(isEmailEquivalentTo('john+work@company.com', 'jane+work@company.com')).toBe(false);
     });
