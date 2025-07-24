@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import jwt, { GetPublicKeyOrSecret, JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { URLSearchParams } from 'url';
 import { logError } from '../../../helpers/logger';
 import { db } from '../../../helpers/db';
@@ -9,7 +9,9 @@ import { getGroupIds } from '../../helpers/bankUUID';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 import { SessionStore } from '../../../helpers/sessionStore';
 
-export const authenticateWithOpenidAuthCode = async (req: any, res: any) => {
+import { Request, Response } from 'express';
+
+export const authenticateWithOpenidAuthCode = async (req: Request, res: Response) => {
   try {
     const safeBody: {
       openidConfigurationUrl: string;
@@ -114,6 +116,7 @@ export const authenticateWithOpenidAuthCode = async (req: any, res: any) => {
       decodedAccessToken = jwt.decode(tokenJson.access_token);
     } catch (e) {
       // All access token are not necessarily JWT compliant, as documented by Microsoft.
+      // See the warning on this page : https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc#successful-token-response
       // We must not depend on that.
     }
     const accessTokenExp =
