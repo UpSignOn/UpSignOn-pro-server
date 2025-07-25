@@ -22,6 +22,7 @@ export const authenticateWithOpenidAuthCode = async (
       authCode: string;
       redirectUri: string;
       codeVerifier: string;
+      nonce: string;
     } = Joi.attempt(
       req.body,
       Joi.object({
@@ -30,6 +31,7 @@ export const authenticateWithOpenidAuthCode = async (
         authCode: Joi.string().required(),
         redirectUri: Joi.string().required(),
         codeVerifier: Joi.string().required(),
+        nonce: Joi.string().required(),
       }),
     );
 
@@ -114,6 +116,11 @@ export const authenticateWithOpenidAuthCode = async (
       return;
     }
 
+    if (typeof decodedIdToken === 'object' && decodedIdToken.nonce !== safeBody.nonce) {
+      res.status(400).json({ error: 'Invalid nonce' });
+      return;
+    }
+
     let decodedAccessToken = null;
     try {
       decodedAccessToken = jwt.decode(tokenJson.access_token);
@@ -172,11 +179,10 @@ export const authenticateWithOpenidAuthCode = async (
       },
       accessTokenExp,
     );
-    const nonce = typeof decodedIdToken == 'string' ? null : decodedIdToken.nonce;
+
     res.status(200).json({
       openidSession,
       email: userEmail,
-      nonce,
     });
   } catch (e) {
     logError('authenticateWithOpenidAuthCode', e);
