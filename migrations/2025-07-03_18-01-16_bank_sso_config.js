@@ -2,7 +2,7 @@
 
 exports.up = function (db) {
   return db.query(
-    'CREATE TABLE IF NOT EXISTS bank_sso_config (id SERIAL PRIMARY KEY, bank_id INT, openid_configuration_url VARCHAR, client_id VARCHAR, CONSTRAINT fk_bank_id FOREIGN KEY(bank_id) REFERENCES groups(id))',
+    'CREATE TABLE IF NOT EXISTS bank_sso_config (id SERIAL PRIMARY KEY, bank_id INT NOT NULL, openid_configuration_url VARCHAR NOT NULL, client_id VARCHAR NOT NULL, CONSTRAINT fk_bank_id FOREIGN KEY(bank_id) REFERENCES groups(id))',
   );
 };
 
