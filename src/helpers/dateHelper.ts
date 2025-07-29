@@ -67,3 +67,38 @@ export const getNextMidnight = (): Date => {
   nextSyncDate.setMilliseconds(0);
   return nextSyncDate;
 };
+
+export const isMonday = (): boolean => {
+  return new Date().getDay() === 1;
+};
+
+export const getRemainingDays = (expirationDate: string): number => {
+  let expDate = new Date(new Date(expirationDate).toISOString().split('T')[0]);
+  let now = new Date(new Date().toISOString().split('T')[0]);
+
+  const timeDiff = expDate.getTime() - now.getTime();
+  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+  return daysDiff;
+};
+
+export const getFrenchDayOfWeek = (expirationDate: string): string => {
+  const d = new Date(expirationDate).getDay();
+  switch (d) {
+    case 0:
+      return 'Dimanche';
+    case 1:
+      return 'Lundi';
+    case 2:
+      return 'Mardi';
+    case 3:
+      return 'Mercredi';
+    case 4:
+      return 'Jeudi';
+    case 5:
+      return 'Vendredi';
+    case 6:
+      return 'Samedi';
+  }
+  return '-';
+};
