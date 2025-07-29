@@ -19,7 +19,6 @@ export const getNext1pmOr1am = (): Date => {
   } else {
     nextSyncDate.setTime(Date.now() + 24 * 3600 * 1000); // next day same hour
     nextSyncDate.setHours(1); // at 1 am
-    nextSyncDate.setHours(0);
     nextSyncDate.setMinutes(0);
     nextSyncDate.setSeconds(0);
     nextSyncDate.setMilliseconds(0);
@@ -60,7 +59,6 @@ export const getNext8am = (): Date => {
 export const getNextMidnight = (): Date => {
   const nextSyncDate = new Date();
   nextSyncDate.setTime(Date.now() + 24 * 3600 * 1000); // next day same hour
-  nextSyncDate.setHours(0);
   nextSyncDate.setHours(0);
   nextSyncDate.setMinutes(0);
   nextSyncDate.setSeconds(0);
