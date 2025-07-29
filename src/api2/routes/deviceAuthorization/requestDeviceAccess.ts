@@ -129,7 +129,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       if (!deviceInDb) {
         // CREATE AUTHORIZED DEVICE
         await db.query(
-          'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+          "INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, group_id, enrollment_method) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'SSO')",
           [
             userId,
             safeBody.deviceName,
@@ -147,7 +147,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       } else {
         // AUTHORIZE EXISTING DEVICE (previously added with email method)
         await db.query(
-          'UPDATE user_devices SET (device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, authorization_status) = ($1,$2,$3,$4,$5,$6,$7,$8) WHERE id=$9',
+          "UPDATE user_devices SET (device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, authorization_status, enrollment_method) = ($1,$2,$3,$4,$5,$6,$7,$8,'SSO') WHERE id=$9",
           [
             safeBody.deviceName,
             safeBody.deviceType,
@@ -189,7 +189,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       const nextDeviceStatus = 'PENDING';
       if (!deviceInDb) {
         await db.query(
-          'INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',
+          "INSERT INTO user_devices (user_id, device_name, device_type, install_type, os_family, os_version, app_version, device_unique_id, device_public_key_2, authorization_status, authorization_code, auth_code_expiration_date, group_id, enrollment_method) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'email')",
           [
             userId,
             safeBody.deviceName,
@@ -209,7 +209,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       } else {
         // request is pending and expired, let's update it
         await db.query(
-          'UPDATE user_devices SET (device_name, authorization_status, authorization_code, auth_code_expiration_date) = ($1,$2,$3,$4) WHERE user_id=$5 AND device_unique_id=$6 AND group_id=$7',
+          "UPDATE user_devices SET (device_name, authorization_status, authorization_code, auth_code_expiration_date,enrollment_method) = ($1,$2,$3,$4,'email') WHERE user_id=$5 AND device_unique_id=$6 AND group_id=$7",
           [
             safeBody.deviceName,
             nextDeviceStatus,
