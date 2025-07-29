@@ -209,7 +209,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       } else {
         // request is pending and expired, let's update it
         await db.query(
-          "UPDATE user_devices SET (device_name, authorization_status, authorization_code, auth_code_expiration_date,enrollment_method) = ($1,$2,$3,$4,'email') WHERE user_id=$5 AND device_unique_id=$6 AND group_id=$7",
+          "UPDATE user_devices SET (device_name, authorization_status, authorization_code, auth_code_expiration_date, enrollment_method) = ($1,$2,$3,$4,'email') WHERE user_id=$5 AND device_unique_id=$6 AND group_id=$7",
           [
             safeBody.deviceName,
             nextDeviceStatus,
