@@ -1,12 +1,15 @@
 import { getFrenchDayOfWeek, getNext8am, getRemainingDays, isMonday } from './dateHelper';
 import { db } from './db';
+import env from './env';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
 
 export const sendTrialEmailReminders = (): void => {
-  doSendTrialEmailReminder();
-
+  // this feature is for SAAS tests only
+  if (env.API_PUBLIC_HOSTNAME !== 'pro.upsignon.eu') {
+    return;
+  }
   // call perform sync everyday at 1pm and 1am
   const nextCronDate = getNext8am();
   setTimeout(() => {
