@@ -1,25 +1,8 @@
 import { isEmailAuthorizedWithPattern } from '../api2/helpers/emailAuthorization';
+import { getNext1pmOr1am } from './dateHelper';
 import { db } from './db';
 import { logError } from './logger';
 import { MicrosoftGraph } from 'ms-entra-for-upsignon';
-
-const getNext1pmOr1am = (): Date => {
-  const nextSyncDate = new Date();
-  if (nextSyncDate.getHours() < 13) {
-    nextSyncDate.setHours(13); // same day at 1pm
-    nextSyncDate.setMinutes(0);
-    nextSyncDate.setSeconds(0);
-    nextSyncDate.setMilliseconds(0);
-  } else {
-    nextSyncDate.setTime(Date.now() + 24 * 3600 * 1000); // next day same hour
-    nextSyncDate.setHours(1); // at 1 am
-    nextSyncDate.setHours(0);
-    nextSyncDate.setMinutes(0);
-    nextSyncDate.setSeconds(0);
-    nextSyncDate.setMilliseconds(0);
-  }
-  return nextSyncDate;
-};
 
 export const syncPeriodicallyWithMicrosoftEntra = async (): Promise<void> => {
   performMicrosoftEntraSync();

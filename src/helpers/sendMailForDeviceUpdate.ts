@@ -1,4 +1,5 @@
 import { isStrictlyLowerVersion } from './appVersionChecker';
+import { getNext8am } from './dateHelper';
 import { db } from './db';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
@@ -7,36 +8,6 @@ import { inputSanitizer } from './sanitizer';
 const minVersionForNotification = '7.11.0';
 const endOfSupportDate = '11 mars 2025';
 const isActive = false;
-
-const getNext8am = (): Date => {
-  const notificationDate = new Date();
-  // first get next 8am time
-  if (notificationDate.getHours() < 8) {
-    notificationDate.setHours(8); // same day at 8am
-    notificationDate.setMinutes(0);
-    notificationDate.setSeconds(0);
-    notificationDate.setMilliseconds(0);
-  } else {
-    notificationDate.setTime(notificationDate.getTime() + 24 * 3600 * 1000); // next day same hour
-    notificationDate.setHours(8); // at 8 am
-    notificationDate.setMinutes(0);
-    notificationDate.setSeconds(0);
-    notificationDate.setMilliseconds(0);
-  }
-
-  // then allow only mondays, wednesdays and fridays
-  const d = notificationDate.getDay();
-  if (d == 0 || d == 2 || d == 4) {
-    // sunday -> monday
-    // tuesday -> wednesday
-    // thursday -> friday
-    notificationDate.setTime(notificationDate.getTime() + 24 * 3600 * 1000);
-  } else if (d == 6) {
-    // saturday -> monday
-    notificationDate.setTime(notificationDate.getTime() + 48 * 3600 * 1000);
-  }
-  return notificationDate;
-};
 
 export const sendMailForDeviceUpdate = async (): Promise<void> => {
   if (!isActive) return;
