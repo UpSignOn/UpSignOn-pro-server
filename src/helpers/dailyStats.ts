@@ -1,16 +1,6 @@
+import { getNextMidnight } from './dateHelper';
 import { db } from './db';
 import { logError } from './logger';
-
-const getNextMidnight = (): Date => {
-  const nextSyncDate = new Date();
-  nextSyncDate.setTime(Date.now() + 24 * 3600 * 1000); // next day same hour
-  nextSyncDate.setHours(0);
-  nextSyncDate.setHours(0);
-  nextSyncDate.setMinutes(0);
-  nextSyncDate.setSeconds(0);
-  nextSyncDate.setMilliseconds(0);
-  return nextSyncDate;
-};
 
 export const aggregateStatsDaily = (): void => {
   performAggregateStats();
