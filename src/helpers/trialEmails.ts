@@ -1,3 +1,4 @@
+import Joi from 'joi';
 import { getFrenchDayOfWeek, getNext8am, getRemainingDays, isMonday } from './dateHelper';
 import { db } from './db';
 import env from './env';
@@ -10,7 +11,7 @@ export const sendTrialEmailReminders = (): void => {
   if (env.API_PUBLIC_HOSTNAME !== 'pro.upsignon.eu') {
     return;
   }
-  // call perform sync everyday at 1pm and 1am
+  // call function every day at 8am
   const nextCronDate = getNext8am();
   setTimeout(() => {
     doSendTrialEmailReminder();
@@ -20,22 +21,22 @@ export const sendTrialEmailReminders = (): void => {
 
 const doSendTrialEmailReminder = async (): Promise<void> => {
   try {
-    // get all trials
-    const trialsRes = await db.query(
-      "SELECT id, name, settings->'TESTING_EXPIRATION_DATE' as testing_expiration_date, settings->'SALES_REP' as sales_rep FROM groups WHERE settings->>'IS_TESTING' = 'true'",
-    );
-    const trials = trialsRes.rows.map((t) => {
-      return {
-        id: t.id,
-        name: t.name,
-        salesRep: t.sales_rep,
-        remainingDays: getRemainingDays(t.testing_expiration_date),
-        day: getFrenchDayOfWeek(t.testing_expiration_date),
-      };
-    });
-
-    // every week, send a reminder to sales rep
     if (isMonday()) {
+      // get all trials
+      const trialsRes = await db.query(
+        "SELECT id, name, settings->'TESTING_EXPIRATION_DATE' as testing_expiration_date, settings->'SALES_REP' as sales_rep FROM groups WHERE settings->>'IS_TESTING' = 'true'",
+      );
+      const trials = trialsRes.rows.map((t) => {
+        return {
+          id: t.id,
+          name: t.name,
+          salesRep: t.sales_rep,
+          remainingDays: getRemainingDays(t.testing_expiration_date),
+          day: getFrenchDayOfWeek(t.testing_expiration_date),
+        };
+      });
+
+      // every week, send a reminder to sales rep
       let trialsBySalesRep: {
         [salesRep: string]: { bankName: string; remainingDays: number; day: string }[];
       } = {};
@@ -72,31 +73,36 @@ const sendTrialEndingEmailToSalesRep = async (
   salesRep: string,
   banks: { bankName: string; remainingDays: number; day: string }[],
 ): Promise<void> => {
-  const emailConfig = await getEmailConfig();
-  const transporter = getMailTransporter(emailConfig, { debug: false });
-  const htmlMessage =
-    banks.length > 0
-      ? `<body>
+  try {
+    const emailConfig = await getEmailConfig();
+    const transporter = getMailTransporter(emailConfig, { debug: false });
+    Joi.assert(salesRep, Joi.string().email());
+    const htmlMessage =
+      banks.length > 0
+        ? `<body>
     <p>Bonjour,</p>
     <p>Voici les banques d'essai dont vous êtes responsables et qui expirent cette semaine :</p>
     <ul>
-      ${banks
-        .map((b) => {
-          return `<li><strong>${b.bankName}</strong> - ${b.remainingDays === 0 ? "Aujourd'hui" : `${b.day} dans ${b.remainingDays} jour(s)`}</li>`;
-        })
-        .join('')}
+    ${banks
+      .map((b) => {
+        return `<li><strong>${inputSanitizer.cleanForHTMLInjections(b.bankName)}</strong> - ${b.remainingDays === 0 ? "Aujourd'hui" : `${inputSanitizer.cleanForHTMLInjections(b.day)} dans ${b.remainingDays} jour(s)`}</li>`;
+      })
+      .join('')}
     </ul>
     <p>Bonne journée,<br/>UpSignOn</p>
     </body>`
-      : `<body>
+        : `<body>
     <p>Bonjour,</p>
     <p>Aucune banque d'essai dont vous êtes en charge n'arrive à expiration cette semaine !</p>
     <p>Bonne journée,<br/>UpSignOn</p>
     </body>`;
-  await transporter.sendMail({
-    from: emailConfig.EMAIL_SENDING_ADDRESS,
-    to: inputSanitizer.cleanForHTMLInjections(salesRep),
-    subject: `Trials UpSignOn PRO qui expirent cette semaine`,
-    html: htmlMessage,
-  });
+    await transporter.sendMail({
+      from: emailConfig.EMAIL_SENDING_ADDRESS,
+      to: salesRep,
+      subject: `Trials UpSignOn PRO qui expirent cette semaine`,
+      html: htmlMessage,
+    });
+  } catch (e) {
+    logError('sendTrialEndingEmailToSalesRep', e);
+  }
 };
