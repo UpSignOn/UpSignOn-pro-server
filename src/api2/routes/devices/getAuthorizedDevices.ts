@@ -13,7 +13,7 @@ export const getAuthorizedDevices2 = async (req: any, res: any) => {
 
     const devicesRes = await db.query(
       "SELECT device_name, device_unique_id, created_at, device_type, os_family, os_version, install_type, app_version FROM user_devices WHERE authorization_status='AUTHORIZED' AND user_id=$1 AND bank_id=$2",
-      [basicAuth.userId, basicAuth.groupIds.internalId],
+      [basicAuth.userId, basicAuth.bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'getAuthorizedDevices2 OK');
     // Return res

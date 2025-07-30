@@ -26,7 +26,7 @@ export const backupPassword2 = async (req: any, res: any) => {
             backup.encryptedPassword,
             backup.deviceId,
             basicAuth.userId,
-            basicAuth.groupIds.internalId,
+            basicAuth.bankIds.internalId,
           ],
         ),
       ),

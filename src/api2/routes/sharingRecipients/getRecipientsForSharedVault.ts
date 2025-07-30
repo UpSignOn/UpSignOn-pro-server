@@ -23,7 +23,7 @@ export const getRecipientsForSharedVault = async (req: any, res: any) => {
           FROM shared_vault_recipients AS svr
           INNER JOIN users ON users.id=svr.user_id
           WHERE shared_vault_id=$1 AND svr.bank_id=$2`,
-      [sharedVaultId, basicAuth.groupIds.internalId],
+      [sharedVaultId, basicAuth.bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'getRecipientsForSharedVault OK');
     // Return res

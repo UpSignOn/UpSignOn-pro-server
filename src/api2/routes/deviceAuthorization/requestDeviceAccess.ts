@@ -31,7 +31,7 @@ import { SessionStore } from '../../../helpers/sessionStore';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestDeviceAccess2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     const joiRes = Joi.object({
       userEmail: Joi.string().email().lowercase().required(),
@@ -60,18 +60,18 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
         banks.settings AS bank_settings
       FROM users INNER JOIN banks ON banks.id = users.bank_id
       WHERE users.email=$1 AND users.bank_id=$2`,
-      [safeBody.userEmail, groupIds.internalId],
+      [safeBody.userEmail, bankIds.internalId],
     );
     if (userRes.rows[0]?.deactivated) {
       return res.status(403).json({ error: 'user_deactivated' });
     }
     if (userRes.rowCount === 0) {
       // make sure email address is allowed
-      const userMSEntraId = await MicrosoftGraph.getUserId(groupIds.internalId, safeBody.userEmail);
+      const userMSEntraId = await MicrosoftGraph.getUserId(bankIds.internalId, safeBody.userEmail);
       const emailAuthStatus = await getEmailAuthorizationStatus(
         safeBody.userEmail,
         userMSEntraId,
-        groupIds.internalId,
+        bankIds.internalId,
       );
       if (emailAuthStatus === 'UNAUTHORIZED') {
         logInfo(safeBody.userEmail, 'requestDeviceAccess2 fail: email address not allowed');
@@ -79,7 +79,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
       }
       userRes = await db.query(
         'INSERT INTO users (email, ms_entra_id, bank_id) VALUES ($1,$2,$3) RETURNING id',
-        [safeBody.userEmail, userMSEntraId, groupIds.internalId],
+        [safeBody.userEmail, userMSEntraId, bankIds.internalId],
       );
     }
     const userId = userRes.rows[0].id;
@@ -87,7 +87,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     // CHECK SECOND REQUESTS FOR SAME DEVICE
     const deviceRes = await db.query(
       'SELECT id, authorization_status, authorization_code, auth_code_expiration_date FROM user_devices WHERE user_id=$1 AND device_unique_id=$2 AND bank_id=$3',
-      [userId, safeBody.deviceId, groupIds.internalId],
+      [userId, safeBody.deviceId, bankIds.internalId],
     );
     const deviceInDb = deviceRes.rows[0];
     if (deviceInDb && deviceInDb.authorization_status === 'AUTHORIZED') {
@@ -116,7 +116,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     if (safeBody.openidSession) {
       const isOpenidSessionOK = await SessionStore.checkOpenIdSession(safeBody.openidSession, {
         userEmail: safeBody.userEmail,
-        groupId: groupIds.internalId,
+        groupId: bankIds.internalId,
       });
       if (!isOpenidSessionOK) {
         logInfo(safeBody.userEmail, 'requestDeviceAccess2 fail: invalid openidSession');
@@ -141,7 +141,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
             safeBody.deviceId,
             safeBody.devicePublicKey,
             'AUTHORIZED',
-            groupIds.internalId,
+            bankIds.internalId,
           ],
         );
       } else {
@@ -203,7 +203,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
             nextDeviceStatus,
             randomAuthorizationCode,
             expirationDate,
-            groupIds.internalId,
+            bankIds.internalId,
           ],
         );
       } else {
@@ -217,7 +217,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
             expirationDate,
             userId,
             safeBody.deviceId,
-            groupIds.internalId,
+            bankIds.internalId,
           ],
         );
       }

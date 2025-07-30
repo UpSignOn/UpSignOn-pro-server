@@ -35,12 +35,12 @@ export const authenticateWithOpenidAuthCode = async (
       }),
     );
 
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     // check that the openidConfigurationUrl is indeed associated with this bank
     const bankConfigRes = await db.query(
       `SELECT client_id FROM bank_sso_config WHERE bank_id=$1 AND openid_configuration_url=$2`,
-      [groupIds.internalId, safeBody.openidConfigurationUrl],
+      [bankIds.internalId, safeBody.openidConfigurationUrl],
     );
     if (bankConfigRes.rowCount == null || bankConfigRes.rowCount === 0) {
       res.status(400).end();
@@ -155,15 +155,15 @@ export const authenticateWithOpenidAuthCode = async (
     // make sure email address is allowed
     const existingVaults = await db.query('SELECT id FROM users WHERE email=$1 AND bank_id=$2', [
       userEmail,
-      groupIds.internalId,
+      bankIds.internalId,
     ]);
     const existingVaultId = existingVaults.rows.length > 0 ? existingVaults.rows[0].id : null;
     if (!existingVaultId) {
-      const userMSEntraId = await MicrosoftGraph.getUserId(groupIds.internalId, userEmail);
+      const userMSEntraId = await MicrosoftGraph.getUserId(bankIds.internalId, userEmail);
       const emailAuthStatus = await getEmailAuthorizationStatus(
         userEmail,
         userMSEntraId,
-        groupIds.internalId,
+        bankIds.internalId,
       );
       if (emailAuthStatus == 'UNAUTHORIZED') {
         res.status(400).json({ error: 'User is SSO authenticated but not allowed on this bank.' });
@@ -173,7 +173,7 @@ export const authenticateWithOpenidAuthCode = async (
 
     const openidSession = await SessionStore.createOpenIdSession(
       {
-        groupId: groupIds.internalId,
+        groupId: bankIds.internalId,
         accessToken: tokenJson.access_token,
         userEmail,
       },

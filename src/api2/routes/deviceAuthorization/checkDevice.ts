@@ -13,7 +13,7 @@ import { getBankIds } from '../../helpers/bankUUID';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -66,7 +66,7 @@ export const checkDevice2 = async (req: any, res: any) => {
           AND ud.authorization_status != 'REVOKED_BY_USER'
           AND users.bank_id=$3
       `,
-      [userEmail, deviceId, groupIds.internalId],
+      [userEmail, deviceId, bankIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
@@ -127,7 +127,7 @@ export const checkDevice2 = async (req: any, res: any) => {
     }
 
     if (requireAdminCheck) {
-      await sendDeviceRequestAdminEmail(userEmail, groupIds.internalId);
+      await sendDeviceRequestAdminEmail(userEmail, bankIds.internalId);
       logInfo(
         req.body?.userEmail,
         'checkDevice OK (waiting for admin check - email sent to admin)',

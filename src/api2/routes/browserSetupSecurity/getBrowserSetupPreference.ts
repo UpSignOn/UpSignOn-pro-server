@@ -6,7 +6,7 @@ import { getBankIds } from '../../helpers/bankUUID';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getBrowserSetupPreference = async (req: any, res: any) => {
   try {
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -37,7 +37,7 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
           AND ud.authorization_status != 'REVOKED_BY_USER'
           AND users.bank_id=$3
       `,
-      [userEmail, deviceId, groupIds.internalId],
+      [userEmail, deviceId, bankIds.internalId],
     );
 
     const adminUseUnsafeBrowserSetup = true; // deprecated

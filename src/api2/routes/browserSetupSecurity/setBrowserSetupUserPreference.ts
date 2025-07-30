@@ -23,7 +23,7 @@ export const setBrowserSetupUserPreference = async (req: any, res: any) => {
         forceUseSafeBrowserSetup,
         basicAuth.userId,
         basicAuth.deviceUId,
-        basicAuth.groupIds.internalId,
+        basicAuth.bankIds.internalId,
       ],
     );
 

@@ -30,7 +30,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
       // if not removing himself, check if is owner
       const ownershipCheck = await db.query(
         'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
-        [sharedVaultId, basicAuth.userId, basicAuth.groupIds.internalId],
+        [sharedVaultId, basicAuth.userId, basicAuth.bankIds.internalId],
       );
       if (ownershipCheck.rows[0]?.access_level !== 'owner') {
         logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault fail: not owner');
@@ -40,7 +40,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
 
     await db.query(
       'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
-      [sharedVaultId, recipientId, basicAuth.groupIds.internalId],
+      [sharedVaultId, recipientId, basicAuth.bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault OK');
     return res.status(204).end();
@@ -86,7 +86,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
       // Check if is owner
       const ownershipCheck = await db.query(
         'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
-        [sharedVaultId, basicAuth.userId, basicAuth.groupIds.internalId],
+        [sharedVaultId, basicAuth.userId, basicAuth.bankIds.internalId],
       );
       if (ownershipCheck.rows[0]?.access_level === 'owner') {
         isOwner = true;
@@ -100,7 +100,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
     }
     await db.query(
       'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id = ANY(($2)::INT[]) AND bank_id=$3',
-      [sharedVaultId, recipientIds, basicAuth.groupIds.internalId],
+      [sharedVaultId, recipientIds, basicAuth.bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'removeRecipientsFromSharedVault OK');
     return res.status(204).end();

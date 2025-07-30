@@ -5,7 +5,7 @@ import { getBankIds } from '../../helpers/bankUUID';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getBankConfig = async (req: any, res: any): Promise<void> => {
   try {
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
     const groupRes = await db.query(
       `SELECT
         b.name,
@@ -24,7 +24,7 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
       LEFT JOIN bank_sso_config AS sso ON sso.bank_id = b.id
       WHERE b.id = $1
       GROUP BY b.id`,
-      [groupIds.internalId],
+      [bankIds.internalId],
     );
     if (groupRes.rowCount === 0) {
       logInfo(req.body?.userEmail, 'getBankConfig fail: bad bank');
@@ -34,8 +34,8 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
     return res.status(200).json({
       newUrl:
         groupRes.rows[0].redirect_url ||
-        (groupIds.usesDeprecatedIntId
-          ? `https://${process.env.API_PUBLIC_HOSTNAME}/${groupIds.publicId}`
+        (bankIds.usesDeprecatedIntId
+          ? `https://${process.env.API_PUBLIC_HOSTNAME}/${bankIds.publicId}`
           : null),
       bankName: groupRes.rows[0].name,
       preventUpdatePopup: groupRes.rows[0]?.settings?.PREVENT_UPDATE_POPUP || false,

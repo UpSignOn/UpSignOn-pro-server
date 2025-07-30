@@ -22,7 +22,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
       logInfo(req.body?.userEmail, 'createSharedVault fail: auth not granted');
       return res.status(401).end();
     }
-    const hasServerMoved = await isInstanceStopped(authRes.groupIds.internalId);
+    const hasServerMoved = await isInstanceStopped(authRes.bankIds.internalId);
     if (hasServerMoved) {
       logInfo('instance stopped');
       return res.status(400).end();
@@ -34,7 +34,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
       VALUES ($1,$2,$3)
       RETURNING id, last_updated_at
     `,
-      [authRes.groupIds.internalId, name, encryptedData],
+      [authRes.bankIds.internalId, name, encryptedData],
     );
 
     await db.query(
@@ -42,12 +42,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
     (bank_id, shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level)
     VALUES ($1, $2, $3, $4, true, 'owner')
     `,
-      [
-        authRes.groupIds.internalId,
-        creationRes.rows[0].id,
-        authRes.userId,
-        encryptedSharedVaultKey,
-      ],
+      [authRes.bankIds.internalId, creationRes.rows[0].id, authRes.userId, encryptedSharedVaultKey],
     );
     logInfo(req.body?.userEmail, 'createSharedVault OK');
     return res.status(200).json({
