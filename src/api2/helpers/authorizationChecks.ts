@@ -4,7 +4,7 @@ import { db } from '../../helpers/db';
 import { logInfo } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
-import { getGroupIds, GroupIds } from './bankUUID';
+import { getGroupIds, BankIds } from './bankUUID';
 
 export const checkBasicAuth2 = async (
   req: any,
@@ -25,7 +25,7 @@ export const checkBasicAuth2 = async (
       encryptedData: null | string;
       deviceId: null | number;
       granted: true;
-      groupIds: GroupIds;
+      groupIds: BankIds;
     }
   | { granted: false }
 > => {
