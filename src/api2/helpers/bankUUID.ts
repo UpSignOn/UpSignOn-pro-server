@@ -36,14 +36,14 @@ export const getBankIds = async (req: any): Promise<BankIds> => {
       usesDeprecatedIntId = true;
       publicId = gRes.rows[0].public_id;
     } else {
-      throw new BadBankIdException(`Group id ${internalId} not found.`);
+      throw new BadBankIdException(`Bank id ${internalId} not found.`);
     }
   } else {
     const gRes = await db.query('SELECT id FROM banks WHERE public_id=$1', [publicId]);
     if (gRes.rows.length === 1) {
       internalId = gRes.rows[0].id;
     } else {
-      throw new BadBankIdException(`Group public id ${publicId} not found.`);
+      throw new BadBankIdException(`Bank public id ${publicId} not found.`);
     }
   }
 

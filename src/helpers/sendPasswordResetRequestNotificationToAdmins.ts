@@ -1,4 +1,4 @@
-import { getAdminEmailsForGroup } from './getAdminsEmailsForGroup';
+import { getAdminEmailsForBank } from './getAdminsEmailsForBank';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
@@ -14,7 +14,7 @@ export const sendPasswordResetRequestNotificationToAdmins = async (
     // prevent HTML injections
     const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
 
-    const adminEmails = await getAdminEmailsForGroup(bankId);
+    const adminEmails = await getAdminEmailsForBank(bankId);
     if (adminEmails.length === 0) return;
 
     transporter.sendMail({

@@ -116,7 +116,7 @@ export const requestDeviceAccess2 = async (req: any, res: any) => {
     if (safeBody.openidSession) {
       const isOpenidSessionOK = await SessionStore.checkOpenIdSession(safeBody.openidSession, {
         userEmail: safeBody.userEmail,
-        groupId: bankIds.internalId,
+        bankId: bankIds.internalId,
       });
       if (!isOpenidSessionOK) {
         logInfo(safeBody.userEmail, 'requestDeviceAccess2 fail: invalid openidSession');

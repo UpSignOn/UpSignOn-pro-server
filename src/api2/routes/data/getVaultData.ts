@@ -51,7 +51,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceId,
-      groupId: bankIds.internalId,
+      bankId: bankIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'getVaultData fail: session not valid');

@@ -6,7 +6,7 @@ import { getBankIds } from '../../helpers/bankUUID';
 export const getBankConfig = async (req: any, res: any): Promise<void> => {
   try {
     const bankIds = await getBankIds(req);
-    const groupRes = await db.query(
+    const bankRes = await db.query(
       `SELECT
         b.name,
         b.redirect_url,
@@ -26,20 +26,20 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
       GROUP BY b.id`,
       [bankIds.internalId],
     );
-    if (groupRes.rowCount === 0) {
+    if (bankRes.rowCount === 0) {
       logInfo(req.body?.userEmail, 'getBankConfig fail: bad bank');
       return res.status(400).end();
     }
     logInfo(req.body?.userEmail, 'getBankConfig OK');
     return res.status(200).json({
       newUrl:
-        groupRes.rows[0].redirect_url ||
+        bankRes.rows[0].redirect_url ||
         (bankIds.usesDeprecatedIntId
           ? `https://${process.env.API_PUBLIC_HOSTNAME}/${bankIds.publicId}`
           : null),
-      bankName: groupRes.rows[0].name,
-      preventUpdatePopup: groupRes.rows[0]?.settings?.PREVENT_UPDATE_POPUP || false,
-      ssoConfigs: groupRes.rows[0]?.sso_configs,
+      bankName: bankRes.rows[0].name,
+      preventUpdatePopup: bankRes.rows[0]?.settings?.PREVENT_UPDATE_POPUP || false,
+      ssoConfigs: bankRes.rows[0]?.sso_configs,
     });
   } catch (e) {
     logError('getBankConfig', e);

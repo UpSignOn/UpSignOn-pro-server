@@ -1,4 +1,4 @@
-import { getAdminEmailsForGroup } from './getAdminsEmailsForGroup';
+import { getAdminEmailsForBank } from './getAdminsEmailsForBank';
 import { getEmailConfig, getMailTransporter } from './getMailTransporter';
 import { logError } from './logger';
 import { inputSanitizer } from './sanitizer';
@@ -44,7 +44,7 @@ export const sendDeviceRequestAdminEmail = async (
     const emailConfig = await getEmailConfig();
     const transporter = getMailTransporter(emailConfig, { debug: false });
 
-    const adminEmails = await getAdminEmailsForGroup(bankId);
+    const adminEmails = await getAdminEmailsForBank(bankId);
     if (adminEmails.length === 0) return;
 
     // prevent HTML injections

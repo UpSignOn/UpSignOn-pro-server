@@ -173,7 +173,7 @@ export const authenticateWithOpenidAuthCode = async (
 
     const openidSession = await SessionStore.createOpenIdSession(
       {
-        groupId: bankIds.internalId,
+        bankId: bankIds.internalId,
         accessToken: tokenJson.access_token,
         userEmail,
       },
