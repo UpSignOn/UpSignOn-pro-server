@@ -5,7 +5,7 @@ import { inputSanitizer } from './sanitizer';
 
 export const sendPasswordResetRequestNotificationToAdmins = async (
   emailAddress: string,
-  groupId: number,
+  bankId: number,
 ): Promise<void> => {
   try {
     const emailConfig = await getEmailConfig();
@@ -14,7 +14,7 @@ export const sendPasswordResetRequestNotificationToAdmins = async (
     // prevent HTML injections
     const safeEmailAddress = inputSanitizer.cleanForHTMLInjections(emailAddress);
 
-    const adminEmails = await getAdminEmailsForGroup(groupId);
+    const adminEmails = await getAdminEmailsForGroup(bankId);
     if (adminEmails.length === 0) return;
 
     transporter.sendMail({

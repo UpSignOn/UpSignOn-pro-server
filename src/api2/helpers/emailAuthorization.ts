@@ -14,13 +14,13 @@ export const isEmailAuthorizedWithPattern = (emailPattern: string, emailToCheck:
 export const getEmailAuthorizationStatus = async (
   userEmail: string,
   userMSEntraId: string | null,
-  groupId: number,
+  bankId: number,
 ): Promise<TEmailAuthorizationStatus> => {
   // CHECK MICROSOFT ENTRA
   if (userMSEntraId) {
     try {
       const isEntraAuthorized = await MicrosoftGraph.isUserAuthorizedForUpSignOn(
-        groupId,
+        bankId,
         userMSEntraId,
       );
       if (isEntraAuthorized) return 'MS_ENTRA_AUTHORIZED';
@@ -31,7 +31,7 @@ export const getEmailAuthorizationStatus = async (
 
   // CHECK EMAIL PATTERNS
   const patternRes = await db.query('SELECT pattern FROM allowed_emails WHERE bank_id=$1', [
-    groupId,
+    bankId,
   ]);
   const isAuthorizedByPattern = patternRes.rows
     .map((p) => p.pattern)

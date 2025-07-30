@@ -38,13 +38,13 @@ export const sendDeviceRequestEmail = async (
 
 export const sendDeviceRequestAdminEmail = async (
   userEmailAddress: string,
-  groupId: number,
+  bankId: number,
 ): Promise<void> => {
   try {
     const emailConfig = await getEmailConfig();
     const transporter = getMailTransporter(emailConfig, { debug: false });
 
-    const adminEmails = await getAdminEmailsForGroup(groupId);
+    const adminEmails = await getAdminEmailsForGroup(bankId);
     if (adminEmails.length === 0) return;
 
     // prevent HTML injections

@@ -45,7 +45,7 @@ export const checkPasswordChallengeV2 = async (
   passwordChallengeResponse: string,
   passwordErrorCount: null | number,
   deviceId: string,
-  groupId: number,
+  bankId: number,
 ): Promise<{ hasPassedPasswordChallenge: boolean; blockedUntil?: Date }> => {
   if (!encryptedData.startsWith('formatP002-') && !encryptedData.startsWith('formatP003-')) {
     throw Error(
@@ -76,7 +76,7 @@ export const checkPasswordChallengeV2 = async (
   if (udpatedNumberOfFailedAttemtps % 3 !== 0) {
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=password_challenge_error_count+1, password_challenge_blocked_until=null WHERE id=$1 AND bank_id=$2',
-      [deviceId, groupId],
+      [deviceId, bankId],
     );
     return { hasPassedPasswordChallenge: false };
   } else {
@@ -84,7 +84,7 @@ export const checkPasswordChallengeV2 = async (
     minRetryDate.setTime(Date.now() + udpatedNumberOfFailedAttemtps * 60 * 1000); // block for udpatedNumberOfFailedAttemtps minutes
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=password_challenge_error_count+1, password_challenge_blocked_until=$1 WHERE id=$2 AND bank_id=$3',
-      [minRetryDate.toISOString(), deviceId, groupId],
+      [minRetryDate.toISOString(), deviceId, bankId],
     );
     return { hasPassedPasswordChallenge: false, blockedUntil: minRetryDate };
   }

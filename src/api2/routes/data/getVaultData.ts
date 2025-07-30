@@ -159,7 +159,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
 
 export const getSharedVaults = async (
   userId: number,
-  groupId: number,
+  bankId: number,
 ): Promise<
   {
     id: number;
@@ -185,7 +185,7 @@ export const getSharedVaults = async (
     ON svr.shared_vault_id=sv.id
     WHERE svr.user_id=$1
     AND sv.bank_id=$2`,
-    [userId, groupId],
+    [userId, bankId],
   );
   return sharedVaultsRes.rows.map((s) => ({
     id: s.id,
@@ -198,17 +198,17 @@ export const getSharedVaults = async (
   }));
 };
 
-const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupId: number) => {
+const cleanChangedEmails = async (userId: number, deviceUniqueId: string, bankId: number) => {
   try {
     const changedEmails = await db.query(
       'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND bank_id=$2',
-      [userId, groupId],
+      [userId, bankId],
     );
     if (changedEmails.rowCount != null && changedEmails.rowCount > 0) {
       // get all devices for this user
       const devices = await db.query(
         'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1 AND bank_id=$2',
-        [userId, groupId],
+        [userId, bankId],
       );
 
       let areAllDevicesAware = true;
@@ -219,7 +219,7 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
             // because this will help make sure the database cleans itself automatically in the end
             await db.query(
               'UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2 AND bank_id=$3',
-              [JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]), userId, groupId],
+              [JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]), userId, bankId],
             );
           } else {
             areAllDevicesAware = false;
@@ -229,7 +229,7 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
       if (areAllDevicesAware) {
         await db.query('DELETE FROM changed_emails WHERE user_id=$1 AND bank_id=$2', [
           userId,
-          groupId,
+          bankId,
         ]);
       }
     }

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const groupId = parseInt(process.argv[2]);
+const bankId = parseInt(process.argv[2]);
 const filePath = process.argv[3];
-if (typeof groupId !== 'number') {
-  console.log('GroupId parameter missing.');
+if (typeof bankId !== 'number') {
+  console.log('BankId parameter missing.');
   console.log('Usage: node ./scripts/groupDataImport.js 2 path/to/data/file');
   process.exit(1);
 }
@@ -36,7 +36,7 @@ async function importFunction() {
     const row = data.admin_banks[i];
     await db.query('INSERT INTO admin_banks (admin_id, bank_id) VALUES ($1,$2)', [
       row.admin_id,
-      groupId,
+      bankId,
     ]);
   }
 
@@ -45,7 +45,7 @@ async function importFunction() {
     const row = data.allowed_emails[i];
     await db.query('INSERT INTO allowed_emails (pattern, bank_id) VALUES ($1,$2)', [
       row.pattern,
-      groupId,
+      bankId,
     ]);
   }
 
@@ -77,7 +77,7 @@ async function importFunction() {
         u.email,
         u.created_at,
         u.updated_at,
-        groupId,
+        bankId,
         u.nb_accounts,
         u.nb_codes,
         u.nb_accounts_strong,
@@ -134,7 +134,7 @@ async function importFunction() {
     const url = data.url_list[i];
     await db.query(
       'INSERT INTO url_list (displayed_name, signin_url, bank_id, uses_basic_auth) VALUES ($1,$2,$3,$4)',
-      [url.displayed_name, url.signin_url, groupId, url.uses_basic_auth],
+      [url.displayed_name, url.signin_url, bankId, url.uses_basic_auth],
     );
   }
 
@@ -159,7 +159,7 @@ async function importFunction() {
         content_details
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
       [
-        groupId,
+        bankId,
         sv.name,
         sv.encrypted_data,
         sv.last_updated_at,
@@ -209,7 +209,7 @@ async function importFunction() {
         svr.encrypted_shared_vault_key,
         svr.is_manager,
         svr.access_level,
-        groupId,
+        bankId,
         svr.created_at,
       ],
     );
@@ -245,7 +245,7 @@ async function importFunction() {
         ud.os_version,
         ud.revocation_date,
         ud.app_version,
-        groupId,
+        bankId,
         ud.encrypted_password_backup_2,
         ud.device_public_key_2,
         ud.last_sync_date,
@@ -289,7 +289,7 @@ async function importFunction() {
   //       row.nb_accounts_red,
   //       row.nb_accounts_orange,
   //       row.nb_accounts_green,
-  //       groupId,
+  //       bankId,
   //       row.newSharedVaultId,
   //     ],
   //   );

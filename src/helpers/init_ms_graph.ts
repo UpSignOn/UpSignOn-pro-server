@@ -2,11 +2,9 @@ import { EntraConfig, MicrosoftGraph } from 'ms-entra-for-upsignon';
 import { db } from './db';
 
 export const setupMSGraph = () => {
-  MicrosoftGraph.getMSEntraConfigForGroup = async (
-    groupId: number,
-  ): Promise<EntraConfig | null> => {
+  MicrosoftGraph.getMSEntraConfigForGroup = async (bankId: number): Promise<EntraConfig | null> => {
     const entraConfigRes = await db.query('SELECT ms_entra_config FROM banks WHERE id=$1', [
-      groupId,
+      bankId,
     ]);
     const entraConfig: EntraConfig | null = entraConfigRes.rows[0]?.ms_entra_config || null;
     return entraConfig;

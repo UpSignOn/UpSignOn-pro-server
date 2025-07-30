@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const groupId = parseInt(process.argv[2]);
+const bankId = parseInt(process.argv[2]);
 const filePath = process.argv[3];
 
-if (typeof groupId !== 'number') {
-  console.log('GroupId parameter missing.');
+if (typeof bankId !== 'number') {
+  console.log('BankId parameter missing.');
   console.log('Usage: node ./scripts/groupDataExport.js 2 path/to/data/file');
   process.exit(1);
 }
@@ -21,23 +21,23 @@ async function exportDb() {
   try {
     await db.connect();
     const admins = await db.query('SELECT * FROM admins');
-    const admin_banks = await db.query('SELECT * FROM admin_banks WHERE bank_id=$1', [groupId]);
+    const admin_banks = await db.query('SELECT * FROM admin_banks WHERE bank_id=$1', [bankId]);
     const allowed_emails = await db.query('SELECT * FROM allowed_emails WHERE bank_id=$1', [
-      groupId,
+      bankId,
     ]);
-    // const data_stats = await db.query('SELECT * FROM data_stats WHERE bank_id=$1', [groupId]);
+    // const data_stats = await db.query('SELECT * FROM data_stats WHERE bank_id=$1', [bankId]);
     // const password_reset_request = await db.query(
     //   'SELECT * FROM password_reset_request WHERE bank_id=$1',
-    //   [groupId],
+    //   [bankId],
     // );
-    const users = await db.query('SELECT * FROM users WHERE bank_id=$1', [groupId]);
+    const users = await db.query('SELECT * FROM users WHERE bank_id=$1', [bankId]);
     const shared_vault_recipients = await db.query(
       'SELECT * FROM shared_vault_recipients WHERE bank_id=$1',
-      [groupId],
+      [bankId],
     );
-    const shared_vaults = await db.query('SELECT * FROM shared_vaults WHERE bank_id=$1', [groupId]);
-    const url_list = await db.query('SELECT * FROM url_list WHERE bank_id=$1', [groupId]);
-    const user_devices = await db.query('SELECT * FROM user_devices WHERE bank_id=$1', [groupId]);
+    const shared_vaults = await db.query('SELECT * FROM shared_vaults WHERE bank_id=$1', [bankId]);
+    const url_list = await db.query('SELECT * FROM url_list WHERE bank_id=$1', [bankId]);
+    const user_devices = await db.query('SELECT * FROM user_devices WHERE bank_id=$1', [bankId]);
     fs.writeFileSync(
       filePath,
       JSON.stringify({
