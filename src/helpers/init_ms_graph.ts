@@ -5,7 +5,7 @@ export const setupMSGraph = () => {
   MicrosoftGraph.getMSEntraConfigForGroup = async (
     groupId: number,
   ): Promise<EntraConfig | null> => {
-    const entraConfigRes = await db.query('SELECT ms_entra_config FROM groups WHERE id=$1', [
+    const entraConfigRes = await db.query('SELECT ms_entra_config FROM banks WHERE id=$1', [
       groupId,
     ]);
     const entraConfig: EntraConfig | null = entraConfigRes.rows[0]?.ms_entra_config || null;

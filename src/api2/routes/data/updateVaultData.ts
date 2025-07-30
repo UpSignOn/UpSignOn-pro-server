@@ -64,7 +64,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
             WHERE
             users.id=$2
             AND users.updated_at=CAST($3 AS TIMESTAMPTZ)
-            AND users.group_id=$4
+            AND users.bank_id=$4
             RETURNING updated_at`,
         [
           newEncryptedDataWithPasswordChallengeSecured,
@@ -98,7 +98,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
           WHERE
             users.email=$2
             AND users.updated_at=CAST($3 AS TIMESTAMPTZ)
-            AND users.group_id=$4
+            AND users.bank_id=$4
             RETURNING updated_at`,
         [
           newEncryptedDataWithPasswordChallengeSecured,
@@ -115,7 +115,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       logInfo(req.body?.userEmail, 'updateVaultData OK');
       res.status(200).json({ lastUpdatedAt: updateRes.rows[0].updated_at });
     }
-    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       basicAuth.deviceId,
       basicAuth.groupIds.internalId,

@@ -8,9 +8,9 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
     const groupIds = await getGroupIds(req);
     const groupRes = await db.query(
       `SELECT
-        g.name,
-        g.redirect_url,
-        g.settings,
+        b.name,
+        b.redirect_url,
+        b.settings,
         COALESCE(
           json_agg(
             json_build_object(
@@ -20,10 +20,10 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
           ) FILTER (WHERE sso.id IS NOT NULL),
           '[]'
         ) AS sso_configs
-      FROM groups AS g
-      LEFT JOIN bank_sso_config AS sso ON sso.bank_id = g.id
-      WHERE g.id = $1
-      GROUP BY g.id`,
+      FROM banks AS b
+      LEFT JOIN bank_sso_config AS sso ON sso.bank_id = b.id
+      WHERE b.id = $1
+      GROUP BY b.id`,
       [groupIds.internalId],
     );
     if (groupRes.rowCount === 0) {

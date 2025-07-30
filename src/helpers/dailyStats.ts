@@ -19,7 +19,7 @@ const performAggregateStats = async (): Promise<void> => {
     await db.query(
       `INSERT INTO pwd_stats_evolution
         (date,
-        group_id,
+        bank_id,
         nb_accounts,
         nb_codes,
         nb_accounts_strong,
@@ -32,7 +32,7 @@ const performAggregateStats = async (): Promise<void> => {
         nb_accounts_green)
       SELECT
           date_trunc('day', CURRENT_TIMESTAMP(0)) - INTERVAL '1 second',
-          group_id,
+          bank_id,
           SUM(nb_accounts),
           SUM(nb_codes),
           SUM(nb_accounts_strong),
@@ -44,8 +44,8 @@ const performAggregateStats = async (): Promise<void> => {
           SUM(nb_accounts_orange),
           SUM(nb_accounts_green)
       FROM users
-      GROUP BY group_id
-      ON CONFLICT (date, group_id) DO UPDATE SET
+      GROUP BY bank_id
+      ON CONFLICT (date, bank_id) DO UPDATE SET
         nb_accounts=EXCLUDED.nb_accounts,
         nb_codes=EXCLUDED.nb_codes,
         nb_accounts_strong=EXCLUDED.nb_accounts_strong,
@@ -62,7 +62,7 @@ const performAggregateStats = async (): Promise<void> => {
     await db.query(
       `INSERT INTO pwd_stats_evolution
         (date,
-        group_id,
+        bank_id,
         nb_accounts,
         nb_codes,
         nb_accounts_strong,
@@ -75,7 +75,7 @@ const performAggregateStats = async (): Promise<void> => {
         nb_accounts_green)
       SELECT
           date_trunc('day', CURRENT_TIMESTAMP(0)) - INTERVAL '1 second',
-          group_id,
+          bank_id,
           SUM(nb_accounts),
           SUM(nb_codes),
           SUM(nb_accounts_strong),
@@ -87,8 +87,8 @@ const performAggregateStats = async (): Promise<void> => {
           SUM(nb_accounts_orange),
           SUM(nb_accounts_green)
       FROM shared_vaults
-      GROUP BY group_id
-      ON CONFLICT (date, group_id) DO UPDATE SET
+      GROUP BY bank_id
+      ON CONFLICT (date, bank_id) DO UPDATE SET
         nb_accounts=pwd_stats_evolution.nb_accounts + EXCLUDED.nb_accounts,
         nb_codes=pwd_stats_evolution.nb_codes+EXCLUDED.nb_codes,
         nb_accounts_strong=pwd_stats_evolution.nb_accounts_strong+EXCLUDED.nb_accounts_strong,

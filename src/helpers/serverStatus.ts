@@ -15,7 +15,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       });
     });
     const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
-    const statsByGroup = await getStatsByGroup();
+    const statsByBank = await getStatsByBank();
     const licenseCount = licenseCountResult.rows[0].count;
     const userAppVersionsResult = await db.query(
       `SELECT DISTINCT(app_version) FROM user_devices WHERE authorization_status='AUTHORIZED' ORDER BY app_version DESC`,
@@ -32,7 +32,7 @@ export const sendStatusUpdate = async (): Promise<void> => {
       licenseCount,
       userAppVersions,
       securityGraph: JSON.stringify(stats),
-      statsByGroup,
+      statsByGroup: statsByBank,
       hasDailyBackup,
       nodeVersion,
       deviceStats,
@@ -60,7 +60,7 @@ const getDaysArray = (startDay: string, endDay: string): string[] => {
 };
 
 const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
-  // hypothesis : if a stat exists for a group for a day, then there exists a stats for other groups fro that day too. (The computation succeeds in whole or not at all)
+  // hypothesis : if a stat exists for a bank for a day, then there exists a stats for other banks for that day too. (The computation succeeds in whole or not at all)
   const rawStats = await db.query(
     `SELECT
       date,
@@ -155,9 +155,9 @@ const sendToUpSignOn = async (status: any) => {
   }
 };
 
-const getStatsByGroup = async () => {
+const getStatsByBank = async () => {
   const res = await db.query(
-    'SELECT groups.id, groups.name, groups.created_at, groups.nb_licences_sold, groups.stop_this_instance, groups.settings, (SELECT COUNT(users.id) FROM users WHERE users.group_id=groups.id) AS nb_users FROM groups',
+    'SELECT banks.id, banks.name, banks.created_at, banks.nb_licences_sold, banks.stop_this_instance, banks.settings, (SELECT COUNT(users.id) FROM users WHERE users.bank_id=banks.id) AS nb_users FROM banks',
   );
   return JSON.stringify(
     res.rows.map((r) => {

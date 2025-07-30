@@ -1,4 +1,4 @@
-import { GROUP_SETTINGS, USER_SETTINGS_OVERRIDE } from './getDefaultSettingOrUserOverride';
+import { BANK_SETTINGS, USER_SETTINGS_OVERRIDE } from './getDefaultSettingOrUserOverride';
 
 const isWindows = (osFamily: string) => {
   if (osFamily.toLowerCase().indexOf('win32') >= 0) {
@@ -35,7 +35,7 @@ const isLinux = (osFamily: string) => {
   return osFamily.toLowerCase().indexOf('linux') >= 0;
 };
 const _settingResultForUser = (
-  groupSettings: GROUP_SETTINGS,
+  groupSettings: BANK_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
   settingName: keyof USER_SETTINGS_OVERRIDE,
   defaultResult: boolean,
@@ -53,7 +53,7 @@ const _settingResultForUser = (
 
 export const isAllowedOnPlatform = (
   osFamily: string,
-  groupSettings: GROUP_SETTINGS,
+  groupSettings: BANK_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
 ): boolean => {
   const defaultAllowed = true;

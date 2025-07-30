@@ -95,8 +95,8 @@ app.post('/licences', (req, res) => {
   return updateLicences(req, res);
 });
 
-// GROUP ROUTING with or without bankUUID (default bankUUID used to be 1)
-// TODO(giregk): remove default group id routes in 2026
+// BANK ROUTING with or without bankUUID (default bankUUID used to be 1)
+// TODO(giregk): remove default bank id routes in 2026
 
 app.get('/:bankUUID/', (req, res) => {
   var hostname = env.API_PUBLIC_HOSTNAME.replace(/\/$/, '');

@@ -68,7 +68,7 @@ export const updateSharedVaultData = async (req: any, res: any): Promise<void> =
         ) WHERE
           id=$2
           AND last_updated_at=CAST($3 AS TIMESTAMPTZ)
-          AND group_id=$4
+          AND bank_id=$4
         RETURNING last_updated_at`,
       [
         newEncryptedData,

@@ -19,7 +19,7 @@ export const getRecipientPublicKey = async (req: any, res: any) => {
     }
 
     const checkRes = await db.query(
-      'SELECT id, sharing_public_key_2 FROM users WHERE email=$1 AND sharing_public_key_2 IS NOT NULL AND group_id=$2',
+      'SELECT id, sharing_public_key_2 FROM users WHERE email=$1 AND sharing_public_key_2 IS NOT NULL AND bank_id=$2',
       [emailAddress, basicAuth.groupIds.internalId],
     );
     if (checkRes.rowCount == 0) {

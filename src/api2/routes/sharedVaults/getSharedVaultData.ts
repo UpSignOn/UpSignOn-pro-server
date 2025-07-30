@@ -40,7 +40,7 @@ export const getSharedVaultData = async (req: any, res: any): Promise<void> => {
       ON svr.shared_vault_id=sv.id
       WHERE svr.user_id=$1
       AND sv.id=$2
-      AND sv.group_id=$3`,
+      AND sv.bank_id=$3`,
       [authRes.userId, sharedVaultId, authRes.groupIds.internalId],
     );
     const sharedVaultMap = sharedVaultRes.rows.map((s) => ({

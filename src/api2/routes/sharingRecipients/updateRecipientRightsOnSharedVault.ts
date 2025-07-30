@@ -40,7 +40,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
     // Check we are not removing the last manager
     if (recipientId == basicAuth.userId) {
       const checkRes = await db.query(
-        "SELECT count(*) AS count FROM shared_vault_recipients WHERE access_level='owner' AND shared_vault_id=$1 AND group_id=$2",
+        "SELECT count(*) AS count FROM shared_vault_recipients WHERE access_level='owner' AND shared_vault_id=$1 AND bank_id=$2",
         [sharedVaultId, basicAuth.groupIds.internalId],
       );
       if (checkRes.rows[0].count == 1) {
@@ -56,7 +56,7 @@ export const updateRecipientRightsOnSharedVault = async (req: any, res: any) => 
     }
 
     await db.query(
-      'UPDATE shared_vault_recipients SET is_manager=$1, access_level=$2 WHERE shared_vault_id=$3 AND user_id=$4 AND group_id=$5',
+      'UPDATE shared_vault_recipients SET is_manager=$1, access_level=$2 WHERE shared_vault_id=$3 AND user_id=$4 AND bank_id=$5',
       [willBeManager, accessLevel, sharedVaultId, recipientId, basicAuth.groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'updateRecipientRightsOnSharedVault OK');
@@ -110,7 +110,7 @@ export const updateRecipientsRightsOnSharedVault = async (req: any, res: any) =>
     // Check we are not removing the last manager
     if (recipientIds.indexOf(basicAuth.userId) >= 0 && accessLevel !== 'owner') {
       const checkRes = await db.query(
-        "SELECT count(*) AS count FROM shared_vault_recipients WHERE access_level='owner' AND shared_vault_id=$1 AND group_id=$2",
+        "SELECT count(*) AS count FROM shared_vault_recipients WHERE access_level='owner' AND shared_vault_id=$1 AND bank_id=$2",
         [sharedVaultId, basicAuth.groupIds.internalId],
       );
       if (checkRes.rows[0].count == 1) {
@@ -120,7 +120,7 @@ export const updateRecipientsRightsOnSharedVault = async (req: any, res: any) =>
     }
 
     await db.query(
-      'UPDATE shared_vault_recipients SET is_manager=$1, access_level=$2 WHERE shared_vault_id=$3 AND user_id = ANY(($4)::INT[]) AND group_id=$5',
+      'UPDATE shared_vault_recipients SET is_manager=$1, access_level=$2 WHERE shared_vault_id=$3 AND user_id = ANY(($4)::INT[]) AND bank_id=$5',
       [willBeManager, accessLevel, sharedVaultId, recipientIds, basicAuth.groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'updateRecipientsRightsOnSharedVault OK');

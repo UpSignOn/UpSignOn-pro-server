@@ -24,7 +24,7 @@ export const checkUserPublicKey2 = async (req: any, res: any) => {
       const message = `---------------\nWARNING! POTENTIAL HACK DETECTED!\nThe public key for user ${basicAuth.userEmail} that was found in the database did not match the public key registered in the user's private space. The database public key was\n\n${basicAuth.sharingPublicKey}\n\nwhile the user's expected public key was\n\n${publicKey}\n\nA database request to update the public key for this user with his expected public key will be made right after this message.\nIt is possible that the hacker has been able to read the passwords of all the accounts that are shared with ${basicAuth.userEmail}.\n---------------`;
       logInfo(message);
       logError(req.body?.userEmail, message);
-      await db.query('UPDATE users SET sharing_public_key_2 = $1 WHERE email=$2 AND group_id=$3', [
+      await db.query('UPDATE users SET sharing_public_key_2 = $1 WHERE email=$2 AND bank_id=$3', [
         publicKey,
         basicAuth.userEmail,
         basicAuth.groupIds.internalId,

@@ -32,9 +32,9 @@ async function importFunction() {
   }
 
   // ADMIN GROUPS
-  for (var i = 0; i < data.admin_groups.length; i++) {
-    const row = data.admin_groups[i];
-    await db.query('INSERT INTO admin_groups (admin_id, group_id) VALUES ($1,$2)', [
+  for (var i = 0; i < data.admin_banks.length; i++) {
+    const row = data.admin_banks[i];
+    await db.query('INSERT INTO admin_banks (admin_id, bank_id) VALUES ($1,$2)', [
       row.admin_id,
       groupId,
     ]);
@@ -43,7 +43,7 @@ async function importFunction() {
   // ALLOWED EMAILS
   for (var i = 0; i < data.allowed_emails.length; i++) {
     const row = data.allowed_emails[i];
-    await db.query('INSERT INTO allowed_emails (pattern, group_id) VALUES ($1,$2)', [
+    await db.query('INSERT INTO allowed_emails (pattern, bank_id) VALUES ($1,$2)', [
       row.pattern,
       groupId,
     ]);
@@ -57,7 +57,7 @@ async function importFunction() {
         email,
         created_at,
         updated_at,
-        group_id,
+        bank_id,
         nb_accounts,
         nb_codes,
         nb_accounts_strong,
@@ -133,7 +133,7 @@ async function importFunction() {
   for (var i = 0; i < data.url_list.length; i++) {
     const url = data.url_list[i];
     await db.query(
-      'INSERT INTO url_list (displayed_name, signin_url, group_id, uses_basic_auth) VALUES ($1,$2,$3,$4)',
+      'INSERT INTO url_list (displayed_name, signin_url, bank_id, uses_basic_auth) VALUES ($1,$2,$3,$4)',
       [url.displayed_name, url.signin_url, groupId, url.uses_basic_auth],
     );
   }
@@ -143,7 +143,7 @@ async function importFunction() {
     const sv = data.shared_vaults[i];
     const insertedVault = await db.query(
       `INSERT INTO shared_vaults (
-        group_id,
+        bank_id,
         name,
         encrypted_data,
         last_updated_at,
@@ -202,7 +202,7 @@ async function importFunction() {
   for (var i = 0; i < data.shared_vault_recipients.length; i++) {
     const svr = data.shared_vault_recipients[i];
     await db.query(
-      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, group_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, bank_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)',
       [
         svr.newSharedVaultId,
         svr.newUserId,
@@ -228,7 +228,7 @@ async function importFunction() {
           os_version,
           revocation_date,
           app_version,
-          group_id,
+          bank_id,
           encrypted_password_backup_2,
           device_public_key_2,
           last_sync_date,
@@ -273,7 +273,7 @@ async function importFunction() {
   //       nb_accounts_red,
   //       nb_accounts_orange,
   //       nb_accounts_green,
-  //       group_id,
+  //       bank_id,
   //       shared_vault_id
   //     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
   //     [

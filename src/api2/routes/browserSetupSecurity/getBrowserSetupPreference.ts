@@ -27,15 +27,15 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
       `SELECT
         ud.use_safe_browser_setup AS user_use_safe_browser_setup,
         users.settings_override AS user_settings_override,
-        groups.settings AS group_settings
+        banks.settings AS bank_settings
       FROM user_devices AS ud
       INNER JOIN users ON users.id = ud.user_id
-      INNER JOIN groups ON users.group_id = groups.id
+      INNER JOIN banks ON users.bank_id = banks.id
       WHERE users.email=$1
           AND ud.device_unique_id = $2
           AND ud.authorization_status != 'REVOKED_BY_ADMIN'
           AND ud.authorization_status != 'REVOKED_BY_USER'
-          AND users.group_id=$3
+          AND users.bank_id=$3
       `,
       [userEmail, deviceId, groupIds.internalId],
     );
@@ -57,7 +57,7 @@ export const getBrowserSetupPreference = async (req: any, res: any) => {
         // forced specifically for this user
         adminForceSafeBrowserSetup = !!d.user_settings_override?.FORCE_SAFE_BROWSER_SETUP;
       } else {
-        adminForceSafeBrowserSetup = !!d.group_settings?.FORCE_SAFE_BROWSER_SETUP;
+        adminForceSafeBrowserSetup = !!d.bank_settings?.FORCE_SAFE_BROWSER_SETUP;
       }
     }
 

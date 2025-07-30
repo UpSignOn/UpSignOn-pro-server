@@ -29,7 +29,7 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
     // NB : usage of internal group ids for new banks is deprecated since 2025-04-08.
     // Let's allow this only for banks created before that date.
     const gRes = await db.query(
-      "SELECT public_id FROM groups WHERE id=$1 AND created_at <= '2025-04-08'",
+      "SELECT public_id FROM banks WHERE id=$1 AND created_at <= '2025-04-08'",
       [internalId],
     );
     if (gRes.rows.length === 1) {
@@ -39,7 +39,7 @@ export const getGroupIds = async (req: any): Promise<GroupIds> => {
       throw new BadGroupIdException(`Group id ${internalId} not found.`);
     }
   } else {
-    const gRes = await db.query('SELECT id FROM groups WHERE public_id=$1', [publicId]);
+    const gRes = await db.query('SELECT id FROM banks WHERE public_id=$1', [publicId]);
     if (gRes.rows.length === 1) {
       internalId = gRes.rows[0].id;
     } else {

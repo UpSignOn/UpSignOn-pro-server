@@ -39,7 +39,7 @@ export const addRecipientToSharedVault = async (req: any, res: any): Promise<voi
     }
 
     await db.query(
-      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, group_id) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING',
+      'INSERT INTO shared_vault_recipients (shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level, bank_id) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING',
       [
         sharedVaultId,
         recipientId,

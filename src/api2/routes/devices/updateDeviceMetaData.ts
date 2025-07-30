@@ -57,7 +57,7 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
         'WHERE ' +
         'users.email=$1 ' +
         'AND ud.device_unique_id = $2 ' +
-        'AND users.group_id=$3',
+        'AND users.bank_id=$3',
       [userEmail, deviceUId, groupIds.internalId],
     );
 
@@ -85,13 +85,13 @@ export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> =
     }
 
     await db.query(
-      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND group_id=$5',
+      'UPDATE user_devices SET device_name=$1, os_version=$2, app_version=$3 WHERE id=$4 AND bank_id=$5',
       [deviceName, osNameAndVersion, appVersion, dbRes.rows[0].id, groupIds.internalId],
     );
     if (osFamily && deviceType && installType) {
       // sent after version 7.5 of the app
       await db.query(
-        'UPDATE user_devices SET os_family=$1, device_type=$2, install_type=$3 WHERE id=$4 AND group_id=$5',
+        'UPDATE user_devices SET os_family=$1, device_type=$2, install_type=$3 WHERE id=$4 AND bank_id=$5',
         [osFamily, deviceType, installType, dbRes.rows[0].id, groupIds.internalId],
       );
     }
