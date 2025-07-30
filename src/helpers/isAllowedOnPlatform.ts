@@ -35,13 +35,13 @@ const isLinux = (osFamily: string) => {
   return osFamily.toLowerCase().indexOf('linux') >= 0;
 };
 const _settingResultForUser = (
-  groupSettings: BANK_SETTINGS,
+  bankSettings: BANK_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
   settingName: keyof USER_SETTINGS_OVERRIDE,
   defaultResult: boolean,
 ): boolean => {
   const userParam = userSettings?.[settingName];
-  const groupParam = groupSettings?.[settingName];
+  const groupParam = bankSettings?.[settingName];
   if (userParam === true) return true;
   if (userParam === false) return false;
   // userParam is null or undefined
@@ -53,20 +53,20 @@ const _settingResultForUser = (
 
 export const isAllowedOnPlatform = (
   osFamily: string,
-  groupSettings: BANK_SETTINGS,
+  bankSettings: BANK_SETTINGS,
   userSettings: USER_SETTINGS_OVERRIDE,
 ): boolean => {
   const defaultAllowed = true;
   if (isWindows(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_WINDOWS', defaultAllowed);
+    return _settingResultForUser(bankSettings, userSettings, 'ALLOWED_WINDOWS', defaultAllowed);
   } else if (isIos(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_IOS', defaultAllowed);
+    return _settingResultForUser(bankSettings, userSettings, 'ALLOWED_IOS', defaultAllowed);
   } else if (isAndroid(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_ANDROID', defaultAllowed);
+    return _settingResultForUser(bankSettings, userSettings, 'ALLOWED_ANDROID', defaultAllowed);
   } else if (isMacos(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_MACOS', defaultAllowed);
+    return _settingResultForUser(bankSettings, userSettings, 'ALLOWED_MACOS', defaultAllowed);
   } else if (isLinux(osFamily)) {
-    return _settingResultForUser(groupSettings, userSettings, 'ALLOWED_LINUX', defaultAllowed);
+    return _settingResultForUser(bankSettings, userSettings, 'ALLOWED_LINUX', defaultAllowed);
   } else {
     console.error('isAllowedOnPlatform - unknown osFamily: ', osFamily);
     return false;

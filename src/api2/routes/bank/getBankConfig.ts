@@ -27,7 +27,7 @@ export const getBankConfig = async (req: any, res: any): Promise<void> => {
       [groupIds.internalId],
     );
     if (groupRes.rowCount === 0) {
-      logInfo(req.body?.userEmail, 'getBankConfig fail: bad group');
+      logInfo(req.body?.userEmail, 'getBankConfig fail: bad bank');
       return res.status(400).end();
     }
     logInfo(req.body?.userEmail, 'getBankConfig OK');
