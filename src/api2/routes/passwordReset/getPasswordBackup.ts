@@ -6,14 +6,14 @@ import {
   createDeviceChallengeV2,
 } from '../../helpers/deviceChallengev2';
 import libsodium from 'libsodium-wrappers';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 import Joi from 'joi';
 import { SessionStore } from '../../../helpers/sessionStore';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     const joiRes = Joi.object({
       userEmail: Joi.string().email().lowercase().required(),

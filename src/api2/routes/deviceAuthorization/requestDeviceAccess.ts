@@ -10,7 +10,7 @@ import {
 import { isAllowedOnPlatform } from '../../../helpers/isAllowedOnPlatform';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 import { MicrosoftGraph } from 'ms-entra-for-upsignon';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 import Joi from 'joi';
 import { SessionStore } from '../../../helpers/sessionStore';
 
@@ -31,7 +31,7 @@ import { SessionStore } from '../../../helpers/sessionStore';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestDeviceAccess2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     const joiRes = Joi.object({
       userEmail: Joi.string().email().lowercase().required(),

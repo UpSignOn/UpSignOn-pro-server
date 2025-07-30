@@ -5,7 +5,7 @@ import { logError } from '../../../helpers/logger';
 import { db } from '../../../helpers/db';
 import jwksClient from 'jwks-rsa';
 import { MicrosoftGraph } from 'ms-entra-for-upsignon';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 import { SessionStore } from '../../../helpers/sessionStore';
 
@@ -35,7 +35,7 @@ export const authenticateWithOpenidAuthCode = async (
       }),
     );
 
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     // check that the openidConfigurationUrl is indeed associated with this bank
     const bankConfigRes = await db.query(

@@ -8,13 +8,13 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { getRandomString } from '../../../helpers/randomString';
 import { sendPasswordResetRequestNotificationToAdmins } from '../../../helpers/sendPasswordResetRequestNotificationToAdmins';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 import Joi from 'joi';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const requestPasswordReset2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     const joiRes = Joi.object({
       userEmail: Joi.string().email().lowercase().required(),

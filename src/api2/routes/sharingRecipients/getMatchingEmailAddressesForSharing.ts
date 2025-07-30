@@ -3,14 +3,14 @@ import { db } from '../../../helpers/db';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 let contactSearchSessions: { session: string; expirationTimestamp: number }[] = [];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getMatchingEmailAddressesForSharing2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
     const emailAddressSearch = inputSanitizer.getString(req.body?.emailAddressSearch);
     if (!emailAddressSearch || emailAddressSearch.length < 3) {
       logInfo(

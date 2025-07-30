@@ -7,7 +7,7 @@ import {
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { checkBasicAuth2 } from '../../helpers/authorizationChecks';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const revokeDevice = async (req: any, res: any) => {
@@ -16,7 +16,7 @@ export const revokeDevice = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;
 
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
     let userId = null;
 
     // DEVICE CAN REVOKE ITSELF WITHOUT FULL SESSION
