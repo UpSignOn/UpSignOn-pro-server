@@ -45,7 +45,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
         users.email=$1
         AND user_devices.device_unique_id = $2
         AND user_devices.authorization_status='AUTHORIZED'
-        AND user_devices.group_id=$3
+        AND user_devices.bank_id=$3
       LIMIT 1`,
       [safeBody.userEmail, safeBody.deviceId, groupIds.internalId],
     );
@@ -96,7 +96,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
           LEFT JOIN password_reset_request ON user_devices.id = password_reset_request.device_id
         WHERE
           user_devices.device_unique_id=$1
-          AND user_devices.group_id=$2
+          AND user_devices.bank_id=$2
           AND password_reset_request.status != 'COMPLETED'
         LIMIT 1`,
         [safeBody.deviceId, groupIds.internalId],
@@ -135,19 +135,19 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
     if (safeBody.openidSession) {
       // create password reset request for the record
       await db.query(
-        `INSERT INTO password_reset_request (device_id, status, group_id, granted_by)
+        `INSERT INTO password_reset_request (device_id, status, bank_id, granted_by)
         VALUES ($1,'COMPLETED',$2, 'SSO authentication')`,
         [deviceRes.rows[0].id, groupIds.internalId],
       );
     } else {
       // update status for reset request
       await db.query(
-        `UPDATE password_reset_request SET status='COMPLETED', reset_token=null WHERE id=$1 AND group_id=$2`,
+        `UPDATE password_reset_request SET status='COMPLETED', reset_token=null WHERE id=$1 AND bank_id=$2`,
         [resetRequest.reset_request_id, groupIds.internalId],
       );
     }
     await db.query(
-      'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND group_id=$2',
+      'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND bank_id=$2',
       [safeBody.deviceId, groupIds.internalId],
     );
     logInfo(safeBody.userEmail, 'getPasswordBackup2 OK');

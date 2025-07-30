@@ -39,16 +39,16 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         u.deactivated AS deactivated,
         ud.id AS did,
         ud.authorization_status AS authorization_status,
-        g.settings AS group_settings,
-        g.stop_this_instance AS stop_this_instance,
+        b.settings AS bank_settings,
+        b.stop_this_instance AS stop_this_instance,
         ud.encrypted_password_backup_2 AS encrypted_password_backup_2
       FROM user_devices AS ud
       INNER JOIN users AS u ON ud.user_id = u.id
-      INNER JOIN groups AS g ON g.id = u.group_id
+      INNER JOIN banks AS b ON b.id = u.bank_id
       WHERE
         u.email=$1
         AND ud.device_unique_id = $2
-        AND u.group_id=$3
+        AND u.bank_id=$3
       `,
       [userEmail, deviceId, groupIds.internalId],
     );
@@ -56,7 +56,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
-        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND group_id=$2',
+        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND bank_id=$2',
         [userEmail, groupIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
@@ -88,9 +88,9 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     }
 
     if (
-      dbRes.rows[0].group_settings?.IS_TESTING &&
-      (!dbRes.rows[0].group_settings?.TESTING_EXPIRATION_DATE ||
-        new Date(dbRes.rows[0].group_settings.TESTING_EXPIRATION_DATE) < new Date())
+      dbRes.rows[0].bank_settings?.IS_TESTING &&
+      (!dbRes.rows[0].bank_settings?.TESTING_EXPIRATION_DATE ||
+        new Date(dbRes.rows[0].bank_settings.TESTING_EXPIRATION_DATE) < new Date())
     ) {
       logInfo(userEmail, 'getAuthenticationChallenges2 fail: test expired');
       return res.status(403).json({ error: 'test_expired' });

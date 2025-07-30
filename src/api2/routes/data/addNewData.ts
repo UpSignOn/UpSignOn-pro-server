@@ -43,7 +43,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         u.email=$1
         AND ud.device_unique_id = $2
         AND ud.authorization_status='AUTHORIZED'
-        AND u.group_id=$3
+        AND u.bank_id=$3
         `,
       [userEmail, deviceUId, groupIds.internalId],
     );
@@ -85,7 +85,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       hashPasswordChallengeResultForSecureStorageV2(newEncryptedData);
     // 4 - Do the update
     const updateRes = await db.query(
-      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key_2)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.group_id=$4 RETURNING updated_at',
+      'UPDATE users SET (encrypted_data_2, updated_at, sharing_public_key_2)=($1, CURRENT_TIMESTAMP(0), $2) WHERE users.email=$3 AND users.bank_id=$4 RETURNING updated_at',
       [
         newEncryptedDataWithPasswordChallengeSecured,
         sharingPublicKey,
@@ -99,14 +99,14 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
       return res.status(403).end();
     }
 
-    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       selectRes.rows[0].did,
       groupIds.internalId,
     ]);
 
     const settingsRes = await db.query(
-      'SELECT os_family, device_type, settings FROM user_devices INNER JOIN groups ON groups.id=user_devices.group_id WHERE user_devices.device_unique_id=$1 AND groups.id=$2',
+      'SELECT os_family, device_type, settings FROM user_devices INNER JOIN banks ON banks.id=user_devices.bank_id WHERE user_devices.device_unique_id=$1 AND banks.id=$2',
       [deviceUId, groupIds.internalId],
     );
 

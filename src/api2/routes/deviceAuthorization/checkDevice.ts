@@ -55,16 +55,16 @@ export const checkDevice2 = async (req: any, res: any) => {
               ud2.authorization_status = 'USER_VERIFIED_PENDING_ADMIN_CHECK'
             )
         ) AS device_count,
-        groups.settings AS group_settings
+        banks.settings AS bank_settings
         FROM user_devices AS ud
         INNER JOIN users ON ud.user_id = users.id
-        INNER JOIN groups ON groups.id = users.group_id
+        INNER JOIN banks ON banks.id = users.bank_id
         WHERE
           users.email=$1
           AND ud.device_unique_id = $2
           AND ud.authorization_status != 'REVOKED_BY_ADMIN'
           AND ud.authorization_status != 'REVOKED_BY_USER'
-          AND users.group_id=$3
+          AND users.bank_id=$3
       `,
       [userEmail, deviceId, groupIds.internalId],
     );
@@ -119,8 +119,8 @@ export const checkDevice2 = async (req: any, res: any) => {
     if (
       dbRes.rows[0]?.device_count != null &&
       dbRes.rows[0].device_count > 1 &&
-      dbRes.rows[0].group_settings != null &&
-      dbRes.rows[0].group_settings?.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
+      dbRes.rows[0].bank_settings != null &&
+      dbRes.rows[0].bank_settings?.REQUIRE_ADMIN_CHECK_FOR_SECOND_DEVICE
     ) {
       nextAuthorizationStatus = 'USER_VERIFIED_PENDING_ADMIN_CHECK';
       requireAdminCheck = true;

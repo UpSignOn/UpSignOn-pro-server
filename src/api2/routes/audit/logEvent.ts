@@ -21,7 +21,7 @@ export const logEvent = async (req: any, res: any): Promise<void> => {
 
     // db request
     await db.query(
-      'INSERT INTO event_logs (device_id, user_email, event, group_id) VALUES ($1, $2, $3, $4)',
+      'INSERT INTO event_logs (device_id, user_email, event, bank_id) VALUES ($1, $2, $3, $4)',
       [basicAuth.deviceId, basicAuth.userEmail, event, basicAuth.groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'logEvent OK');

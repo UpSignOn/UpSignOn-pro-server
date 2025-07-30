@@ -30,7 +30,7 @@ export const getEmailAuthorizationStatus = async (
   }
 
   // CHECK EMAIL PATTERNS
-  const patternRes = await db.query('SELECT pattern FROM allowed_emails WHERE group_id=$1', [
+  const patternRes = await db.query('SELECT pattern FROM allowed_emails WHERE bank_id=$1', [
     groupId,
   ]);
   const isAuthorizedByPattern = patternRes.rows

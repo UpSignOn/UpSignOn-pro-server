@@ -69,8 +69,8 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         users.deactivated AS deactivated,
         char_length(user_devices.device_public_key_2) > 0 AS has_device_public_key_2,
         users.allowed_to_export AS allowed_to_export,
-        groups.settings AS group_settings,
-        groups.stop_this_instance,
+        banks.settings AS bank_settings,
+        banks.stop_this_instance,
         users.allowed_offline_mobile AS allowed_offline_mobile,
         users.allowed_offline_desktop AS allowed_offline_desktop,
         user_devices.device_type AS device_type,
@@ -78,18 +78,18 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         user_devices.encrypted_password_backup_2
       FROM user_devices
       INNER JOIN users ON user_devices.user_id = users.id
-      INNER JOIN groups ON groups.id = users.group_id
+      INNER JOIN banks ON banks.id = users.bank_id
       WHERE
         users.email=$1 AND
         user_devices.device_unique_id = $2 AND
-        users.group_id=$3`,
+        users.bank_id=$3`,
       [userEmail, deviceId, groupIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
-        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND group_id=$2',
+        'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND bank_id=$2',
         [userEmail, groupIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
@@ -124,7 +124,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupIds.internalId);
 
     const userResultingSetting = getDefaultSettingOrUserOverride(
-      dbRes.rows[0].group_settings,
+      dbRes.rows[0].bank_settings,
       dbRes.rows[0],
       dbRes.rows[0].os_family || dbRes.rows[0].device_type, // fallback to device_type which used to be where we stored os_family
     );
@@ -143,7 +143,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         dbRes.rows[0].encrypted_password_backup_2.length == 512,
     });
 
-    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND group_id=$3', [
+    await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       dbRes.rows[0].device_primary_id,
       groupIds.internalId,
@@ -184,7 +184,7 @@ export const getSharedVaults = async (
     INNER JOIN shared_vault_recipients AS svr
     ON svr.shared_vault_id=sv.id
     WHERE svr.user_id=$1
-    AND sv.group_id=$2`,
+    AND sv.bank_id=$2`,
     [userId, groupId],
   );
   return sharedVaultsRes.rows.map((s) => ({
@@ -201,13 +201,13 @@ export const getSharedVaults = async (
 const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupId: number) => {
   try {
     const changedEmails = await db.query(
-      'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND group_id=$2',
+      'SELECT aware_devices FROM changed_emails WHERE user_id = $1 AND bank_id=$2',
       [userId, groupId],
     );
     if (changedEmails.rowCount != null && changedEmails.rowCount > 0) {
       // get all devices for this user
       const devices = await db.query(
-        'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1 AND group_id=$2',
+        'SELECT id, device_unique_id FROM user_devices WHERE user_id=$1 AND bank_id=$2',
         [userId, groupId],
       );
 
@@ -218,7 +218,7 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
             // do update all changed_emails for user_id and not only for changed_emails wher old_email = userEmail
             // because this will help make sure the database cleans itself automatically in the end
             await db.query(
-              'UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2 AND group_id=$3',
+              'UPDATE changed_emails SET aware_devices=$1 WHERE user_id=$2 AND bank_id=$3',
               [JSON.stringify([...changedEmails.rows[0].aware_devices, d.id]), userId, groupId],
             );
           } else {
@@ -227,7 +227,7 @@ const cleanChangedEmails = async (userId: number, deviceUniqueId: string, groupI
         }
       });
       if (areAllDevicesAware) {
-        await db.query('DELETE FROM changed_emails WHERE user_id=$1 AND group_id=$2', [
+        await db.query('DELETE FROM changed_emails WHERE user_id=$1 AND bank_id=$2', [
           userId,
           groupId,
         ]);

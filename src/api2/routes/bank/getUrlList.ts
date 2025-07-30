@@ -12,7 +12,7 @@ export const getUrlList2 = async (req: any, res: any): Promise<void> => {
     }
 
     const urlListRes = await db.query(
-      'SELECT * FROM url_list WHERE group_id=$1 ORDER BY displayed_name ASC',
+      'SELECT * FROM url_list WHERE bank_id=$1 ORDER BY displayed_name ASC',
       [basicAuth.groupIds.internalId],
     );
 

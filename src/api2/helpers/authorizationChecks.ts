@@ -107,7 +107,7 @@ WHERE
   u.email=$1
   AND ud.device_unique_id = $2
   AND ud.authorization_status='AUTHORIZED'
-  AND u.group_id=$3
+  AND u.bank_id=$3
   ${accountManagerOrRecipientWhere}
   ${accountRecipientWhere}
   `;

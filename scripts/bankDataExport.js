@@ -21,30 +21,28 @@ async function exportDb() {
   try {
     await db.connect();
     const admins = await db.query('SELECT * FROM admins');
-    const admin_groups = await db.query('SELECT * FROM admin_groups WHERE group_id=$1', [groupId]);
-    const allowed_emails = await db.query('SELECT * FROM allowed_emails WHERE group_id=$1', [
+    const admin_banks = await db.query('SELECT * FROM admin_banks WHERE bank_id=$1', [groupId]);
+    const allowed_emails = await db.query('SELECT * FROM allowed_emails WHERE bank_id=$1', [
       groupId,
     ]);
-    // const data_stats = await db.query('SELECT * FROM data_stats WHERE group_id=$1', [groupId]);
+    // const data_stats = await db.query('SELECT * FROM data_stats WHERE bank_id=$1', [groupId]);
     // const password_reset_request = await db.query(
-    //   'SELECT * FROM password_reset_request WHERE group_id=$1',
+    //   'SELECT * FROM password_reset_request WHERE bank_id=$1',
     //   [groupId],
     // );
-    const users = await db.query('SELECT * FROM users WHERE group_id=$1', [groupId]);
+    const users = await db.query('SELECT * FROM users WHERE bank_id=$1', [groupId]);
     const shared_vault_recipients = await db.query(
-      'SELECT * FROM shared_vault_recipients WHERE group_id=$1',
+      'SELECT * FROM shared_vault_recipients WHERE bank_id=$1',
       [groupId],
     );
-    const shared_vaults = await db.query('SELECT * FROM shared_vaults WHERE group_id=$1', [
-      groupId,
-    ]);
-    const url_list = await db.query('SELECT * FROM url_list WHERE group_id=$1', [groupId]);
-    const user_devices = await db.query('SELECT * FROM user_devices WHERE group_id=$1', [groupId]);
+    const shared_vaults = await db.query('SELECT * FROM shared_vaults WHERE bank_id=$1', [groupId]);
+    const url_list = await db.query('SELECT * FROM url_list WHERE bank_id=$1', [groupId]);
+    const user_devices = await db.query('SELECT * FROM user_devices WHERE bank_id=$1', [groupId]);
     fs.writeFileSync(
       filePath,
       JSON.stringify({
         admins: admins.rows,
-        admin_groups: admin_groups.rows,
+        admin_banks: admin_banks.rows,
         allowed_emails: allowed_emails.rows,
         // data_stats: data_stats.rows,
         // password_reset_request: password_reset_request.rows,

@@ -1,4 +1,4 @@
-export type GROUP_SETTINGS = {
+export type BANK_SETTINGS = {
   DISABLE_OFFLINE_MODE_DEFAULT_DESKTOP?: boolean | null;
   DISABLE_OFFLINE_MODE_DEFAULT_MOBILE?: boolean | null;
   ALLOWED_TO_EXPORT?: boolean | null;
@@ -35,7 +35,7 @@ type RESULTING_USER_SETTINGS = {
 };
 
 export const getDefaultSettingOrUserOverride = (
-  defaultSettings: GROUP_SETTINGS,
+  defaultSettings: BANK_SETTINGS,
   userOverride: USER_OVERRIDE,
   osFamily: string,
 ): RESULTING_USER_SETTINGS => {

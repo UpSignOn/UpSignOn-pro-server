@@ -17,7 +17,7 @@ export const setBrowserSetupUserPreference = async (req: any, res: any) => {
     await db.query(
       `UPDATE user_devices
       SET use_safe_browser_setup=$1
-      WHERE user_id=$2 AND device_unique_id=$3 AND group_id=$4
+      WHERE user_id=$2 AND device_unique_id=$3 AND bank_id=$4
       `,
       [
         forceUseSafeBrowserSetup,

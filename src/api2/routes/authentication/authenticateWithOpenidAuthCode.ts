@@ -153,7 +153,7 @@ export const authenticateWithOpenidAuthCode = async (
     }
 
     // make sure email address is allowed
-    const existingVaults = await db.query('SELECT id FROM users WHERE email=$1 AND group_id=$2', [
+    const existingVaults = await db.query('SELECT id FROM users WHERE email=$1 AND bank_id=$2', [
       userEmail,
       groupIds.internalId,
     ]);

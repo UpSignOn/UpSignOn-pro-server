@@ -24,7 +24,7 @@ const doSendTrialEmailReminder = async (): Promise<void> => {
     if (isMonday()) {
       // get all trials
       const trialsRes = await db.query(
-        "SELECT id, name, settings->'TESTING_EXPIRATION_DATE' as testing_expiration_date, settings->'SALES_REP' as sales_rep FROM groups WHERE settings->>'IS_TESTING' = 'true'",
+        "SELECT id, name, settings->'TESTING_EXPIRATION_DATE' as testing_expiration_date, settings->'SALES_REP' as sales_rep FROM banks WHERE settings->>'IS_TESTING' = 'true'",
       );
       const trials = trialsRes.rows.map((t) => {
         return {

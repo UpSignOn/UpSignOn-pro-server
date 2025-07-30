@@ -21,7 +21,7 @@ export const backupPassword2 = async (req: any, res: any) => {
     await Promise.all(
       backups.map((backup) =>
         db.query(
-          "UPDATE user_devices SET encrypted_password_backup_2=$1 WHERE device_unique_id=$2 AND user_id=$3 AND authorization_status='AUTHORIZED' AND group_id=$4",
+          "UPDATE user_devices SET encrypted_password_backup_2=$1 WHERE device_unique_id=$2 AND user_id=$3 AND authorization_status='AUTHORIZED' AND bank_id=$4",
           [
             backup.encryptedPassword,
             backup.deviceId,

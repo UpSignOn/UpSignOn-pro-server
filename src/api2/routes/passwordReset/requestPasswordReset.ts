@@ -44,7 +44,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
         users.email=$1
         AND user_devices.device_unique_id = $2
         AND user_devices.authorization_status='AUTHORIZED'
-        AND user_devices.group_id=$3
+        AND user_devices.bank_id=$3
       LIMIT 1`,
       [safeBody.userEmail, safeBody.deviceId, groupIds.internalId],
     );
@@ -79,7 +79,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       FROM password_reset_request
       WHERE
         password_reset_request.device_id=$1
-        AND password_reset_request.group_id=$2
+        AND password_reset_request.bank_id=$2
         AND password_reset_request.status != 'COMPLETED'
       ORDER BY password_reset_request.created_at DESC
       LIMIT 1`,
@@ -89,7 +89,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
     const resetRequest = dbRes.rows[0];
 
     const settingRes = await db.query(
-      `SELECT settings->>'DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN' AS value FROM groups WHERE id=$1`,
+      `SELECT settings->>'DISABLE_MANUAL_VALIDATION_FOR_PASSWORD_FORGOTTEN' AS value FROM banks WHERE id=$1`,
       [groupIds.internalId],
     );
     if (settingRes.rows[0]?.value === 'true' || settingRes.rows[0]?.value === true) {
@@ -99,7 +99,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       if (!resetRequest) {
         await db.query(
           `INSERT INTO password_reset_request
-              (device_id, status, reset_token, reset_token_expiration_date, group_id, granted_by)
+              (device_id, status, reset_token, reset_token_expiration_date, bank_id, granted_by)
             VALUES ($1,'ADMIN_AUTHORIZED',$2,$3, $4, 'configuration')
           `,
           [authDbRes.rows[0].did, randomAuthorizationCode, expirationDate, groupIds.internalId],
@@ -112,7 +112,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
             reset_token=$1,
             reset_token_expiration_date=$2,
             granted_by='configuration'
-          WHERE id=$3 AND group_id=$4`,
+          WHERE id=$3 AND bank_id=$4`,
           [
             randomAuthorizationCode,
             expirationDate,
@@ -134,7 +134,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       if (!resetRequest) {
         await db.query(
           `INSERT INTO password_reset_request
-              (device_id, status, group_id)
+              (device_id, status, bank_id)
             VALUES
               ($1, 'PENDING_ADMIN_CHECK', $2)
           `,
@@ -149,7 +149,7 @@ export const requestPasswordReset2 = async (req: any, res: any) => {
       ) {
         // Start a new request
         await db.query(
-          `UPDATE password_reset_request SET created_at=CURRENT_TIMESTAMP(0), status='PENDING_ADMIN_CHECK', granted_by=null, reset_token=null, reset_token_expiration_date=null WHERE id=$1 AND group_id=$2`,
+          `UPDATE password_reset_request SET created_at=CURRENT_TIMESTAMP(0), status='PENDING_ADMIN_CHECK', granted_by=null, reset_token=null, reset_token_expiration_date=null WHERE id=$1 AND bank_id=$2`,
           [resetRequest.reset_request_id, groupIds.internalId],
         );
         logInfo(req.body?.userEmail, 'requestPasswordReset2 OK (reset request updated)');

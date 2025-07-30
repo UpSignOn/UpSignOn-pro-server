@@ -30,7 +30,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
 
     const creationRes = await db.query(
       `INSERT INTO shared_vaults
-      (group_id, name, encrypted_data)
+      (bank_id, name, encrypted_data)
       VALUES ($1,$2,$3)
       RETURNING id, last_updated_at
     `,
@@ -39,7 +39,7 @@ export const createSharedVault = async (req: any, res: any): Promise<void> => {
 
     await db.query(
       `INSERT INTO shared_vault_recipients
-    (group_id, shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level)
+    (bank_id, shared_vault_id, user_id, encrypted_shared_vault_key, is_manager, access_level)
     VALUES ($1, $2, $3, $4, true, 'owner')
     `,
       [

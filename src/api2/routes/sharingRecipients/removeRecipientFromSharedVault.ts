@@ -29,7 +29,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
     if (basicAuth.userId !== recipientId) {
       // if not removing himself, check if is owner
       const ownershipCheck = await db.query(
-        'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND group_id=$3',
+        'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
         [sharedVaultId, basicAuth.userId, basicAuth.groupIds.internalId],
       );
       if (ownershipCheck.rows[0]?.access_level !== 'owner') {
@@ -39,7 +39,7 @@ export const removeRecipientFromSharedVault = async (req: any, res: any) => {
     }
 
     await db.query(
-      'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND group_id=$3',
+      'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
       [sharedVaultId, recipientId, basicAuth.groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'removeRecipientFromSharedVault OK');
@@ -85,7 +85,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
     if (isRemovingOthers) {
       // Check if is owner
       const ownershipCheck = await db.query(
-        'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND group_id=$3',
+        'SELECT access_level FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id=$2 AND bank_id=$3',
         [sharedVaultId, basicAuth.userId, basicAuth.groupIds.internalId],
       );
       if (ownershipCheck.rows[0]?.access_level === 'owner') {
@@ -99,7 +99,7 @@ export const removeRecipientsFromSharedVault = async (req: any, res: any) => {
       return res.status(403).end();
     }
     await db.query(
-      'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id = ANY(($2)::INT[]) AND group_id=$3',
+      'DELETE FROM shared_vault_recipients WHERE shared_vault_id=$1 AND user_id = ANY(($2)::INT[]) AND bank_id=$3',
       [sharedVaultId, recipientIds, basicAuth.groupIds.internalId],
     );
     logInfo(req.body?.userEmail, 'removeRecipientsFromSharedVault OK');
