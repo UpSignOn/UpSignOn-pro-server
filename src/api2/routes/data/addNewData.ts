@@ -15,7 +15,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     // 0 - Check params
     if (
@@ -45,7 +45,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         AND ud.authorization_status='AUTHORIZED'
         AND u.bank_id=$3
         `,
-      [userEmail, deviceUId, groupIds.internalId],
+      [userEmail, deviceUId, bankIds.internalId],
     );
     // 1 - check that user data is indeed empty
     if (
@@ -90,7 +90,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
         newEncryptedDataWithPasswordChallengeSecured,
         sharingPublicKey,
         userEmail,
-        groupIds.internalId,
+        bankIds.internalId,
       ],
     );
     if (updateRes.rowCount === 0) {
@@ -102,12 +102,12 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       selectRes.rows[0].did,
-      groupIds.internalId,
+      bankIds.internalId,
     ]);
 
     const settingsRes = await db.query(
       'SELECT os_family, device_type, settings FROM user_devices INNER JOIN banks ON banks.id=user_devices.bank_id WHERE user_devices.device_unique_id=$1 AND banks.id=$2',
-      [deviceUId, groupIds.internalId],
+      [deviceUId, bankIds.internalId],
     );
 
     const resultSettings = getDefaultSettingOrUserOverride(
@@ -118,7 +118,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
 
     // Set Session
     const deviceSession = await SessionStore.createSession({
-      groupId: groupIds.internalId,
+      groupId: bankIds.internalId,
       deviceUniqueId: deviceUId,
       userEmail,
     });

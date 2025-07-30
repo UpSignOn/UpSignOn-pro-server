@@ -25,11 +25,11 @@ export const checkBasicAuth2 = async (
       encryptedData: null | string;
       deviceId: null | number;
       granted: true;
-      groupIds: BankIds;
+      bankIds: BankIds;
     }
   | { granted: false }
 > => {
-  const groupIds = await getBankIds(req);
+  const bankIds = await getBankIds(req);
 
   const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
@@ -52,7 +52,7 @@ export const checkBasicAuth2 = async (
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceUId,
-      groupId: groupIds.internalId,
+      groupId: bankIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: invalid session');
@@ -111,7 +111,7 @@ WHERE
   ${accountManagerOrRecipientWhere}
   ${accountRecipientWhere}
   `;
-  const params = [userEmail, deviceUId, groupIds.internalId, ...accountManagerOrRecipientParam];
+  const params = [userEmail, deviceUId, bankIds.internalId, ...accountManagerOrRecipientParam];
   // Request DB
   const dbRes = await db.query(query, params);
 
@@ -131,6 +131,6 @@ WHERE
     encryptedData: dbRes.rows[0].encrypted_data_2,
     deviceId: dbRes.rows[0].device_id,
     granted: true,
-    groupIds,
+    bankIds,
   };
 };

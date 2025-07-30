@@ -46,7 +46,7 @@ export const addRecipientToSharedVault = async (req: any, res: any): Promise<voi
         encryptedSharedVaultKey,
         isManager, // deprecated
         accessLevel,
-        authRes.groupIds.internalId,
+        authRes.bankIds.internalId,
       ],
     );
 

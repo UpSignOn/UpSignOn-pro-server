@@ -16,7 +16,7 @@ export const revokeDevice = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const deviceToDelete = inputSanitizer.getString(req.body?.deviceToDelete) || deviceId;
 
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
     let userId = null;
 
     // DEVICE CAN REVOKE ITSELF WITHOUT FULL SESSION
@@ -48,7 +48,7 @@ export const revokeDevice = async (req: any, res: any) => {
           'users.email=$1 ' +
           'AND ud.device_unique_id = $2 ' +
           'AND users.bank_id=$3',
-        [userEmail, deviceId, groupIds.internalId],
+        [userEmail, deviceId, bankIds.internalId],
       );
 
       if (!dbRes || dbRes.rowCount === 0) {
@@ -62,7 +62,7 @@ export const revokeDevice = async (req: any, res: any) => {
         isSessionAuthenticated = await SessionStore.checkSession(deviceSession, {
           userEmail,
           deviceUniqueId: deviceId,
-          groupId: groupIds.internalId,
+          groupId: bankIds.internalId,
         });
       }
       if (!deviceSession || !isSessionAuthenticated) {
@@ -97,7 +97,7 @@ export const revokeDevice = async (req: any, res: any) => {
 
     await db.query(
       "UPDATE user_devices SET device_unique_id=null, authorization_status='REVOKED_BY_USER', device_public_key_2=null, encrypted_password_backup_2='', revocation_date=$1 WHERE device_unique_id=$2 AND user_id=$3 AND bank_id=$4",
-      [new Date().toISOString(), deviceToDelete, userId, groupIds.internalId],
+      [new Date().toISOString(), deviceToDelete, userId, bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'revokeDevice OK');
     // Return res

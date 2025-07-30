@@ -13,7 +13,7 @@ import { SessionStore } from '../../../helpers/sessionStore';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getPasswordBackup2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     const joiRes = Joi.object({
       userEmail: Joi.string().email().lowercase().required(),
@@ -47,7 +47,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
         AND user_devices.authorization_status='AUTHORIZED'
         AND user_devices.bank_id=$3
       LIMIT 1`,
-      [safeBody.userEmail, safeBody.deviceId, groupIds.internalId],
+      [safeBody.userEmail, safeBody.deviceId, bankIds.internalId],
     );
 
     if (!deviceRes || deviceRes.rowCount === 0) {
@@ -79,7 +79,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       // validate it
       const isOpenidSessionOK = await SessionStore.checkOpenIdSession(safeBody.openidSession, {
         userEmail: safeBody.userEmail,
-        groupId: groupIds.internalId,
+        groupId: bankIds.internalId,
       });
       if (!isOpenidSessionOK) {
         logInfo(safeBody.userEmail, 'requestDeviceAccess2 fail: invalid openidSession');
@@ -99,7 +99,7 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
           AND user_devices.bank_id=$2
           AND password_reset_request.status != 'COMPLETED'
         LIMIT 1`,
-        [safeBody.deviceId, groupIds.internalId],
+        [safeBody.deviceId, bankIds.internalId],
       );
 
       resetRequest = existingRequestRes.rows[0];
@@ -137,18 +137,18 @@ export const getPasswordBackup2 = async (req: any, res: any) => {
       await db.query(
         `INSERT INTO password_reset_request (device_id, status, bank_id, granted_by)
         VALUES ($1,'COMPLETED',$2, 'SSO authentication')`,
-        [deviceRes.rows[0].id, groupIds.internalId],
+        [deviceRes.rows[0].id, bankIds.internalId],
       );
     } else {
       // update status for reset request
       await db.query(
         `UPDATE password_reset_request SET status='COMPLETED', reset_token=null WHERE id=$1 AND bank_id=$2`,
-        [resetRequest.reset_request_id, groupIds.internalId],
+        [resetRequest.reset_request_id, bankIds.internalId],
       );
     }
     await db.query(
       'UPDATE user_devices SET password_challenge_error_count=0, password_challenge_blocked_until=null WHERE device_unique_id=$1 AND bank_id=$2',
-      [safeBody.deviceId, groupIds.internalId],
+      [safeBody.deviceId, bankIds.internalId],
     );
     logInfo(safeBody.userEmail, 'getPasswordBackup2 OK');
     // Return res

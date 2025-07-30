@@ -25,7 +25,7 @@ export const renameDevice2 = async (req: any, res: any) => {
 
     await db.query(
       'UPDATE user_devices SET device_name=$1 WHERE user_id=$2 AND device_unique_id=$3 AND bank_id=$4',
-      [newName, basicAuth.userId, deviceToRename, basicAuth.groupIds.internalId],
+      [newName, basicAuth.userId, deviceToRename, basicAuth.bankIds.internalId],
     );
     logInfo(req.body?.userEmail, 'renameDevice2 OK');
     // Return res

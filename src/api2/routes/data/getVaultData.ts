@@ -20,9 +20,9 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     if (!IS_ACTIVE) {
       return res.status(403);
     }
-    let groupIds;
+    let bankIds;
     try {
-      groupIds = await getBankIds(req);
+      bankIds = await getBankIds(req);
     } catch (e) {
       // bank may have been deleted, we need to send a revoked_by_admin response
       logError(req.body?.userEmail, 'getVaultData', e);
@@ -51,7 +51,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceId,
-      groupId: groupIds.internalId,
+      groupId: bankIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'getVaultData fail: session not valid');
@@ -83,14 +83,14 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
         users.email=$1 AND
         user_devices.device_unique_id = $2 AND
         users.bank_id=$3`,
-      [userEmail, deviceId, groupIds.internalId],
+      [userEmail, deviceId, bankIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
         'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND bank_id=$2',
-        [userEmail, groupIds.internalId],
+        [userEmail, bankIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
         logInfo(req.body?.userEmail, 'getVaultData fail: device deleted');
@@ -121,7 +121,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
       return res.status(403).json({ authorizationStatus: dbRes.rows[0].authorization_status });
     }
 
-    const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, groupIds.internalId);
+    const sharedVaults = await getSharedVaults(dbRes.rows[0].user_id, bankIds.internalId);
 
     const userResultingSetting = getDefaultSettingOrUserOverride(
       dbRes.rows[0].bank_settings,
@@ -146,10 +146,10 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       dbRes.rows[0].device_primary_id,
-      groupIds.internalId,
+      bankIds.internalId,
     ]);
     // Clean changed_emails table if necessary
-    cleanChangedEmails(dbRes.rows[0].user_id, deviceId, groupIds.internalId);
+    cleanChangedEmails(dbRes.rows[0].user_id, deviceId, bankIds.internalId);
     logInfo(req.body?.userEmail, 'getVaultData OK');
   } catch (e) {
     logError(req.body?.userEmail, 'getVaultData', e);

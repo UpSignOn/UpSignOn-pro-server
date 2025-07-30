@@ -13,7 +13,7 @@ export const authenticate2 = async (req: any, res: any) => {
     const passwordChallengeResponse = inputSanitizer.getString(req.body?.passwordChallengeResponse);
     const deviceChallengeResponse = inputSanitizer.getString(req.body?.deviceChallengeResponse);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupIds = await getBankIds(req);
+    const bankIds = await getBankIds(req);
 
     if (!userEmail) {
       logError(req.body?.userEmail, 'authenticate2 fail: userEmail missing');
@@ -50,7 +50,7 @@ export const authenticate2 = async (req: any, res: any) => {
         AND ud.authorization_status='AUTHORIZED'
         AND u.bank_id=$3
       `,
-      [userEmail, deviceUId, groupIds.internalId],
+      [userEmail, deviceUId, bankIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0 || dbRes.rows[0].deactivated) {
@@ -103,7 +103,7 @@ export const authenticate2 = async (req: any, res: any) => {
       passwordChallengeResponse,
       password_challenge_error_count,
       did,
-      groupIds.internalId,
+      bankIds.internalId,
     );
 
     // 5 - check Device challenge
@@ -120,7 +120,7 @@ export const authenticate2 = async (req: any, res: any) => {
         [did],
       );
       const deviceSession = await SessionStore.createSession({
-        groupId: groupIds.internalId,
+        groupId: bankIds.internalId,
         deviceUniqueId: deviceUId,
         userEmail,
       });

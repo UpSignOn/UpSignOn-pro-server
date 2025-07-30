@@ -30,7 +30,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
       logInfo(req.body?.userEmail, 'updateVaultData fail: auth not granted');
       return res.status(401).end();
     }
-    const hasServerMoved = await isInstanceStopped(basicAuth.groupIds.internalId);
+    const hasServerMoved = await isInstanceStopped(basicAuth.bankIds.internalId);
     if (hasServerMoved) {
       logInfo('instance stopped');
       return res.status(400).end();
@@ -70,7 +70,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
           newEncryptedDataWithPasswordChallengeSecured,
           basicAuth.userId,
           lastUpdatedAt,
-          basicAuth.groupIds.internalId,
+          basicAuth.bankIds.internalId,
           vaultStats!.nbAccounts,
           vaultStats!.nbCodes,
           vaultStats!.nbAccountsStrong,
@@ -104,7 +104,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
           newEncryptedDataWithPasswordChallengeSecured,
           basicAuth.userEmail,
           lastUpdatedAt,
-          basicAuth.groupIds.internalId,
+          basicAuth.bankIds.internalId,
         ],
       );
       if (updateRes.rowCount === 0) {
@@ -118,7 +118,7 @@ export const updateVaultData = async (req: any, res: any): Promise<void> => {
     await db.query('UPDATE user_devices SET last_sync_date=$1 WHERE id=$2 AND bank_id=$3', [
       new Date().toISOString(),
       basicAuth.deviceId,
-      basicAuth.groupIds.internalId,
+      basicAuth.bankIds.internalId,
     ]);
   } catch (e) {
     logError(req.body?.userEmail, 'updateData2', e);

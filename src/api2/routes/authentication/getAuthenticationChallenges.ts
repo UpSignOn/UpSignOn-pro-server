@@ -15,9 +15,9 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
     const deviceId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
 
-    let groupIds;
+    let bankIds;
     try {
-      groupIds = await getBankIds(req);
+      bankIds = await getBankIds(req);
     } catch (e) {
       if (e instanceof BadBankIdException) {
         // bank may have been deleted, we need to send a revoked_by_admin response
@@ -50,14 +50,14 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
         AND ud.device_unique_id = $2
         AND u.bank_id=$3
       `,
-      [userEmail, deviceId, groupIds.internalId],
+      [userEmail, deviceId, bankIds.internalId],
     );
 
     if (!dbRes || dbRes.rowCount === 0) {
       // Check if the email address has changed
       const emailChangeRes = await db.query(
         'SELECT user_id, new_email FROM changed_emails WHERE old_email=$1 AND bank_id=$2',
-        [userEmail, groupIds.internalId],
+        [userEmail, bankIds.internalId],
       );
       if (emailChangeRes.rowCount === 0) {
         logInfo(userEmail, 'getAuthenticationChallenges2 fail: device deleted');
