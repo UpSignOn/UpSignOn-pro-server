@@ -52,7 +52,7 @@ export const checkBasicAuth2 = async (
     const isSessionOK = await SessionStore.checkSession(deviceSession, {
       userEmail,
       deviceUniqueId: deviceUId,
-      groupId: bankIds.internalId,
+      bankId: bankIds.internalId,
     });
     if (!isSessionOK) {
       logInfo(req.body?.userEmail, 'checkBasicAuth2 fail: invalid session');

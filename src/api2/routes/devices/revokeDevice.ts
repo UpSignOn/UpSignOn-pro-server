@@ -62,7 +62,7 @@ export const revokeDevice = async (req: any, res: any) => {
         isSessionAuthenticated = await SessionStore.checkSession(deviceSession, {
           userEmail,
           deviceUniqueId: deviceId,
-          groupId: bankIds.internalId,
+          bankId: bankIds.internalId,
         });
       }
       if (!deviceSession || !isSessionAuthenticated) {

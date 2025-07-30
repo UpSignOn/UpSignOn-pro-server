@@ -3,12 +3,12 @@ const bankId = parseInt(process.argv[2]);
 const filePath = process.argv[3];
 if (typeof bankId !== 'number') {
   console.log('BankId parameter missing.');
-  console.log('Usage: node ./scripts/groupDataImport.js 2 path/to/data/file');
+  console.log('Usage: node ./scripts/bankDataImport.js 2 path/to/data/file');
   process.exit(1);
 }
 if (!filePath) {
   console.log('File path parameter missing.');
-  console.log('Usage: node ./scripts/groupDataImport.js 2 path/to/data/file');
+  console.log('Usage: node ./scripts/bankDataImport.js 2 path/to/data/file');
   process.exit(1);
 }
 
@@ -31,7 +31,7 @@ async function importFunction() {
     );
   }
 
-  // ADMIN GROUPS
+  // ADMIN BANKS
   for (var i = 0; i < data.admin_banks.length; i++) {
     const row = data.admin_banks[i];
     await db.query('INSERT INTO admin_banks (admin_id, bank_id) VALUES ($1,$2)', [

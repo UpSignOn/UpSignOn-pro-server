@@ -118,7 +118,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
 
     // Set Session
     const deviceSession = await SessionStore.createSession({
-      groupId: bankIds.internalId,
+      bankId: bankIds.internalId,
       deviceUniqueId: deviceUId,
       userEmail,
     });

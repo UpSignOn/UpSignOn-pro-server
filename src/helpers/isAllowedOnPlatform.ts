@@ -41,13 +41,13 @@ const _settingResultForUser = (
   defaultResult: boolean,
 ): boolean => {
   const userParam = userSettings?.[settingName];
-  const groupParam = bankSettings?.[settingName];
+  const bankParam = bankSettings?.[settingName];
   if (userParam === true) return true;
   if (userParam === false) return false;
   // userParam is null or undefined
-  if (groupParam === true) return true;
-  if (groupParam === false) return false;
-  // groupParam is also null or undefined
+  if (bankParam === true) return true;
+  if (bankParam === false) return false;
+  // bankParam is also null or undefined
   return defaultResult;
 };
 

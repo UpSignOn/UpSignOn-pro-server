@@ -32,7 +32,8 @@ export const sendStatusUpdate = async (): Promise<void> => {
       licenseCount,
       userAppVersions,
       securityGraph: JSON.stringify(stats),
-      statsByGroup: statsByBank,
+      statsByGroup: statsByBank, // DEPRECATED: TODO remove in next version
+      statsByBank: statsByBank,
       hasDailyBackup,
       nodeVersion,
       deviceStats,

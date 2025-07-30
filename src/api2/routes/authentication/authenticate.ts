@@ -120,7 +120,7 @@ export const authenticate2 = async (req: any, res: any) => {
         [did],
       );
       const deviceSession = await SessionStore.createSession({
-        groupId: bankIds.internalId,
+        bankId: bankIds.internalId,
         deviceUniqueId: deviceUId,
         userEmail,
       });

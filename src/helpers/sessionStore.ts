@@ -8,11 +8,11 @@ import { isEmailEquivalentTo } from './emailCompare';
 type SessionData = {
   userEmail: string;
   deviceUniqueId: string;
-  groupId: number;
+  bankId: number;
 };
 type OpenIdSessionData = {
   userEmail: string;
-  groupId: number;
+  bankId: number;
   accessToken: string;
 };
 
@@ -93,12 +93,14 @@ async function checkSession(
   return (
     expectedSessionData.userEmail === untrustedSessionData.userEmail &&
     expectedSessionData.deviceUniqueId === untrustedSessionData.deviceUniqueId &&
-    expectedSessionData.groupId === untrustedSessionData.groupId
+    (expectedSessionData.bankId === untrustedSessionData.bankId ||
+      // for backwards compatibility
+      expectedSessionData.groupId === untrustedSessionData.bankId)
   );
 }
 async function checkOpenIdSession(
   untrustedSession: string,
-  untrustedSessionData: { userEmail: string; groupId: number },
+  untrustedSessionData: { userEmail: string; bankId: number },
 ): Promise<boolean> {
   if (typeof untrustedSession !== 'string') return false;
   const sessionId = untrustedSession.split('.')[0];
@@ -114,7 +116,9 @@ async function checkOpenIdSession(
   const expectedSessionData = res.rows[0].session_data;
   return (
     isEmailEquivalentTo(expectedSessionData.userEmail, untrustedSessionData.userEmail) &&
-    expectedSessionData.groupId === untrustedSessionData.groupId
+    (expectedSessionData.bankId === untrustedSessionData.bankId ||
+      // for backwards compatibility
+      expectedSessionData.groupId === untrustedSessionData.bankId)
   );
 }
 
