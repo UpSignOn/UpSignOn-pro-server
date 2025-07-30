@@ -4,7 +4,7 @@ import { db } from '../../helpers/db';
 import { logInfo } from '../../helpers/logger';
 import { inputSanitizer } from '../../helpers/sanitizer';
 import { SessionStore } from '../../helpers/sessionStore';
-import { getGroupIds, BankIds } from './bankUUID';
+import { getBankIds, BankIds } from './bankUUID';
 
 export const checkBasicAuth2 = async (
   req: any,
@@ -29,7 +29,7 @@ export const checkBasicAuth2 = async (
     }
   | { granted: false }
 > => {
-  const groupIds = await getGroupIds(req);
+  const groupIds = await getBankIds(req);
 
   const deviceSession = inputSanitizer.getString(req.body?.deviceSession);
   const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);

@@ -4,7 +4,7 @@ import { createDeviceChallengeV2 } from '../../helpers/deviceChallengev2';
 import { createPasswordChallengeV2 } from '../../helpers/passwordChallengev2';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { IS_ACTIVE } from '../../../helpers/serverStatus';
-import { BadGroupIdException, getGroupIds } from '../../helpers/bankUUID';
+import { BadGroupIdException, getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getAuthenticationChallenges2 = async (req: any, res: any) => {
@@ -17,7 +17,7 @@ export const getAuthenticationChallenges2 = async (req: any, res: any) => {
 
     let groupIds;
     try {
-      groupIds = await getGroupIds(req);
+      groupIds = await getBankIds(req);
     } catch (e) {
       if (e instanceof BadGroupIdException) {
         // bank may have been deleted, we need to send a revoked_by_admin response

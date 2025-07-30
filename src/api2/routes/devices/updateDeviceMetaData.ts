@@ -5,12 +5,12 @@ import {
 } from '../../helpers/deviceChallengev2';
 import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const updateDeviceMetaData2 = async (req: any, res: any): Promise<void> => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);

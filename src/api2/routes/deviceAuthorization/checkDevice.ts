@@ -8,12 +8,12 @@ import {
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import libsodium from 'libsodium-wrappers';
 import { sendDeviceRequestAdminEmail } from '../../../helpers/sendDeviceRequestEmail';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const checkDevice2 = async (req: any, res: any) => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     // Get params
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);

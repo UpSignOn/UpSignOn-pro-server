@@ -4,7 +4,7 @@ import { logError, logInfo } from '../../../helpers/logger';
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { IS_ACTIVE } from '../../../helpers/serverStatus';
 import { SessionStore } from '../../../helpers/sessionStore';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 /**
  * Returns
@@ -22,7 +22,7 @@ export const getVaultData = async (req: any, res: any): Promise<void> => {
     }
     let groupIds;
     try {
-      groupIds = await getGroupIds(req);
+      groupIds = await getBankIds(req);
     } catch (e) {
       // bank may have been deleted, we need to send a revoked_by_admin response
       logError(req.body?.userEmail, 'getVaultData', e);

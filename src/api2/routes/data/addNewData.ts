@@ -5,7 +5,7 @@ import { hashPasswordChallengeResultForSecureStorageV2 } from '../../helpers/pas
 import { inputSanitizer } from '../../../helpers/sanitizer';
 import { SessionStore } from '../../../helpers/sessionStore';
 import { getDefaultSettingOrUserOverride } from '../../../helpers/getDefaultSettingOrUserOverride';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const addNewData2 = async (req: any, res: any): Promise<void> => {
@@ -15,7 +15,7 @@ export const addNewData2 = async (req: any, res: any): Promise<void> => {
     const newEncryptedData = inputSanitizer.getString(req.body?.newEncryptedData);
     const deviceUId = inputSanitizer.getString(req.body?.deviceId);
     const userEmail = inputSanitizer.getLowerCaseString(req.body?.userEmail);
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
 
     // 0 - Check params
     if (

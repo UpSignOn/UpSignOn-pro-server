@@ -1,11 +1,11 @@
 import { db } from '../../../helpers/db';
 import { logError, logInfo } from '../../../helpers/logger';
-import { getGroupIds } from '../../helpers/bankUUID';
+import { getBankIds } from '../../helpers/bankUUID';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
 export const getBankConfig = async (req: any, res: any): Promise<void> => {
   try {
-    const groupIds = await getGroupIds(req);
+    const groupIds = await getBankIds(req);
     const groupRes = await db.query(
       `SELECT
         b.name,
