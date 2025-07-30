@@ -1,6 +1,6 @@
 import { db } from '../../helpers/db';
 
-export type GroupIds = {
+export type BankIds = {
   publicId: string;
   internalId: number;
   usesDeprecatedIntId: boolean;
@@ -10,7 +10,7 @@ export class BadGroupIdException extends Error {}
 
 /// This function transforms uuidv4 group id into integer group id
 /// and maintains backwards compatibility with previous id format
-export const getGroupIds = async (req: any): Promise<GroupIds> => {
+export const getGroupIds = async (req: any): Promise<BankIds> => {
   const rawId = req.params.bankUUID;
   let internalId, publicId;
   let usesDeprecatedIntId = false;
