@@ -7,7 +7,6 @@ exports.up = async function (db) {
   await db.query('ALTER TABLE admin_banks RENAME COLUMN group_id TO bank_id');
   await db.query('ALTER TABLE allowed_emails RENAME COLUMN group_id TO bank_id');
   await db.query('ALTER TABLE changed_emails RENAME COLUMN group_id TO bank_id');
-  await db.query('ALTER TABLE data_stats RENAME COLUMN group_id TO bank_id');
   await db.query('ALTER TABLE event_logs RENAME COLUMN group_id TO bank_id');
   await db.query('ALTER TABLE password_reset_request RENAME COLUMN group_id TO bank_id');
   await db.query('ALTER TABLE pwd_stats_evolution RENAME COLUMN group_id TO bank_id');
@@ -25,7 +24,6 @@ exports.down = async function (db) {
   await db.query('ALTER TABLE admin_banks RENAME COLUMN bank_id TO group_id');
   await db.query('ALTER TABLE allowed_emails RENAME COLUMN bank_id TO group_id');
   await db.query('ALTER TABLE changed_emails RENAME COLUMN bank_id TO group_id');
-  await db.query('ALTER TABLE data_stats RENAME COLUMN bank_id TO group_id');
   await db.query('ALTER TABLE event_logs RENAME COLUMN bank_id TO group_id');
   await db.query('ALTER TABLE password_reset_request RENAME COLUMN bank_id TO group_id');
   await db.query('ALTER TABLE pwd_stats_evolution RENAME COLUMN bank_id TO group_id');
