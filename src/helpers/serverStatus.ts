@@ -5,6 +5,11 @@ import { db } from './db';
 import childProcess from 'child_process';
 import { logError } from './logger';
 
+export const forceStatusUpdate = async (req: any, res: any) => {
+  await sendStatusUpdate();
+  res.status(200).end();
+};
+
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -14,9 +19,10 @@ export const sendStatusUpdate = async (): Promise<void> => {
         resolve(stdout?.toString().trim() || 'unknown');
       });
     });
-    const licenseCountResult = await db.query('SELECT COUNT(*) FROM users');
+    const nbVaultsResult = await db.query('SELECT COUNT(*) FROM users');
+    const nbVaults = nbVaultsResult.rows[0].count;
     const statsByBank = await getStatsByBank();
-    const licenseCount = licenseCountResult.rows[0].count;
+    const statsByReseller = await getStatsByReseller();
     const userAppVersionsResult = await db.query(
       `SELECT DISTINCT(app_version) FROM user_devices WHERE authorization_status='AUTHORIZED' ORDER BY app_version DESC`,
     );
@@ -29,11 +35,11 @@ export const sendStatusUpdate = async (): Promise<void> => {
     const serverStatus = {
       serverUrl: env.API_PUBLIC_HOSTNAME,
       serverVersion,
-      licenseCount,
+      nbVaults,
       userAppVersions,
       securityGraph: JSON.stringify(stats),
-      statsByGroup: statsByBank, // DEPRECATED: TODO remove in next version
-      statsByBank: statsByBank,
+      statsByBank,
+      statsByReseller,
       hasDailyBackup,
       nodeVersion,
       deviceStats,
@@ -134,9 +140,7 @@ const getStats = async (): Promise<{ def: string[]; data: any[] }> => {
 
 const sendToUpSignOn = async (status: any) => {
   try {
-    const url = env.IS_PRODUCTION
-      ? 'https://app.upsignon.eu/pro-status'
-      : 'http://localhost:8080/pro-status';
+    const url = `${env.STATUS_SERVER_URL}/pro-status`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -158,7 +162,7 @@ const sendToUpSignOn = async (status: any) => {
 
 const getStatsByBank = async () => {
   const res = await db.query(
-    'SELECT banks.id, banks.name, banks.created_at, banks.nb_licences_sold, banks.stop_this_instance, banks.settings, (SELECT COUNT(users.id) FROM users WHERE users.bank_id=banks.id) AS nb_users FROM banks',
+    'SELECT banks.id, banks.name, banks.created_at, banks.stop_this_instance, banks.settings, banks.reseller_id, (SELECT COUNT(users.id) FROM users WHERE users.bank_id=banks.id) AS nb_users FROM banks',
   );
   return JSON.stringify(
     res.rows.map((r) => {
@@ -177,6 +181,14 @@ const getStatsByBank = async () => {
   );
 };
 
+const getStatsByReseller = async () => {
+  const res = await db.query(`SELECT
+      id,
+      name,
+      (SELECT COUNT(1) FROM users INNER JOIN banks ON banks.id = users.bank_id WHERE banks.reseller_id = resellers.id) as nb_vaults
+    FROM resellers`);
+  return JSON.stringify(res.rows);
+};
 const getHasDailyBackup = () => {
   if (!env.DB_BACKUP_DIR) return false;
   const yesterday = new Date();

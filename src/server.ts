@@ -48,10 +48,12 @@ import { checkUserPublicKey2 } from './api2/routes/sharingRecipients/checkUserPu
 import { updateDeviceMetaData2 } from './api2/routes/devices/updateDeviceMetaData';
 import { logEvent } from './api2/routes/audit/logEvent';
 import libsodium from 'libsodium-wrappers';
-import { updateLicences } from './licences';
+import { startLicencePulling, updateLicences } from './licences';
 import { getBrowserSetupPreference } from './api2/routes/browserSetupSecurity/getBrowserSetupPreference';
 import { setBrowserSetupUserPreference } from './api2/routes/browserSetupSecurity/setBrowserSetupUserPreference';
 import { authenticateWithOpenidAuthCode } from './api2/routes/authentication/authenticateWithOpenidAuthCode';
+import { verifySignatureMiddleware } from './helpers/signatureHelper';
+import { forceStatusUpdate } from './helpers/serverStatus';
 
 const app = express();
 
@@ -90,10 +92,31 @@ app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.status(200).send('UpSignOn PRO server is running');
 });
-app.post('/licences', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  return updateLicences(req, res);
-});
+app.post(
+  '/licences',
+  (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  },
+  verifySignatureMiddleware,
+  updateLicences,
+);
+app.post(
+  '/start-licence-pulling',
+  (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  },
+  startLicencePulling,
+);
+app.post(
+  '/force-pro-status-update',
+  (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  },
+  forceStatusUpdate,
+);
 
 // BANK ROUTING with or without bankUUID (default bankUUID used to be 1)
 // TODO(giregk): remove default bank id routes in 2026
