@@ -226,11 +226,11 @@ const interval = null;
 export const getActivationStatus = async () => {
   try {
     IS_ACTIVE = await fetchActivationStatus();
-    if (!IS_ACTIVE) {
-      console.log('==================== LICENCES DEACTIVATED, please contact our support.');
-    }
   } catch (e) {
     IS_ACTIVE = false;
+  }
+  if (!IS_ACTIVE) {
+    console.log('==================== LICENCES DEACTIVATED, please contact our support.');
   }
   if (!IS_ACTIVE && interval == null) {
     setInterval(
