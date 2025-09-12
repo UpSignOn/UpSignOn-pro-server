@@ -10,6 +10,7 @@ import { getEmailAuthorizationStatus } from '../../helpers/emailAuthorization';
 import { SessionStore } from '../../../helpers/sessionStore';
 
 import { Request, Response } from 'express';
+import { proxiedFetch } from '../../../helpers/proxyAgent';
 
 export const authenticateWithOpenidAuthCode = async (
   req: Request,
@@ -203,7 +204,7 @@ const fetchOpenIdConfig = async (
   id_token_signing_alg_values_supported: jwt.Algorithm[];
 }> => {
   try {
-    const response = await fetch(openid_configuration_url, {
+    const response = await proxiedFetch(openid_configuration_url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -217,7 +218,7 @@ const fetchOpenIdConfig = async (
     }
 
     const json = await response.json();
-    return json;
+    return json as any;
   } catch (error) {
     logError('fetchOpenIdConfig error', error);
     throw error;
@@ -251,7 +252,7 @@ const postTokenEndpoint = async (params: {
       code_verifier: params.code_verifier,
     });
 
-    const response = await fetch(params.token_endpoint, {
+    const response = await proxiedFetch(params.token_endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -264,7 +265,7 @@ const postTokenEndpoint = async (params: {
     }
 
     const json = await response.json();
-    return json;
+    return json as any;
   } catch (error) {
     logError('postTokenEndpoint', error);
     throw new Error('Error with IDP');
