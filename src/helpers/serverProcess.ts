@@ -9,6 +9,9 @@ import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 import { aggregateStatsDaily } from './dailyStats';
 import { setupMSGraph } from './init_ms_graph';
 import { sendTrialEmailReminders } from './trialEmails';
+import { setupProxyAgent } from './proxyAgent';
+
+setupProxyAgent();
 
 async function cronjob(randomDelay: number) {
   await cleanOldRevokedDevices();
