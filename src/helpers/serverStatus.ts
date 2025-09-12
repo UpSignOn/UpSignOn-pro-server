@@ -4,6 +4,7 @@ import path from 'path';
 import { db } from './db';
 import childProcess from 'child_process';
 import { logError } from './logger';
+import { proxiedFetch } from './xmlHttpRequest';
 
 export const sendStatusUpdate = async (): Promise<void> => {
   try {
@@ -138,11 +139,8 @@ const sendToUpSignOn = async (status: any) => {
       ? 'https://app.upsignon.eu/pro-status'
       : 'http://localhost:8080/pro-status';
 
-    const response = await fetch(url, {
+    const response = await proxiedFetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(status),
     });
 
@@ -205,21 +203,16 @@ const fetchActivationStatus = async (): Promise<boolean> => {
       return true;
     }
 
-    const response = await fetch('https://app.upsignon.eu/pro-activation-status', {
+    const response = await proxiedFetch('https://app.upsignon.eu/pro-activation-status', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ url: env.API_PUBLIC_HOSTNAME }),
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    const resBody = await response.json();
     console.log('Get Activation status');
-    return !!resBody.isActive;
+    return !!JSON.parse(response.body).isActive;
   } catch (e) {
     logError('getActivationStatus', e);
     throw e;
