@@ -15,12 +15,13 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "global-agent": "^3.0.0",
+    "https-proxy-agent": "^7.0.6",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "libsodium-wrappers": "^0.7.11",
     "ms-entra-for-upsignon": "git+https://github.com/UpSignOn/ms-entra-for-upsignon",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "uuid": "^11.1.0"
