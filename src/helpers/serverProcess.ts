@@ -9,14 +9,9 @@ import { syncPeriodicallyWithMicrosoftEntra } from './syncWithMicrosoftEntra';
 import { aggregateStatsDaily } from './dailyStats';
 import { setupMSGraph } from './init_ms_graph';
 import { sendTrialEmailReminders } from './trialEmails';
+import { setupGlobalAgent } from './xmlHttpRequest';
 
-if (env.HTTP_PROXY) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const globalAgent = require('global-agent');
-  globalAgent.bootstrap();
-  // @ts-ignore
-  global.GLOBAL_AGENT.HTTP_PROXY = env.HTTP_PROXY;
-}
+setupGlobalAgent();
 
 async function cronjob(randomDelay: number) {
   await cleanOldRevokedDevices();
